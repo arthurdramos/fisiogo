@@ -1,29 +1,43 @@
-# Welcome to your Lovable project
+# PhysioFlow
 
-This project was built with [Lovable](https://lovable.dev).
+Sistema web para gestão de fisioterapeutas autônomos e pequenas clínicas.
 
-## Build with Lovable
+O objetivo do projeto é simplificar o gerenciamento de pacientes, atendimentos e informações clínicas, oferecendo uma interface moderna, intuitiva e focada na rotina do profissional.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## Funcionalidades
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- Cadastro de pacientes
+- Agenda de atendimentos
+- Histórico clínico
+- Dashboard com indicadores
+- Controle de sessões
+- Gestão de informações do paciente
 
-## Development
+> **Status:** Em desenvolvimento (MVP)
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+---
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+## Tecnologias
 
-## Built with
-
-- TanStack Start
-- TypeScript
 - React
+- TypeScript
+- TanStack Start
 - Tailwind CSS
+
+---
+
+## Executando o projeto
+
+### Pré-requisitos
+
+- Node.js 20+
+- npm
+
+### Instalação
+
+```bash
+git clone <repository-url>
+
+cd physioweb
+
+npm install
