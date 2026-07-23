@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /pacientes
+Disallow: /agenda
+Disallow: /auth
