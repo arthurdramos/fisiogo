@@ -79,21 +79,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "FisioFlow — Gestão simples para fisioterapeutas" },
+      { title: "FisioFlow — Gestão simples para fisioterapeutas autônomos" },
       {
         name: "description",
         content:
-          "Organize pacientes, agenda e evolução clínica em um só lugar. O SaaS enxuto para fisioterapeutas autônomos.",
+          "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
       { name: "author", content: "FisioFlow" },
-      { property: "og:title", content: "FisioFlow — Gestão simples para fisioterapeutas" },
+      { property: "og:title", content: "FisioFlow — Gestão simples para fisioterapeutas autônomos" },
       {
         property: "og:description",
         content:
-          "Organize pacientes, agenda e evolução clínica em um só lugar.",
+          "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "FisioFlow — Gestão simples para fisioterapeutas autônomos" },
+      { name: "twitter:description", content: "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/75832759-14c2-4afe-a876-6fcb7c11912c/id-preview-0a5c31c8--27eae5b8-a9cd-40e2-b5d2-b6132f5a8735.lovable.app-1784816570115.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/75832759-14c2-4afe-a876-6fcb7c11912c/id-preview-0a5c31c8--27eae5b8-a9cd-40e2-b5d2-b6132f5a8735.lovable.app-1784816570115.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

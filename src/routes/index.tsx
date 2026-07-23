@@ -13,11 +13,11 @@ export const Route = createFileRoute("/")({
         content:
           "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
-      { property: "og:title", content: "FisioFlow — Gestão simples para fisioterapeutas" },
+      { property: "og:title", content: "FisioFlow — Gestão simples para fisioterapeutas autônomos" },
       {
         property: "og:description",
         content:
-          "O SaaS enxuto que economiza seu tempo entre atendimentos.",
+          "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
     ],
   }),
