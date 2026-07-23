@@ -14,7 +14,197 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      patient_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          patient_id: string
+          relacao: string | null
+          telefone: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          patient_id: string
+          relacao?: string | null
+          telefone?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          patient_id?: string
+          relacao?: string | null
+          telefone?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_contacts_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          created_at: string
+          data_nascimento: string | null
+          email: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_nascimento?: string | null
+          email?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_nascimento?: string | null
+          email?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          duration_min: number
+          id: string
+          notes_evolucao: string | null
+          patient_id: string
+          scheduled_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_min?: number
+          id?: string
+          notes_evolucao?: string | null
+          patient_id: string
+          scheduled_at: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_min?: number
+          id?: string
+          notes_evolucao?: string | null
+          patient_id?: string
+          scheduled_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treatment_exercises: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          observacao: string | null
+          plan_id: string
+          series_reps: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          observacao?: string | null
+          plan_id: string
+          series_reps?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          observacao?: string | null
+          plan_id?: string
+          series_reps?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treatment_exercises_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "treatment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treatment_plans: {
+        Row: {
+          created_at: string
+          id: string
+          objetivos: string | null
+          patient_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          objetivos?: string | null
+          patient_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          objetivos?: string | null
+          patient_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treatment_plans_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: true
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
