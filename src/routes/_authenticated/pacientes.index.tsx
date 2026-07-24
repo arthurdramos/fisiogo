@@ -46,6 +46,7 @@ function PatientsList() {
       email: string;
       data_nascimento: string;
       observacoes: string;
+      valor_sessao: string;
     }) => {
       const { data: userRes } = await supabase.auth.getUser();
       const user_id = userRes.user?.id;
@@ -57,6 +58,7 @@ function PatientsList() {
         email: values.email || null,
         data_nascimento: values.data_nascimento || null,
         observacoes: values.observacoes || null,
+        valor_sessao: values.valor_sessao ? Number(values.valor_sessao) : null,
       });
       if (error) throw error;
     },
@@ -142,6 +144,7 @@ function PatientDialog({
     email: string;
     data_nascimento: string;
     observacoes: string;
+    valor_sessao: string;
   }) => void;
   loading: boolean;
 }) {
@@ -151,6 +154,7 @@ function PatientDialog({
     email: "",
     data_nascimento: "",
     observacoes: "",
+    valor_sessao: "",
   });
   return (
     <DialogContent>
@@ -182,6 +186,17 @@ function PatientDialog({
         <div className="space-y-2">
           <Label>Email</Label>
           <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        </div>
+        <div className="space-y-2">
+          <Label>Valor por sessão (R$)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            inputMode="decimal"
+            value={form.valor_sessao}
+            onChange={(e) => setForm({ ...form, valor_sessao: e.target.value })}
+          />
         </div>
         <div className="space-y-2">
           <Label>Observações</Label>

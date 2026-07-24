@@ -15,8 +15,8 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ArrowLeft, Plus, Trash2, Phone, Mail } from "lucide-react";
-import { formatDateTime } from "@/lib/format";
+import { ArrowLeft, Pencil, Plus, Trash2, Phone, Mail } from "lucide-react";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/pacientes/$id")({
 function PatientDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const [editOpen, setEditOpen] = useState(false);
 
   const patient = useQuery({
     queryKey: ["patient", id],
@@ -88,6 +89,37 @@ function PatientDetail() {
     },
   });
 
+  const updatePatient = useMutation({
+    mutationFn: async (values: {
+      nome: string;
+      telefone: string;
+      email: string;
+      data_nascimento: string;
+      observacoes: string;
+      valor_sessao: string;
+    }) => {
+      const { error } = await supabase
+        .from("patients")
+        .update({
+          nome: values.nome,
+          telefone: values.telefone || null,
+          email: values.email || null,
+          data_nascimento: values.data_nascimento || null,
+          observacoes: values.observacoes || null,
+          valor_sessao: values.valor_sessao ? Number(values.valor_sessao) : null,
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Paciente atualizado");
+      qc.invalidateQueries({ queryKey: ["patient", id] });
+      qc.invalidateQueries({ queryKey: ["patients"] });
+      setEditOpen(false);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
   if (patient.isLoading) return <div className="p-10 text-sm text-muted-foreground">Carregando...</div>;
   if (!patient.data) return <div className="p-10 text-sm">Paciente não encontrado.</div>;
 
@@ -106,17 +138,28 @@ function PatientDetail() {
             {p.telefone && <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{p.telefone}</span>}
             {p.email && <span className="inline-flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{p.email}</span>}
             {p.data_nascimento && <span>Nasc: {new Date(p.data_nascimento).toLocaleDateString("pt-BR")}</span>}
+            {p.valor_sessao != null && <span>Valor por sessão: {formatCurrency(Number(p.valor_sessao))}</span>}
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            if (confirm("Remover este paciente? Isso apaga sessões e plano vinculados.")) deletePatient.mutate();
-          }}
-        >
-          <Trash2 className="mr-1 h-4 w-4" /> Excluir
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={editOpen} onOpenChange={setEditOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Pencil className="mr-1 h-4 w-4" /> Editar
+              </Button>
+            </DialogTrigger>
+            <PatientEditDialog patient={p} onSubmit={updatePatient.mutate} loading={updatePatient.isPending} />
+          </Dialog>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              if (confirm("Remover este paciente? Isso apaga sessões e plano vinculados.")) deletePatient.mutate();
+            }}
+          >
+            <Trash2 className="mr-1 h-4 w-4" /> Excluir
+          </Button>
+        </div>
       </div>
 
       {p.observacoes && (
@@ -145,6 +188,93 @@ function PatientDetail() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function PatientEditDialog({
+  patient,
+  onSubmit,
+  loading,
+}: {
+  patient: {
+    nome: string;
+    telefone: string | null;
+    email: string | null;
+    data_nascimento: string | null;
+    observacoes: string | null;
+    valor_sessao: number | null;
+  };
+  onSubmit: (v: {
+    nome: string;
+    telefone: string;
+    email: string;
+    data_nascimento: string;
+    observacoes: string;
+    valor_sessao: string;
+  }) => void;
+  loading: boolean;
+}) {
+  const [form, setForm] = useState({
+    nome: patient.nome,
+    telefone: patient.telefone ?? "",
+    email: patient.email ?? "",
+    data_nascimento: patient.data_nascimento ?? "",
+    observacoes: patient.observacoes ?? "",
+    valor_sessao: patient.valor_sessao != null ? String(patient.valor_sessao) : "",
+  });
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Editar paciente</DialogTitle>
+      </DialogHeader>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!form.nome.trim()) return;
+          onSubmit(form);
+        }}
+      >
+        <div className="space-y-2">
+          <Label>Nome completo *</Label>
+          <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} required />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Telefone</Label>
+            <Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} />
+          </div>
+          <div className="space-y-2">
+            <Label>Data de nascimento</Label>
+            <Input type="date" value={form.data_nascimento} onChange={(e) => setForm({ ...form, data_nascimento: e.target.value })} />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>Email</Label>
+          <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        </div>
+        <div className="space-y-2">
+          <Label>Valor por sessão (R$)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            inputMode="decimal"
+            value={form.valor_sessao}
+            onChange={(e) => setForm({ ...form, valor_sessao: e.target.value })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Observações</Label>
+          <Textarea rows={3} value={form.observacoes} onChange={(e) => setForm({ ...form, observacoes: e.target.value })} />
+        </div>
+        <DialogFooter>
+          <Button type="submit" disabled={loading}>
+            {loading ? "Salvando..." : "Salvar"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
   );
 }
 
