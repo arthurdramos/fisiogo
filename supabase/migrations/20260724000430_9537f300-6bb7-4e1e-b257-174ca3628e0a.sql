@@ -1,0 +1,1 @@
+ALTER TABLE public.patients ADD COLUMN valor_sessao numeric(10,2);
