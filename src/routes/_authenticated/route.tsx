@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, LayoutDashboard, Users, Calendar, LogOut } from "lucide-react";
+import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -18,6 +18,7 @@ const nav = [
   { to: "/app", label: "Início", icon: LayoutDashboard },
   { to: "/pacientes", label: "Pacientes", icon: Users },
   { to: "/agenda", label: "Agenda", icon: Calendar },
+  { to: "/financeiro", label: "Financeiro", icon: Wallet },
 ] as const;
 
 function AuthedLayout() {

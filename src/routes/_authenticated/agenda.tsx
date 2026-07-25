@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { addDays, formatTime, startOfDay, toDatetimeLocalValue } from "@/lib/format";
+import { addDays, addMonths, formatMonthLabel, formatTime, startOfDay, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -29,25 +29,48 @@ export const Route = createFileRoute("/_authenticated/agenda")({
   component: Agenda,
 });
 
+type ViewMode = "dia" | "semana" | "mes";
+
+function weekStartOf(d: Date) {
+  const start = startOfDay(d);
+  start.setDate(start.getDate() - start.getDay());
+  return start;
+}
+
 function Agenda() {
-  const [weekStart, setWeekStart] = useState(() => {
-    const d = startOfDay(new Date());
-    d.setDate(d.getDate() - d.getDay()); // domingo
-    return d;
-  });
-  const weekEnd = addDays(weekStart, 7);
+  const [view, setView] = useState<ViewMode>("semana");
+  const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
   const [open, setOpen] = useState(false);
 
   const qc = useQueryClient();
 
+  const weekStart = useMemo(() => weekStartOf(anchor), [anchor]);
+  const monthStart = useMemo(() => startOfMonth(anchor), [anchor]);
+  const monthEnd = useMemo(() => addMonths(monthStart, 1), [monthStart]);
+
+  const rangeStart = view === "dia" ? anchor : view === "semana" ? weekStart : monthStart;
+  const rangeEnd = view === "dia" ? addDays(anchor, 1) : view === "semana" ? addDays(weekStart, 7) : monthEnd;
+
+  const goPrev = () => {
+    if (view === "dia") setAnchor(addDays(anchor, -1));
+    else if (view === "semana") setAnchor(addDays(anchor, -7));
+    else setAnchor(addMonths(anchor, -1));
+  };
+  const goNext = () => {
+    if (view === "dia") setAnchor(addDays(anchor, 1));
+    else if (view === "semana") setAnchor(addDays(anchor, 7));
+    else setAnchor(addMonths(anchor, 1));
+  };
+  const goToday = () => setAnchor(startOfDay(new Date()));
+
   const sessions = useQuery({
-    queryKey: ["week-sessions", weekStart.toISOString()],
+    queryKey: ["agenda-sessions", view, rangeStart.toISOString()],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sessions")
         .select("id, scheduled_at, duration_min, status, patient_id, patients(nome)")
-        .gte("scheduled_at", weekStart.toISOString())
-        .lt("scheduled_at", weekEnd.toISOString())
+        .gte("scheduled_at", rangeStart.toISOString())
+        .lt("scheduled_at", rangeEnd.toISOString())
         .order("scheduled_at");
       if (error) throw error;
       return data ?? [];
@@ -77,43 +100,73 @@ function Agenda() {
     },
     onSuccess: () => {
       toast.success("Sessão agendada");
-      qc.invalidateQueries({ queryKey: ["week-sessions"] });
+      qc.invalidateQueries({ queryKey: ["agenda-sessions"] });
       qc.invalidateQueries({ queryKey: ["upcoming-sessions"] });
       setOpen(false);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
   });
 
-  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
+  const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
+  const monthGridDays = useMemo(() => {
+    const gridStart = weekStartOf(monthStart);
+    const days: Date[] = [];
+    let d = gridStart;
+    while (d < monthEnd || d.getDay() !== 0) {
+      days.push(d);
+      d = addDays(d, 1);
+    }
+    return days;
+  }, [monthStart, monthEnd]);
+
   const byDay = useMemo(() => {
     const map = new Map<string, typeof sessions.data>();
-    days.forEach((d) => map.set(d.toDateString(), []));
     (sessions.data ?? []).forEach((s) => {
       const k = new Date(s.scheduled_at).toDateString();
+      if (!map.has(k)) map.set(k, []);
       map.get(k)?.push(s);
     });
     return map;
-  }, [sessions.data, days]);
+  }, [sessions.data]);
+
+  const dayList = byDay.get(anchor.toDateString()) ?? [];
+
+  const headerLabel =
+    view === "dia"
+      ? anchor.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })
+      : view === "semana"
+        ? `Semana de ${weekStart.toLocaleDateString("pt-BR")}`
+        : formatMonthLabel(monthStart);
 
   return (
     <div className="mx-auto max-w-6xl p-6 md:p-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-semibold">Agenda</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Semana de {weekStart.toLocaleDateString("pt-BR")}</p>
+          <p className="mt-1 text-sm capitalize text-muted-foreground">{headerLabel}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => setWeekStart(addDays(weekStart, -7))}>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center rounded-md border border-border p-0.5">
+            {(["dia", "semana", "mes"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className={
+                  "rounded px-3 py-1.5 text-xs font-medium capitalize transition-colors " +
+                  (view === v ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground")
+                }
+              >
+                {v === "mes" ? "Mês" : v}
+              </button>
+            ))}
+          </div>
+          <Button variant="outline" size="icon" onClick={goPrev}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={() => {
-            const d = startOfDay(new Date());
-            d.setDate(d.getDate() - d.getDay());
-            setWeekStart(d);
-          }}>
+          <Button variant="outline" size="sm" onClick={goToday}>
             Hoje
           </Button>
-          <Button variant="outline" size="icon" onClick={() => setWeekStart(addDays(weekStart, 7))}>
+          <Button variant="outline" size="icon" onClick={goNext}>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -125,51 +178,130 @@ function Agenda() {
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-7">
-        {days.map((d) => {
-          const list = byDay.get(d.toDateString()) ?? [];
-          const isToday = d.toDateString() === new Date().toDateString();
-          return (
-            <div key={d.toISOString()} className={"rounded-xl border bg-card " + (isToday ? "border-primary/60" : "border-border")}>
-              <div className="border-b border-border px-3 py-2">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {d.toLocaleDateString("pt-BR", { weekday: "short" })}
-                </p>
-                <p className={"font-display text-lg font-semibold " + (isToday ? "text-primary" : "")}>
-                  {d.getDate()}
-                </p>
+      {view === "dia" && (
+        <div className="rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border">
+            {dayList.length === 0 && (
+              <li className="p-8 text-center text-sm text-muted-foreground">Nenhuma sessão neste dia.</li>
+            )}
+            {dayList.map((s) => {
+              const patient = s.patients as { nome: string } | null;
+              return (
+                <li key={s.id}>
+                  <Link
+                    to="/pacientes/$id"
+                    params={{ id: s.patient_id }}
+                    className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent/40"
+                  >
+                    <div>
+                      <p className="font-medium">{patient?.nome ?? "Paciente"}</p>
+                      <p className="text-xs text-muted-foreground">{s.duration_min} min · {s.status}</p>
+                    </div>
+                    <span
+                      className={
+                        "rounded-md px-2 py-1 text-xs " +
+                        (s.status === "cancelada"
+                          ? "bg-muted text-muted-foreground line-through"
+                          : s.status === "realizada"
+                            ? "bg-accent text-accent-foreground"
+                            : "bg-primary/10 text-primary")
+                      }
+                    >
+                      {formatTime(s.scheduled_at)}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      {view === "semana" && (
+        <div className="grid gap-3 md:grid-cols-7">
+          {weekDays.map((d) => {
+            const list = byDay.get(d.toDateString()) ?? [];
+            const isToday = d.toDateString() === new Date().toDateString();
+            return (
+              <div key={d.toISOString()} className={"rounded-xl border bg-card " + (isToday ? "border-primary/60" : "border-border")}>
+                <button
+                  onClick={() => { setAnchor(d); setView("dia"); }}
+                  className="block w-full border-b border-border px-3 py-2 text-left hover:bg-accent/40"
+                >
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {d.toLocaleDateString("pt-BR", { weekday: "short" })}
+                  </p>
+                  <p className={"font-display text-lg font-semibold " + (isToday ? "text-primary" : "")}>
+                    {d.getDate()}
+                  </p>
+                </button>
+                <ul className="min-h-[80px] space-y-1 p-2">
+                  {list.length === 0 && (
+                    <li className="px-1 py-2 text-xs text-muted-foreground">—</li>
+                  )}
+                  {list.map((s) => {
+                    const patient = s.patients as { nome: string } | null;
+                    return (
+                      <li key={s.id}>
+                        <Link
+                          to="/pacientes/$id"
+                          params={{ id: s.patient_id }}
+                          className={
+                            "block rounded-md px-2 py-1.5 text-xs transition-colors " +
+                            (s.status === "cancelada"
+                              ? "bg-muted text-muted-foreground line-through"
+                              : s.status === "realizada"
+                                ? "bg-accent text-accent-foreground"
+                                : "bg-primary/10 text-primary hover:bg-primary/15")
+                          }
+                        >
+                          <p className="font-medium">{formatTime(s.scheduled_at)}</p>
+                          <p className="truncate">{patient?.nome ?? "Paciente"}</p>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-              <ul className="min-h-[80px] space-y-1 p-2">
-                {list.length === 0 && (
-                  <li className="px-1 py-2 text-xs text-muted-foreground">—</li>
-                )}
-                {list.map((s) => {
-                  const patient = s.patients as { nome: string } | null;
-                  return (
-                    <li key={s.id}>
-                      <Link
-                        to="/pacientes/$id"
-                        params={{ id: s.patient_id }}
-                        className={
-                          "block rounded-md px-2 py-1.5 text-xs transition-colors " +
-                          (s.status === "cancelada"
-                            ? "bg-muted text-muted-foreground line-through"
-                            : s.status === "realizada"
-                              ? "bg-accent text-accent-foreground"
-                              : "bg-primary/10 text-primary hover:bg-primary/15")
-                        }
-                      >
-                        <p className="font-medium">{formatTime(s.scheduled_at)}</p>
-                        <p className="truncate">{patient?.nome ?? "Paciente"}</p>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
+
+      {view === "mes" && (
+        <div className="rounded-xl border border-border bg-card p-2">
+          <div className="grid grid-cols-7 gap-px pb-1 text-center text-xs uppercase tracking-wide text-muted-foreground">
+            {["dom", "seg", "ter", "qua", "qui", "sex", "sáb"].map((w) => (
+              <div key={w} className="py-1">{w}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-px">
+            {monthGridDays.map((d) => {
+              const list = byDay.get(d.toDateString()) ?? [];
+              const isToday = d.toDateString() === new Date().toDateString();
+              const inMonth = d.getMonth() === monthStart.getMonth();
+              return (
+                <button
+                  key={d.toISOString()}
+                  onClick={() => { setAnchor(d); setView("dia"); }}
+                  className={
+                    "min-h-[84px] rounded-md border p-1.5 text-left align-top transition-colors hover:bg-accent/40 " +
+                    (isToday ? "border-primary/60" : "border-border") +
+                    (inMonth ? "" : " opacity-40")
+                  }
+                >
+                  <p className={"text-xs font-medium " + (isToday ? "text-primary" : "")}>{d.getDate()}</p>
+                  {list.length > 0 && (
+                    <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                      {list.length} {list.length === 1 ? "sessão" : "sessões"}
+                    </p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

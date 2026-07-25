@@ -97,6 +97,7 @@ function PatientDetail() {
       data_nascimento: string;
       observacoes: string;
       valor_sessao: string;
+      custo_sessao: string;
     }) => {
       const { error } = await supabase
         .from("patients")
@@ -107,6 +108,7 @@ function PatientDetail() {
           data_nascimento: values.data_nascimento || null,
           observacoes: values.observacoes || null,
           valor_sessao: values.valor_sessao ? Number(values.valor_sessao) : null,
+          custo_sessao: values.custo_sessao ? Number(values.custo_sessao) : null,
         })
         .eq("id", id);
       if (error) throw error;
@@ -139,6 +141,7 @@ function PatientDetail() {
             {p.email && <span className="inline-flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{p.email}</span>}
             {p.data_nascimento && <span>Nasc: {new Date(p.data_nascimento).toLocaleDateString("pt-BR")}</span>}
             {p.valor_sessao != null && <span>Valor por sessão: {formatCurrency(Number(p.valor_sessao))}</span>}
+            {p.custo_sessao != null && <span>Custo por sessão: {formatCurrency(Number(p.custo_sessao))}</span>}
           </div>
         </div>
         <div className="flex gap-2">
@@ -203,6 +206,7 @@ function PatientEditDialog({
     data_nascimento: string | null;
     observacoes: string | null;
     valor_sessao: number | null;
+    custo_sessao: number | null;
   };
   onSubmit: (v: {
     nome: string;
@@ -211,6 +215,7 @@ function PatientEditDialog({
     data_nascimento: string;
     observacoes: string;
     valor_sessao: string;
+    custo_sessao: string;
   }) => void;
   loading: boolean;
 }) {
@@ -221,6 +226,7 @@ function PatientEditDialog({
     data_nascimento: patient.data_nascimento ?? "",
     observacoes: patient.observacoes ?? "",
     valor_sessao: patient.valor_sessao != null ? String(patient.valor_sessao) : "",
+    custo_sessao: patient.custo_sessao != null ? String(patient.custo_sessao) : "",
   });
   return (
     <DialogContent>
@@ -253,16 +259,30 @@ function PatientEditDialog({
           <Label>Email</Label>
           <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         </div>
-        <div className="space-y-2">
-          <Label>Valor por sessão (R$)</Label>
-          <Input
-            type="number"
-            step="0.01"
-            min="0"
-            inputMode="decimal"
-            value={form.valor_sessao}
-            onChange={(e) => setForm({ ...form, valor_sessao: e.target.value })}
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Valor por sessão (R$)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              inputMode="decimal"
+              value={form.valor_sessao}
+              onChange={(e) => setForm({ ...form, valor_sessao: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Custo por sessão (R$)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              inputMode="decimal"
+              placeholder="Uber, material..."
+              value={form.custo_sessao}
+              onChange={(e) => setForm({ ...form, custo_sessao: e.target.value })}
+            />
+          </div>
         </div>
         <div className="space-y-2">
           <Label>Observações</Label>
