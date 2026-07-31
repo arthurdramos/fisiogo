@@ -90,6 +90,44 @@ export type Database = {
           },
         ]
       }
+      patient_payments: {
+        Row: {
+          created_at: string
+          data: string
+          id: string
+          observacao: string | null
+          patient_id: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          id?: string
+          observacao?: string | null
+          patient_id: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          id?: string
+          observacao?: string | null
+          patient_id?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_payments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           created_at: string
@@ -184,44 +222,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "sessions_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "patients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      patient_payments: {
-        Row: {
-          created_at: string
-          data: string
-          id: string
-          observacao: string | null
-          patient_id: string
-          user_id: string
-          valor: number
-        }
-        Insert: {
-          created_at?: string
-          data?: string
-          id?: string
-          observacao?: string | null
-          patient_id: string
-          user_id: string
-          valor: number
-        }
-        Update: {
-          created_at?: string
-          data?: string
-          id?: string
-          observacao?: string | null
-          patient_id?: string
-          user_id?: string
-          valor?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "patient_payments_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
