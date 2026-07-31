@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { addDays, addMonths, formatMonthLabel, formatTime, startOfDay, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
-import { sessionColorClass } from "@/lib/session-status";
+import { sessionColorClass, sessionDotClass } from "@/lib/session-status";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -277,9 +277,14 @@ function Agenda() {
                 >
                   <p className={"text-xs font-medium " + (isToday ? "text-primary" : "")}>{d.getDate()}</p>
                   {list.length > 0 && (
-                    <p className="mt-1 truncate text-[11px] text-muted-foreground">
-                      {list.length} {list.length === 1 ? "sessão" : "sessões"}
-                    </p>
+                    <div className="mt-1 flex flex-wrap gap-0.5">
+                      {list.slice(0, 8).map((s) => (
+                        <span key={s.id} className={"h-1.5 w-1.5 rounded-full " + sessionDotClass(s)} />
+                      ))}
+                      {list.length > 8 && (
+                        <span className="text-[10px] text-muted-foreground">+{list.length - 8}</span>
+                      )}
+                    </div>
                   )}
                 </button>
               );

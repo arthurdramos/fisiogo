@@ -24,6 +24,24 @@ export function sessionColorClass(s: SessionStatusInfo): string {
   return "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300";
 }
 
+export function sessionDotClass(s: SessionStatusInfo): string {
+  if (s.status === "cancelada") {
+    return "bg-muted-foreground/40";
+  }
+  if (s.status !== "realizada") {
+    return "bg-primary";
+  }
+  if (s.pago) {
+    return "bg-emerald-500";
+  }
+  const sessionMonth = startOfMonth(new Date(s.scheduled_at));
+  const currentMonth = startOfMonth(new Date());
+  if (sessionMonth < currentMonth) {
+    return "bg-destructive";
+  }
+  return "bg-amber-500";
+}
+
 export function sessionStatusLabel(s: SessionStatusInfo): string {
   if (s.status === "cancelada") return "Cancelada";
   if (s.status !== "realizada") return "Agendada";
