@@ -15,8 +15,8 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ArrowLeft, Download, Pencil, Plus, Share2, Trash2, Phone, Mail } from "lucide-react";
-import { addMonths, formatCurrency, formatDate, formatDateTime, startOfMonth } from "@/lib/format";
+import { ArrowLeft, CalendarPlus, Download, Pencil, Plus, Share2, Trash2, Phone, Mail } from "lucide-react";
+import { addMonths, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { calcularSaldo, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
 import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/lib/billing-report";
 import { toast } from "sonner";
@@ -30,6 +30,7 @@ function PatientDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
 
   const patient = useQuery({
     queryKey: ["patient", id],
@@ -124,6 +125,29 @@ function PatientDetail() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
   });
 
+  const scheduleSession = useMutation({
+    mutationFn: async (values: { scheduled_at: string; duration_min: number }) => {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user?.id;
+      if (!user_id) throw new Error("Sem sessão");
+      const { error } = await supabase.from("sessions").insert({
+        user_id,
+        patient_id: id,
+        scheduled_at: new Date(values.scheduled_at).toISOString(),
+        duration_min: values.duration_min,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Sessão agendada");
+      qc.invalidateQueries({ queryKey: ["patient-sessions", id] });
+      qc.invalidateQueries({ queryKey: ["agenda-sessions"] });
+      qc.invalidateQueries({ queryKey: ["upcoming-sessions"] });
+      setScheduleOpen(false);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
   if (patient.isLoading) return <div className="p-10 text-sm text-muted-foreground">Carregando...</div>;
   if (!patient.data) return <div className="p-10 text-sm">Paciente não encontrado.</div>;
 
@@ -147,6 +171,18 @@ function PatientDetail() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <CalendarPlus className="mr-1 h-4 w-4" /> Agendar sessão
+              </Button>
+            </DialogTrigger>
+            <ScheduleSessionDialog
+              patientName={p.nome}
+              onSubmit={scheduleSession.mutate}
+              loading={scheduleSession.isPending}
+            />
+          </Dialog>
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -300,6 +336,55 @@ function PatientEditDialog({
         <DialogFooter>
           <Button type="submit" disabled={loading}>
             {loading ? "Salvando..." : "Salvar"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  );
+}
+
+function ScheduleSessionDialog({
+  patientName,
+  onSubmit,
+  loading,
+}: {
+  patientName: string;
+  onSubmit: (v: { scheduled_at: string; duration_min: number }) => void;
+  loading: boolean;
+}) {
+  const [scheduled_at, setWhen] = useState(() => {
+    const d = new Date();
+    d.setMinutes(0, 0, 0);
+    d.setHours(d.getHours() + 1);
+    return toDatetimeLocalValue(d);
+  });
+  const [duration_min, setDuration] = useState(50);
+
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Agendar sessão para {patientName}</DialogTitle>
+      </DialogHeader>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit({ scheduled_at, duration_min });
+        }}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Data e hora *</Label>
+            <Input type="datetime-local" value={scheduled_at} onChange={(e) => setWhen(e.target.value)} required />
+          </div>
+          <div className="space-y-2">
+            <Label>Duração (min)</Label>
+            <Input type="number" min={10} step={5} value={duration_min} onChange={(e) => setDuration(Number(e.target.value))} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="submit" disabled={loading}>
+            {loading ? "Agendando..." : "Agendar"}
           </Button>
         </DialogFooter>
       </form>
