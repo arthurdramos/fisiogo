@@ -15,8 +15,10 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ArrowLeft, Pencil, Plus, Trash2, Phone, Mail } from "lucide-react";
-import { formatCurrency, formatDateTime } from "@/lib/format";
+import { ArrowLeft, Download, Pencil, Plus, Share2, Trash2, Phone, Mail } from "lucide-react";
+import { addMonths, formatCurrency, formatDate, formatDateTime, startOfMonth } from "@/lib/format";
+import { calcularSaldo, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
+import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/lib/billing-report";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
@@ -171,15 +173,22 @@ function PatientDetail() {
         </div>
       )}
 
+      <SaldoSection patientId={id} />
+
       <Tabs defaultValue="sessoes">
         <TabsList>
           <TabsTrigger value="sessoes">Sessões</TabsTrigger>
+          <TabsTrigger value="cobranca">Cobrança</TabsTrigger>
           <TabsTrigger value="plano">Plano de tratamento</TabsTrigger>
           <TabsTrigger value="contatos">Contatos secundários</TabsTrigger>
         </TabsList>
 
         <TabsContent value="sessoes" className="mt-4">
           <SessionsSection patientId={id} sessions={sessions.data ?? []} />
+        </TabsContent>
+
+        <TabsContent value="cobranca" className="mt-4">
+          <BillingSection patientId={id} patientName={p.nome} sessions={sessions.data ?? []} />
         </TabsContent>
 
         <TabsContent value="plano" className="mt-4">
@@ -311,11 +320,19 @@ function SessionsSection({
     duration_min: number;
     status: string;
     notes_evolucao: string | null;
+    pago: boolean;
+    valor_cobrado: number | null;
   }>;
 }) {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+
+  const invalidateAll = () => {
+    qc.invalidateQueries({ queryKey: ["patient-sessions", patientId] });
+    qc.invalidateQueries({ queryKey: ["patient-payments", patientId] });
+    qc.invalidateQueries({ queryKey: ["patient-credited-sessions", patientId] });
+  };
 
   const saveNotes = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: string }) => {
@@ -331,10 +348,66 @@ function SessionsSection({
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase.from("sessions").update({ status }).eq("id", id);
+      if (status !== "realizada") {
+        const { error } = await supabase.from("sessions").update({ status }).eq("id", id);
+        if (error) throw error;
+        return;
+      }
+
+      const { data: patientRow, error: pErr } = await supabase
+        .from("patients")
+        .select("valor_sessao, custo_sessao")
+        .eq("id", patientId)
+        .single();
+      if (pErr) throw pErr;
+
+      const { data: payments, error: payErr } = await supabase
+        .from("patient_payments")
+        .select("valor")
+        .eq("patient_id", patientId);
+      if (payErr) throw payErr;
+
+      const { data: creditedSessions, error: sErr } = await supabase
+        .from("sessions")
+        .select("valor_cobrado")
+        .eq("patient_id", patientId)
+        .eq("pago_via", "credito");
+      if (sErr) throw sErr;
+
+      const saldo = calcularSaldo(payments ?? [], creditedSessions ?? []);
+      const valorSessao = patientRow.valor_sessao ?? 0;
+      const cobrirComCredito = valorSessao > 0 && saldo >= valorSessao;
+
+      const { error } = await supabase
+        .from("sessions")
+        .update({
+          status,
+          valor_cobrado: patientRow.valor_sessao,
+          custo_registrado: patientRow.custo_sessao,
+          pago: cobrirComCredito,
+          pago_via: cobrirComCredito ? "credito" : null,
+          pago_em: cobrirComCredito ? new Date().toISOString() : null,
+        })
+        .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["patient-sessions", patientId] }),
+    onSuccess: invalidateAll,
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
+  const markPaid = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("sessions")
+        .update({ pago: true, pago_via: "avulso", pago_em: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Sessão marcada como paga");
+      invalidateAll();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
   });
 
   if (sessions.length === 0)
@@ -351,17 +424,30 @@ function SessionsSection({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="font-medium">{formatDateTime(s.scheduled_at)}</p>
-              <p className="text-xs text-muted-foreground">{s.duration_min} min</p>
+              <p className="text-xs text-muted-foreground">
+                {s.duration_min} min
+                {s.valor_cobrado != null && <> · {formatCurrency(Number(s.valor_cobrado))}</>}
+              </p>
             </div>
-            <select
-              value={s.status}
-              onChange={(e) => updateStatus.mutate({ id: s.id, status: e.target.value })}
-              className="rounded-md border border-border bg-background px-2 py-1 text-xs"
-            >
-              <option value="agendada">Agendada</option>
-              <option value="realizada">Realizada</option>
-              <option value="cancelada">Cancelada</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <span className={"rounded-md px-2 py-1 text-xs " + sessionColorClass(s)}>
+                {sessionStatusLabel(s)}
+              </span>
+              {s.status === "realizada" && !s.pago && (
+                <Button size="sm" variant="outline" onClick={() => markPaid.mutate(s.id)} disabled={markPaid.isPending}>
+                  Marcar como pago
+                </Button>
+              )}
+              <select
+                value={s.status}
+                onChange={(e) => updateStatus.mutate({ id: s.id, status: e.target.value })}
+                className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+              >
+                <option value="agendada">Agendada</option>
+                <option value="realizada">Realizada</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </div>
           </div>
           <div className="mt-3">
             {editing === s.id ? (
@@ -394,6 +480,381 @@ function SessionsSection({
         </li>
       ))}
     </ul>
+  );
+}
+
+// ================== Saldo / carteira ==================
+
+function SaldoSection({ patientId }: { patientId: string }) {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+
+  const payments = useQuery({
+    queryKey: ["patient-payments", patientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("patient_payments")
+        .select("*")
+        .eq("patient_id", patientId)
+        .order("data", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const creditedSessions = useQuery({
+    queryKey: ["patient-credited-sessions", patientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sessions")
+        .select("valor_cobrado")
+        .eq("patient_id", patientId)
+        .eq("pago_via", "credito");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const saldo = calcularSaldo(payments.data ?? [], creditedSessions.data ?? []);
+
+  const addPayment = useMutation({
+    mutationFn: async (v: { valor: string; data: string; observacao: string }) => {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user!.id;
+      const { error } = await supabase.from("patient_payments").insert({
+        patient_id: patientId,
+        user_id,
+        valor: Number(v.valor),
+        data: v.data,
+        observacao: v.observacao || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Depósito registrado");
+      qc.invalidateQueries({ queryKey: ["patient-payments", patientId] });
+      setOpen(false);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
+  return (
+    <div className="mb-6 rounded-lg border border-border bg-card p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-sm text-muted-foreground">Saldo do paciente</p>
+          <p className={"font-display text-2xl font-semibold " + (saldo < 0 ? "text-destructive" : "")}>
+            {formatCurrency(saldo)}
+          </p>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" variant="outline"><Plus className="mr-1 h-4 w-4" /> Registrar depósito</Button>
+          </DialogTrigger>
+          <PaymentDialog onSubmit={addPayment.mutate} loading={addPayment.isPending} />
+        </Dialog>
+      </div>
+      {payments.data && payments.data.length > 0 && (
+        <ul className="mt-4 divide-y divide-border border-t border-border pt-2">
+          {payments.data.map((pay) => (
+            <li key={pay.id} className="flex items-center justify-between py-2 text-sm">
+              <div>
+                <p>{formatDate(pay.data)}</p>
+                {pay.observacao && <p className="text-xs text-muted-foreground">{pay.observacao}</p>}
+              </div>
+              <span className="font-medium">{formatCurrency(Number(pay.valor))}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function PaymentDialog({
+  onSubmit,
+  loading,
+}: {
+  onSubmit: (v: { valor: string; data: string; observacao: string }) => void;
+  loading: boolean;
+}) {
+  const [form, setForm] = useState({
+    valor: "",
+    data: new Date().toISOString().slice(0, 10),
+    observacao: "",
+  });
+  return (
+    <DialogContent>
+      <DialogHeader><DialogTitle>Registrar depósito</DialogTitle></DialogHeader>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!form.valor) return;
+          onSubmit(form);
+        }}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Valor (R$) *</Label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0.01"
+              inputMode="decimal"
+              value={form.valor}
+              onChange={(e) => setForm({ ...form, valor: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Data</Label>
+            <Input type="date" value={form.data} onChange={(e) => setForm({ ...form, data: e.target.value })} />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>Observação</Label>
+          <Input value={form.observacao} onChange={(e) => setForm({ ...form, observacao: e.target.value })} />
+        </div>
+        <DialogFooter>
+          <Button type="submit" disabled={loading}>
+            {loading ? "Salvando..." : "Registrar"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  );
+}
+
+// ================== Cobrança / Relatórios ==================
+
+type BillableSession = {
+  id: string;
+  scheduled_at: string;
+  status: string;
+  pago: boolean;
+  valor_cobrado: number | null;
+};
+
+function BillingSection({
+  patientId,
+  patientName,
+  sessions,
+}: {
+  patientId: string;
+  patientName: string;
+  sessions: BillableSession[];
+}) {
+  const qc = useQueryClient();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const unpaid = sessions.filter((s) => s.status === "realizada" && !s.pago);
+
+  const toggle = (sessionId: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(sessionId)) next.delete(sessionId);
+      else next.add(sessionId);
+      return next;
+    });
+  };
+
+  const selectAllOpen = () => setSelected(new Set(unpaid.map((s) => s.id)));
+
+  const selectLastClosedMonth = () => {
+    const lastMonthStart = addMonths(startOfMonth(new Date()), -1);
+    const ids = unpaid
+      .filter((s) => startOfMonth(new Date(s.scheduled_at)).getTime() === lastMonthStart.getTime())
+      .map((s) => s.id);
+    setSelected(new Set(ids));
+  };
+
+  const clearSelection = () => setSelected(new Set());
+
+  const selectedSessions = unpaid.filter((s) => selected.has(s.id));
+  const total = selectedSessions.reduce((acc, s) => acc + Number(s.valor_cobrado ?? 0), 0);
+
+  const reports = useQuery({
+    queryKey: ["billing-reports", patientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("billing_reports")
+        .select("*")
+        .eq("patient_id", patientId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const markPaidBulk = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from("sessions")
+        .update({ pago: true, pago_via: "avulso", pago_em: new Date().toISOString() })
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Sessões marcadas como pagas");
+      clearSelection();
+      qc.invalidateQueries({ queryKey: ["patient-sessions", patientId] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
+  const generateReport = useMutation({
+    mutationFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user?.id;
+      if (!user_id) throw new Error("Sem sessão");
+      if (selectedSessions.length === 0) throw new Error("Selecione ao menos uma sessão");
+
+      const blob = generateBillingReportPdf(patientName, selectedSessions, total);
+      const path = `${user_id}/${patientId}/${crypto.randomUUID()}.pdf`;
+
+      const { error: upErr } = await supabase.storage.from("billing-reports").upload(path, blob, {
+        contentType: "application/pdf",
+      });
+      if (upErr) throw upErr;
+
+      const { error: insErr } = await supabase.from("billing_reports").insert({
+        patient_id: patientId,
+        user_id,
+        session_ids: selectedSessions.map((s) => s.id),
+        total,
+        pdf_path: path,
+      });
+      if (insErr) throw insErr;
+
+      const { data: allReports } = await supabase
+        .from("billing_reports")
+        .select("id, pdf_path")
+        .eq("patient_id", patientId)
+        .order("created_at", { ascending: false });
+      if (allReports && allReports.length > 12) {
+        const overflow = allReports.slice(12);
+        await supabase.storage.from("billing-reports").remove(overflow.map((r) => r.pdf_path));
+        await supabase.from("billing_reports").delete().in("id", overflow.map((r) => r.id));
+      }
+
+      return blob;
+    },
+    onSuccess: (blob) => {
+      toast.success("Relatório gerado");
+      qc.invalidateQueries({ queryKey: ["billing-reports", patientId] });
+      downloadBlob(blob, `cobranca-${patientName}.pdf`);
+      clearSelection();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
+  const downloadPast = async (path: string) => {
+    const { data, error } = await supabase.storage.from("billing-reports").download(path);
+    if (error || !data) {
+      toast.error("Erro ao baixar relatório");
+      return;
+    }
+    downloadBlob(data, `cobranca-${patientName}.pdf`);
+  };
+
+  const sharePast = async (path: string) => {
+    const { data, error } = await supabase.storage.from("billing-reports").download(path);
+    if (error || !data) {
+      toast.error("Erro ao carregar relatório");
+      return;
+    }
+    await shareOrDownloadBlob(data, `cobranca-${patientName}.pdf`);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-lg border border-border bg-card p-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-display font-semibold">Sessões em aberto</h3>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={selectAllOpen} disabled={unpaid.length === 0}>
+              Selecionar todas em aberto
+            </Button>
+            <Button size="sm" variant="outline" onClick={selectLastClosedMonth} disabled={unpaid.length === 0}>
+              Selecionar último mês fechado
+            </Button>
+          </div>
+        </div>
+
+        {unpaid.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhuma sessão em aberto.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {unpaid.map((s) => (
+              <li key={s.id} className="flex items-center justify-between py-2">
+                <label className="flex items-center gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(s.id)}
+                    onChange={() => toggle(s.id)}
+                    className="h-4 w-4 rounded border-border"
+                  />
+                  {formatDateTime(s.scheduled_at)}
+                </label>
+                <span className="text-sm font-medium">{formatCurrency(Number(s.valor_cobrado ?? 0))}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {selectedSessions.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+            <p className="text-sm">
+              {selectedSessions.length} selecionada(s) · Total: <span className="font-semibold">{formatCurrency(total)}</span>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => markPaidBulk.mutate(selectedSessions.map((s) => s.id))}
+                disabled={markPaidBulk.isPending}
+              >
+                Marcar selecionadas como pagas
+              </Button>
+              <Button size="sm" onClick={() => generateReport.mutate()} disabled={generateReport.isPending}>
+                {generateReport.isPending ? "Gerando..." : "Gerar relatório (PDF)"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card">
+        <div className="border-b border-border px-5 py-3">
+          <h3 className="font-display font-semibold">Relatórios gerados</h3>
+          <p className="text-xs text-muted-foreground">Últimos 12 ficam salvos aqui.</p>
+        </div>
+        <ul className="divide-y divide-border">
+          {reports.data?.length === 0 && (
+            <li className="p-5 text-sm text-muted-foreground">Nenhum relatório gerado ainda.</li>
+          )}
+          {reports.data?.map((r) => (
+            <li key={r.id} className="flex items-center justify-between px-5 py-3">
+              <div>
+                <p className="text-sm font-medium">{formatDate(r.created_at)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {r.session_ids.length} sessão(ões) · {formatCurrency(Number(r.total))}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="ghost" onClick={() => downloadPast(r.pdf_path)}>
+                  <Download className="mr-1 h-4 w-4" /> Baixar
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => sharePast(r.pdf_path)}>
+                  <Share2 className="mr-1 h-4 w-4" /> Compartilhar
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
 

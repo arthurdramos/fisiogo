@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_reports: {
+        Row: {
+          created_at: string
+          id: string
+          patient_id: string
+          pdf_path: string
+          session_ids: string[]
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          patient_id: string
+          pdf_path: string
+          session_ids: string[]
+          total: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          patient_id?: string
+          pdf_path?: string
+          session_ids?: string[]
+          total?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_reports_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_contacts: {
         Row: {
           created_at: string
@@ -97,40 +135,93 @@ export type Database = {
       sessions: {
         Row: {
           created_at: string
+          custo_registrado: number | null
           duration_min: number
           id: string
           notes_evolucao: string | null
+          pago: boolean
+          pago_em: string | null
+          pago_via: string | null
           patient_id: string
           scheduled_at: string
           status: string
           updated_at: string
           user_id: string
+          valor_cobrado: number | null
         }
         Insert: {
           created_at?: string
+          custo_registrado?: number | null
           duration_min?: number
           id?: string
           notes_evolucao?: string | null
+          pago?: boolean
+          pago_em?: string | null
+          pago_via?: string | null
           patient_id: string
           scheduled_at: string
           status?: string
           updated_at?: string
           user_id: string
+          valor_cobrado?: number | null
         }
         Update: {
           created_at?: string
+          custo_registrado?: number | null
           duration_min?: number
           id?: string
           notes_evolucao?: string | null
+          pago?: boolean
+          pago_em?: string | null
+          pago_via?: string | null
           patient_id?: string
           scheduled_at?: string
           status?: string
           updated_at?: string
           user_id?: string
+          valor_cobrado?: number | null
         }
         Relationships: [
           {
             foreignKeyName: "sessions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_payments: {
+        Row: {
+          created_at: string
+          data: string
+          id: string
+          observacao: string | null
+          patient_id: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          id?: string
+          observacao?: string | null
+          patient_id: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          id?: string
+          observacao?: string | null
+          patient_id?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_payments_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"

@@ -24,7 +24,8 @@ type SessionRow = {
   id: string;
   status: string;
   scheduled_at: string;
-  patients: { valor_sessao: number | null; custo_sessao: number | null } | null;
+  valor_cobrado: number | null;
+  custo_registrado: number | null;
 };
 
 type Summary = { faturado: number; despesas: number; atendimentos: number; lucro: number };
@@ -36,8 +37,8 @@ function summarize(rows: SessionRow[]): Summary {
   for (const r of rows) {
     if (r.status !== "realizada") continue;
     atendimentos += 1;
-    faturado += Number(r.patients?.valor_sessao ?? 0);
-    despesas += Number(r.patients?.custo_sessao ?? 0);
+    faturado += Number(r.valor_cobrado ?? 0);
+    despesas += Number(r.custo_registrado ?? 0);
   }
   return { faturado, despesas, atendimentos, lucro: faturado - despesas };
 }
@@ -57,7 +58,7 @@ function Financeiro() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sessions")
-        .select("id, status, scheduled_at, patients(valor_sessao, custo_sessao)")
+        .select("id, status, scheduled_at, valor_cobrado, custo_registrado")
         .gte("scheduled_at", prevMonthStart.toISOString())
         .lt("scheduled_at", nextMonthStart.toISOString())
         .order("scheduled_at");

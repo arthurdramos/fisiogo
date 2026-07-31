@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { addDays, addMonths, formatMonthLabel, formatTime, startOfDay, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
+import { sessionColorClass } from "@/lib/session-status";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -68,7 +69,7 @@ function Agenda() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sessions")
-        .select("id, scheduled_at, duration_min, status, patient_id, patients(nome)")
+        .select("id, scheduled_at, duration_min, status, pago, patient_id, patients(nome)")
         .gte("scheduled_at", rangeStart.toISOString())
         .lt("scheduled_at", rangeEnd.toISOString())
         .order("scheduled_at");
@@ -197,16 +198,7 @@ function Agenda() {
                       <p className="font-medium">{patient?.nome ?? "Paciente"}</p>
                       <p className="text-xs text-muted-foreground">{s.duration_min} min · {s.status}</p>
                     </div>
-                    <span
-                      className={
-                        "rounded-md px-2 py-1 text-xs " +
-                        (s.status === "cancelada"
-                          ? "bg-muted text-muted-foreground line-through"
-                          : s.status === "realizada"
-                            ? "bg-accent text-accent-foreground"
-                            : "bg-primary/10 text-primary")
-                      }
-                    >
+                    <span className={"rounded-md px-2 py-1 text-xs " + sessionColorClass(s)}>
                       {formatTime(s.scheduled_at)}
                     </span>
                   </Link>
@@ -246,14 +238,7 @@ function Agenda() {
                         <Link
                           to="/pacientes/$id"
                           params={{ id: s.patient_id }}
-                          className={
-                            "block rounded-md px-2 py-1.5 text-xs transition-colors " +
-                            (s.status === "cancelada"
-                              ? "bg-muted text-muted-foreground line-through"
-                              : s.status === "realizada"
-                                ? "bg-accent text-accent-foreground"
-                                : "bg-primary/10 text-primary hover:bg-primary/15")
-                          }
+                          className={"block rounded-md px-2 py-1.5 text-xs transition-colors " + sessionColorClass(s)}
                         >
                           <p className="font-medium">{formatTime(s.scheduled_at)}</p>
                           <p className="truncate">{patient?.nome ?? "Paciente"}</p>
