@@ -10,16 +10,28 @@ export const Route = createFileRoute("/_authenticated")({
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
 
+    const fetchSub = () =>
+      supabase
+        .from("subscriptions")
+        .select("status, trial_ends_at")
+        .eq("user_id", data.user.id)
+        .maybeSingle()
+        .then((res) => res.data);
+
+    let sub = await fetchSub();
+
+    if (!sub) {
+      // Primeira vez que vemos esse usuário: garante a linha de trial via Edge Function
+      // (a função no banco é SECURITY DEFINER restrita a service_role, o cliente não
+      // pode chamá-la diretamente). Só paga esse custo uma vez por usuário.
+      await supabase.functions.invoke("ensure-subscription");
+      sub = await fetchSub();
+    }
+
     // Evita loop de redirecionamento: a própria tela de assinatura não exige assinatura ativa.
     if (location.pathname === "/assinatura") {
       return { user: data.user };
     }
-
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("status, trial_ends_at")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
 
     const trialActive = !!sub && sub.status === "trial" && new Date(sub.trial_ends_at) > new Date();
     const isActive = sub?.status === "ativo" || trialActive;

@@ -22,18 +22,21 @@ CREATE POLICY "own subscription" ON public.subscriptions FOR SELECT
 CREATE TRIGGER trg_subscriptions_updated BEFORE UPDATE ON public.subscriptions
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- Cria automaticamente uma linha de trial (7 dias) pra todo novo cadastro
-CREATE OR REPLACE FUNCTION public.handle_new_user_subscription()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.subscriptions (user_id) VALUES (NEW.id);
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
-
-CREATE TRIGGER on_auth_user_created_subscription
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user_subscription();
+-- Bancos gerenciados (Lovable Cloud/Supabase hosted) não permitem criar
+-- trigger direto em auth.users, então a garantia do trial de 7 dias não
+-- acontece via trigger automático: esta função (SECURITY DEFINER, restrita
+-- a service_role) é chamada pela Edge Function ensure-subscription logo na
+-- primeira vez que o usuário aparece sem assinatura (ver _authenticated/route.tsx).
+CREATE OR REPLACE FUNCTION public.ensure_subscription(_user_id uuid)
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  INSERT INTO public.subscriptions (user_id)
+  VALUES (_user_id)
+  ON CONFLICT (user_id) DO NOTHING;
+$$;
 
 -- Backfill: usuários que já existiam antes dessa migration também ganham trial
 INSERT INTO public.subscriptions (user_id)
