@@ -1,14 +1,31 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, LogOut } from "lucide-react";
+import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, CreditCard, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
+
+    // Evita loop de redirecionamento: a própria tela de assinatura não exige assinatura ativa.
+    if (location.pathname === "/assinatura") {
+      return { user: data.user };
+    }
+
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("status, trial_ends_at")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    const trialActive = !!sub && sub.status === "trial" && new Date(sub.trial_ends_at) > new Date();
+    const isActive = sub?.status === "ativo" || trialActive;
+
+    if (!isActive) throw redirect({ to: "/assinatura" });
+
     return { user: data.user };
   },
   component: AuthedLayout,
@@ -19,6 +36,7 @@ const nav = [
   { to: "/pacientes", label: "Pacientes", icon: Users },
   { to: "/agenda", label: "Agenda", icon: Calendar },
   { to: "/financeiro", label: "Financeiro", icon: Wallet },
+  { to: "/assinatura", label: "Assinatura", icon: CreditCard },
 ] as const;
 
 function AuthedLayout() {
