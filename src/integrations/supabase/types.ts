@@ -194,6 +194,7 @@ export type Database = {
           custo_registrado: number | null
           duration_min: number
           id: string
+          lembrete_enviado: boolean
           notes_evolucao: string | null
           pago: boolean
           pago_em: string | null
@@ -210,6 +211,7 @@ export type Database = {
           custo_registrado?: number | null
           duration_min?: number
           id?: string
+          lembrete_enviado?: boolean
           notes_evolucao?: string | null
           pago?: boolean
           pago_em?: string | null
@@ -226,6 +228,7 @@ export type Database = {
           custo_registrado?: number | null
           duration_min?: number
           id?: string
+          lembrete_enviado?: boolean
           notes_evolucao?: string | null
           pago?: boolean
           pago_em?: string | null
@@ -246,6 +249,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       professional_profile: {
         Row: {

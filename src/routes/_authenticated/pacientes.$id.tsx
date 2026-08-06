@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowLeft, CalendarPlus, Download, Pencil, Plus, Share2, Trash2, Phone, Mail } from "lucide-react";
 import { addMonths, calcAge, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
-import { calcularSaldo, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
+import { calcularSaldo, markSessionRealizada, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
 import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/lib/billing-report";
 import { toast } from "sonner";
 
@@ -480,43 +480,7 @@ function SessionsSection({
         if (error) throw error;
         return;
       }
-
-      const { data: patientRow, error: pErr } = await supabase
-        .from("patients")
-        .select("valor_sessao, custo_sessao")
-        .eq("id", patientId)
-        .single();
-      if (pErr) throw pErr;
-
-      const { data: payments, error: payErr } = await supabase
-        .from("patient_payments")
-        .select("valor")
-        .eq("patient_id", patientId);
-      if (payErr) throw payErr;
-
-      const { data: creditedSessions, error: sErr } = await supabase
-        .from("sessions")
-        .select("valor_cobrado")
-        .eq("patient_id", patientId)
-        .eq("pago_via", "credito");
-      if (sErr) throw sErr;
-
-      const saldo = calcularSaldo(payments ?? [], creditedSessions ?? []);
-      const valorSessao = patientRow.valor_sessao ?? 0;
-      const cobrirComCredito = valorSessao > 0 && saldo >= valorSessao;
-
-      const { error } = await supabase
-        .from("sessions")
-        .update({
-          status,
-          valor_cobrado: patientRow.valor_sessao,
-          custo_registrado: patientRow.custo_sessao,
-          pago: cobrirComCredito,
-          pago_via: cobrirComCredito ? "credito" : null,
-          pago_em: cobrirComCredito ? new Date().toISOString() : null,
-        })
-        .eq("id", id);
-      if (error) throw error;
+      await markSessionRealizada(id, patientId);
     },
     onSuccess: invalidateAll,
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),

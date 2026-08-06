@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getPushPermissionState, subscribeToPush } from "@/lib/push";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -139,6 +140,55 @@ function Perfil() {
           {save.isPending ? "Salvando..." : "Salvar perfil"}
         </Button>
       </form>
+
+      <div className="mt-6 rounded-xl border border-border bg-card p-5">
+        <NotificacoesSection />
+      </div>
+    </div>
+  );
+}
+
+function NotificacoesSection() {
+  const [status, setStatus] = useState<NotificationPermission | "unsupported" | "loading">("loading");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    setStatus(getPushPermissionState());
+  }, []);
+
+  const ativar = async () => {
+    setBusy(true);
+    try {
+      await subscribeToPush();
+      toast.success("Lembretes ativados neste navegador");
+      setStatus("granted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao ativar lembretes");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="mb-1 font-display font-semibold">Notificações</h2>
+      <p className="mb-4 text-sm text-muted-foreground">
+        Receba um lembrete 1h após o horário de cada sessão perguntando se ela aconteceu.
+      </p>
+      {status === "unsupported" && (
+        <p className="text-sm text-muted-foreground">Este navegador não suporta notificações push.</p>
+      )}
+      {status === "granted" && <p className="text-sm text-emerald-600">Lembretes ativados neste navegador.</p>}
+      {(status === "default" || status === "denied") && (
+        <Button type="button" onClick={ativar} disabled={busy}>
+          {busy ? "Ativando..." : "Ativar lembretes"}
+        </Button>
+      )}
+      {status === "denied" && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Permissão negada anteriormente — habilite notificações para este site nas configurações do navegador.
+        </p>
+      )}
     </div>
   );
 }
