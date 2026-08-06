@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(netstat -ano)",
-      "Bash(powershell -Command \"Stop-Process -Id 11476 -Force\")"
-    ]
-  }
-}
