@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -244,7 +244,7 @@ function PatientDetail() {
         </TabsContent>
 
         <TabsContent value="cobranca" className="mt-4">
-          <BillingSection patientId={id} patientName={p.nome} sessions={sessions.data ?? []} />
+          <BillingSection patientId={id} patient={p} plan={plan.data ?? null} sessions={sessions.data ?? []} />
         </TabsContent>
 
         <TabsContent value="plano" className="mt-4">
@@ -761,19 +761,39 @@ type BillableSession = {
   status: string;
   pago: boolean;
   valor_cobrado: number | null;
+  notes_evolucao: string | null;
 };
+
+type BillingPatientInfo = {
+  nome: string;
+  data_nascimento: string | null;
+  ap_historico: string | null;
+  queixa_principal: string | null;
+  template_estado_geral: string | null;
+  template_sinais_vitais: string | null;
+  template_atendimentos_realizados: string | null;
+  template_observacoes_evolucoes: string | null;
+};
+
+type BillingPlanInfo = {
+  objetivos: string | null;
+  treatment_exercises?: Array<{ nome: string; series_reps: string | null; observacao: string | null }>;
+} | null;
 
 function BillingSection({
   patientId,
-  patientName,
+  patient,
+  plan,
   sessions,
 }: {
   patientId: string;
-  patientName: string;
+  patient: BillingPatientInfo;
+  plan: BillingPlanInfo;
   sessions: BillableSession[];
 }) {
   const qc = useQueryClient();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [reportOpen, setReportOpen] = useState(false);
 
   const unpaid = sessions.filter((s) => s.status === "realizada" && !s.pago);
 
@@ -814,6 +834,21 @@ function BillingSection({
     },
   });
 
+  const profile = useQuery({
+    queryKey: ["professional-profile"],
+    queryFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) return null;
+      const { data, error } = await supabase
+        .from("professional_profile")
+        .select("*")
+        .eq("user_id", userRes.user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const markPaidBulk = useMutation({
     mutationFn: async (ids: string[]) => {
       const { error } = await supabase
@@ -830,59 +865,13 @@ function BillingSection({
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
   });
 
-  const generateReport = useMutation({
-    mutationFn: async () => {
-      const { data: userRes } = await supabase.auth.getUser();
-      const user_id = userRes.user?.id;
-      if (!user_id) throw new Error("Sem sessão");
-      if (selectedSessions.length === 0) throw new Error("Selecione ao menos uma sessão");
-
-      const blob = generateBillingReportPdf(patientName, selectedSessions, total);
-      const path = `${user_id}/${patientId}/${crypto.randomUUID()}.pdf`;
-
-      const { error: upErr } = await supabase.storage.from("billing-reports").upload(path, blob, {
-        contentType: "application/pdf",
-      });
-      if (upErr) throw upErr;
-
-      const { error: insErr } = await supabase.from("billing_reports").insert({
-        patient_id: patientId,
-        user_id,
-        session_ids: selectedSessions.map((s) => s.id),
-        total,
-        pdf_path: path,
-      });
-      if (insErr) throw insErr;
-
-      const { data: allReports } = await supabase
-        .from("billing_reports")
-        .select("id, pdf_path")
-        .eq("patient_id", patientId)
-        .order("created_at", { ascending: false });
-      if (allReports && allReports.length > 12) {
-        const overflow = allReports.slice(12);
-        await supabase.storage.from("billing-reports").remove(overflow.map((r) => r.pdf_path));
-        await supabase.from("billing_reports").delete().in("id", overflow.map((r) => r.id));
-      }
-
-      return blob;
-    },
-    onSuccess: (blob) => {
-      toast.success("Relatório gerado");
-      qc.invalidateQueries({ queryKey: ["billing-reports", patientId] });
-      downloadBlob(blob, `cobranca-${patientName}.pdf`);
-      clearSelection();
-    },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
-  });
-
   const downloadPast = async (path: string) => {
     const { data, error } = await supabase.storage.from("billing-reports").download(path);
     if (error || !data) {
       toast.error("Erro ao baixar relatório");
       return;
     }
-    downloadBlob(data, `cobranca-${patientName}.pdf`);
+    downloadBlob(data, `relatorio-${patient.nome}.pdf`);
   };
 
   const sharePast = async (path: string) => {
@@ -891,7 +880,7 @@ function BillingSection({
       toast.error("Erro ao carregar relatório");
       return;
     }
-    await shareOrDownloadBlob(data, `cobranca-${patientName}.pdf`);
+    await shareOrDownloadBlob(data, `relatorio-${patient.nome}.pdf`);
   };
 
   return (
@@ -944,9 +933,25 @@ function BillingSection({
               >
                 Marcar selecionadas como pagas
               </Button>
-              <Button size="sm" onClick={() => generateReport.mutate()} disabled={generateReport.isPending}>
-                {generateReport.isPending ? "Gerando..." : "Gerar relatório (PDF)"}
-              </Button>
+              <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+                <Button size="sm" onClick={() => setReportOpen(true)}>
+                  Gerar relatório (PDF)
+                </Button>
+                <ReportOptionsDialog
+                  patientId={patientId}
+                  patient={patient}
+                  plan={plan}
+                  sessions={selectedSessions}
+                  total={total}
+                  profile={profile.data ?? null}
+                  onGenerated={() => {
+                    setReportOpen(false);
+                    clearSelection();
+                    qc.invalidateQueries({ queryKey: ["billing-reports", patientId] });
+                    qc.invalidateQueries({ queryKey: ["patient-sessions", patientId] });
+                  }}
+                />
+              </Dialog>
             </div>
           </div>
         )}
@@ -982,6 +987,251 @@ function BillingSection({
         </ul>
       </div>
     </div>
+  );
+}
+
+type ResumoFieldKey = "estado_geral" | "sinais_vitais" | "atendimentos_realizados" | "observacoes_evolucoes";
+type TemplateFieldKey =
+  | "template_estado_geral"
+  | "template_sinais_vitais"
+  | "template_atendimentos_realizados"
+  | "template_observacoes_evolucoes";
+
+const RESUMO_FIELDS: Array<{ key: ResumoFieldKey; label: string; templateField: TemplateFieldKey }> = [
+  { key: "estado_geral", label: "Estado Geral / Cognitivo", templateField: "template_estado_geral" },
+  { key: "sinais_vitais", label: "Sinais Vitais", templateField: "template_sinais_vitais" },
+  {
+    key: "atendimentos_realizados",
+    label: "Atendimentos realizados",
+    templateField: "template_atendimentos_realizados",
+  },
+  {
+    key: "observacoes_evolucoes",
+    label: "Observações e Evoluções",
+    templateField: "template_observacoes_evolucoes",
+  },
+];
+
+function ReportOptionsDialog({
+  patientId,
+  patient,
+  plan,
+  sessions,
+  total,
+  profile,
+  onGenerated,
+}: {
+  patientId: string;
+  patient: BillingPatientInfo;
+  plan: BillingPlanInfo;
+  sessions: BillableSession[];
+  total: number;
+  profile: {
+    nome: string | null;
+    crefito: string | null;
+    telefone: string | null;
+    banco: string | null;
+    agencia: string | null;
+    conta: string | null;
+    chave_pix: string | null;
+  } | null;
+  onGenerated: () => void;
+}) {
+  const compiledEvolucoes = useMemo(() => {
+    const comNotas = sessions.filter((s) => s.notes_evolucao);
+    if (comNotas.length === 0) return "";
+    return comNotas.map((s) => `${formatDate(s.scheduled_at)}: ${s.notes_evolucao}`).join("\n");
+  }, [sessions]);
+
+  const sessionsSemEvolucao = sessions.filter((s) => !s.notes_evolucao);
+
+  const [fields, setFields] = useState<
+    Record<ResumoFieldKey, { include: boolean; text: string; saveTemplate: boolean }>
+  >({
+    estado_geral: { include: false, text: patient.template_estado_geral ?? "", saveTemplate: false },
+    sinais_vitais: { include: false, text: patient.template_sinais_vitais ?? "", saveTemplate: false },
+    atendimentos_realizados: {
+      include: false,
+      text: patient.template_atendimentos_realizados ?? "",
+      saveTemplate: false,
+    },
+    observacoes_evolucoes: {
+      include: false,
+      text: compiledEvolucoes || patient.template_observacoes_evolucoes || "",
+      saveTemplate: false,
+    },
+  });
+  const [inlineNotes, setInlineNotes] = useState<Record<string, string>>({});
+
+  const setField = (key: ResumoFieldKey, patch: Partial<{ include: boolean; text: string; saveTemplate: boolean }>) => {
+    setFields((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));
+  };
+
+  const regenerateDraft = () => {
+    const merged = sessions
+      .map((s) => {
+        const nota = inlineNotes[s.id]?.trim() || s.notes_evolucao;
+        return nota ? `${formatDate(s.scheduled_at)}: ${nota}` : null;
+      })
+      .filter((l): l is string => l != null)
+      .join("\n");
+    setField("observacoes_evolucoes", { text: merged });
+  };
+
+  const generate = useMutation({
+    mutationFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user?.id;
+      if (!user_id) throw new Error("Sem sessão");
+      if (sessions.length === 0) throw new Error("Nenhuma sessão selecionada");
+
+      const notasParaSalvar = Object.entries(inlineNotes).filter(([, v]) => v.trim());
+      for (const [sessionId, value] of notasParaSalvar) {
+        const { error } = await supabase.from("sessions").update({ notes_evolucao: value }).eq("id", sessionId);
+        if (error) throw error;
+      }
+
+      const templateUpdates: Partial<Record<TemplateFieldKey, string | null>> = {};
+      for (const f of RESUMO_FIELDS) {
+        const state = fields[f.key];
+        if (state.include && state.saveTemplate) {
+          templateUpdates[f.templateField] = state.text || null;
+        }
+      }
+      if (Object.keys(templateUpdates).length > 0) {
+        const { error } = await supabase.from("patients").update(templateUpdates).eq("id", patientId);
+        if (error) throw error;
+      }
+
+      const resumoSections = RESUMO_FIELDS.filter((f) => fields[f.key].include && fields[f.key].text.trim()).map(
+        (f) => ({ label: f.label, content: fields[f.key].text.trim() }),
+      );
+
+      const blob = generateBillingReportPdf({
+        patientName: patient.nome,
+        patientAge: patient.data_nascimento ? calcAge(patient.data_nascimento) : null,
+        apHistorico: patient.ap_historico,
+        queixaPrincipal: patient.queixa_principal,
+        objetivos: plan?.objetivos ?? null,
+        exercicios: (plan?.treatment_exercises ?? []).map((ex) => ({
+          nome: ex.nome,
+          series_reps: ex.series_reps,
+          observacao: ex.observacao,
+        })),
+        resumoSections,
+        sessions,
+        total,
+        profissional: profile,
+      });
+
+      const path = `${user_id}/${patientId}/${crypto.randomUUID()}.pdf`;
+      const { error: upErr } = await supabase.storage.from("billing-reports").upload(path, blob, {
+        contentType: "application/pdf",
+      });
+      if (upErr) throw upErr;
+
+      const { error: insErr } = await supabase.from("billing_reports").insert({
+        patient_id: patientId,
+        user_id,
+        session_ids: sessions.map((s) => s.id),
+        total,
+        pdf_path: path,
+      });
+      if (insErr) throw insErr;
+
+      const { data: allReports } = await supabase
+        .from("billing_reports")
+        .select("id, pdf_path")
+        .eq("patient_id", patientId)
+        .order("created_at", { ascending: false });
+      if (allReports && allReports.length > 12) {
+        const overflow = allReports.slice(12);
+        await supabase.storage.from("billing-reports").remove(overflow.map((r) => r.pdf_path));
+        await supabase.from("billing_reports").delete().in("id", overflow.map((r) => r.id));
+      }
+
+      return blob;
+    },
+    onSuccess: (blob) => {
+      toast.success("Relatório gerado");
+      downloadBlob(blob, `relatorio-${patient.nome}.pdf`);
+      onGenerated();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
+  return (
+    <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle>Configurar fechamento</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-5">
+        {RESUMO_FIELDS.map((f) => {
+          const state = fields[f.key];
+          return (
+            <div key={f.key} className="rounded-lg border border-border p-3">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={state.include}
+                  onChange={(e) => setField(f.key, { include: e.target.checked })}
+                  className="h-4 w-4 rounded border-border"
+                />
+                Incluir "{f.label}"
+              </label>
+              {state.include && (
+                <div className="mt-2 space-y-2">
+                  <Textarea
+                    rows={3}
+                    value={state.text}
+                    onChange={(e) => setField(f.key, { text: e.target.value })}
+                    placeholder={`Texto de ${f.label.toLowerCase()}...`}
+                  />
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={state.saveTemplate}
+                      onChange={(e) => setField(f.key, { saveTemplate: e.target.checked })}
+                      className="h-3.5 w-3.5 rounded border-border"
+                    />
+                    Salvar este texto como padrão para os próximos fechamentos
+                  </label>
+
+                  {f.key === "observacoes_evolucoes" && sessionsSemEvolucao.length > 0 && (
+                    <div className="space-y-2 rounded-md border border-dashed border-border p-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          Sessões sem evolução registrada — preencha se quiser incluir:
+                        </p>
+                        <Button type="button" size="sm" variant="ghost" onClick={regenerateDraft}>
+                          Atualizar rascunho
+                        </Button>
+                      </div>
+                      {sessionsSemEvolucao.map((s) => (
+                        <div key={s.id} className="space-y-1">
+                          <p className="text-xs font-medium">{formatDate(s.scheduled_at)}</p>
+                          <Textarea
+                            rows={2}
+                            value={inlineNotes[s.id] ?? ""}
+                            onChange={(e) => setInlineNotes((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                            placeholder="Evolução desta sessão (opcional)"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <DialogFooter className="mt-4">
+        <Button onClick={() => generate.mutate()} disabled={generate.isPending}>
+          {generate.isPending ? "Gerando..." : "Gerar relatório"}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   );
 }
 
