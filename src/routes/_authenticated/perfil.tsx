@@ -1,0 +1,144 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/_authenticated/perfil")({
+  head: () => ({ meta: [{ title: "Perfil — FisioFlow" }] }),
+  component: Perfil,
+});
+
+function Perfil() {
+  const qc = useQueryClient();
+  const [form, setForm] = useState({
+    nome: "",
+    crefito: "",
+    telefone: "",
+    banco: "",
+    agencia: "",
+    conta: "",
+    chave_pix: "",
+  });
+  const [loaded, setLoaded] = useState(false);
+
+  const profile = useQuery({
+    queryKey: ["professional-profile"],
+    queryFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("Sem sessão");
+      const { data, error } = await supabase
+        .from("professional_profile")
+        .select("*")
+        .eq("user_id", userRes.user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (profile.data && !loaded) {
+      setForm({
+        nome: profile.data.nome ?? "",
+        crefito: profile.data.crefito ?? "",
+        telefone: profile.data.telefone ?? "",
+        banco: profile.data.banco ?? "",
+        agencia: profile.data.agencia ?? "",
+        conta: profile.data.conta ?? "",
+        chave_pix: profile.data.chave_pix ?? "",
+      });
+      setLoaded(true);
+    }
+  }, [profile.data, loaded]);
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user?.id;
+      if (!user_id) throw new Error("Sem sessão");
+      const { error } = await supabase.from("professional_profile").upsert({
+        user_id,
+        nome: form.nome || null,
+        crefito: form.crefito || null,
+        telefone: form.telefone || null,
+        banco: form.banco || null,
+        agencia: form.agencia || null,
+        conta: form.conta || null,
+        chave_pix: form.chave_pix || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Perfil salvo");
+      qc.invalidateQueries({ queryKey: ["professional-profile"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
+  return (
+    <div className="mx-auto max-w-2xl p-6 md:p-10">
+      <div className="mb-8">
+        <h1 className="font-display text-3xl font-semibold">Perfil</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Esses dados aparecem automaticamente nos relatórios de cobrança gerados para seus pacientes.
+        </p>
+      </div>
+
+      <form
+        className="space-y-6"
+        onSubmit={(e) => {
+          e.preventDefault();
+          save.mutate();
+        }}
+      >
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="mb-4 font-display font-semibold">Dados profissionais</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Nome completo</Label>
+              <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>CREFITO</Label>
+              <Input value={form.crefito} onChange={(e) => setForm({ ...form, crefito: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Telefone</Label>
+              <Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="mb-4 font-display font-semibold">Dados bancários</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Banco</Label>
+              <Input value={form.banco} onChange={(e) => setForm({ ...form, banco: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Agência</Label>
+              <Input value={form.agencia} onChange={(e) => setForm({ ...form, agencia: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Conta</Label>
+              <Input value={form.conta} onChange={(e) => setForm({ ...form, conta: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Chave PIX</Label>
+              <Input value={form.chave_pix} onChange={(e) => setForm({ ...form, chave_pix: e.target.value })} />
+            </div>
+          </div>
+        </div>
+
+        <Button type="submit" disabled={save.isPending}>
+          {save.isPending ? "Salvando..." : "Salvar perfil"}
+        </Button>
+      </form>
+    </div>
+  );
+}

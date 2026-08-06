@@ -45,6 +45,16 @@ export function formatMonthLabel(d: Date) {
   return d.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 }
 
+export function calcAge(dataNascimento: string) {
+  const dob = new Date(dataNascimento);
+  const now = new Date();
+  let age = now.getFullYear() - dob.getFullYear();
+  const hasHadBirthdayThisYear =
+    now.getMonth() > dob.getMonth() || (now.getMonth() === dob.getMonth() && now.getDate() >= dob.getDate());
+  if (!hasHadBirthdayThisYear) age--;
+  return age;
+}
+
 export function toDatetimeLocalValue(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;

@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ArrowLeft, CalendarPlus, Download, Pencil, Plus, Share2, Trash2, Phone, Mail } from "lucide-react";
-import { addMonths, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
+import { addMonths, calcAge, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { calcularSaldo, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
 import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/lib/billing-report";
 import { toast } from "sonner";
@@ -101,6 +101,8 @@ function PatientDetail() {
       observacoes: string;
       valor_sessao: string;
       custo_sessao: string;
+      ap_historico: string;
+      queixa_principal: string;
     }) => {
       const { error } = await supabase
         .from("patients")
@@ -112,6 +114,8 @@ function PatientDetail() {
           observacoes: values.observacoes || null,
           valor_sessao: values.valor_sessao ? Number(values.valor_sessao) : null,
           custo_sessao: values.custo_sessao ? Number(values.custo_sessao) : null,
+          ap_historico: values.ap_historico || null,
+          queixa_principal: values.queixa_principal || null,
         })
         .eq("id", id);
       if (error) throw error;
@@ -165,7 +169,11 @@ function PatientDetail() {
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
             {p.telefone && <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{p.telefone}</span>}
             {p.email && <span className="inline-flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{p.email}</span>}
-            {p.data_nascimento && <span>Nasc: {new Date(p.data_nascimento).toLocaleDateString("pt-BR")}</span>}
+            {p.data_nascimento && (
+              <span>
+                Nasc: {new Date(p.data_nascimento).toLocaleDateString("pt-BR")} ({calcAge(p.data_nascimento)} anos)
+              </span>
+            )}
             {p.valor_sessao != null && <span>Valor por sessão: {formatCurrency(Number(p.valor_sessao))}</span>}
             {p.custo_sessao != null && <span>Custo por sessão: {formatCurrency(Number(p.custo_sessao))}</span>}
           </div>
@@ -203,9 +211,21 @@ function PatientDetail() {
         </div>
       </div>
 
-      {p.observacoes && (
-        <div className="mb-6 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
-          {p.observacoes}
+      {(p.ap_historico || p.queixa_principal || p.observacoes) && (
+        <div className="mb-6 space-y-3 rounded-lg border border-border bg-card p-4 text-sm">
+          {p.ap_historico && (
+            <p>
+              <span className="font-medium">AP/Histórico: </span>
+              <span className="text-muted-foreground">{p.ap_historico}</span>
+            </p>
+          )}
+          {p.queixa_principal && (
+            <p>
+              <span className="font-medium">Queixa principal: </span>
+              <span className="text-muted-foreground">{p.queixa_principal}</span>
+            </p>
+          )}
+          {p.observacoes && <p className="text-muted-foreground">{p.observacoes}</p>}
         </div>
       )}
 
@@ -252,6 +272,8 @@ function PatientEditDialog({
     observacoes: string | null;
     valor_sessao: number | null;
     custo_sessao: number | null;
+    ap_historico: string | null;
+    queixa_principal: string | null;
   };
   onSubmit: (v: {
     nome: string;
@@ -261,6 +283,8 @@ function PatientEditDialog({
     observacoes: string;
     valor_sessao: string;
     custo_sessao: string;
+    ap_historico: string;
+    queixa_principal: string;
   }) => void;
   loading: boolean;
 }) {
@@ -272,6 +296,8 @@ function PatientEditDialog({
     observacoes: patient.observacoes ?? "",
     valor_sessao: patient.valor_sessao != null ? String(patient.valor_sessao) : "",
     custo_sessao: patient.custo_sessao != null ? String(patient.custo_sessao) : "",
+    ap_historico: patient.ap_historico ?? "",
+    queixa_principal: patient.queixa_principal ?? "",
   });
   return (
     <DialogContent>
@@ -303,6 +329,22 @@ function PatientEditDialog({
         <div className="space-y-2">
           <Label>Email</Label>
           <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        </div>
+        <div className="space-y-2">
+          <Label>AP / Histórico</Label>
+          <Textarea
+            rows={2}
+            value={form.ap_historico}
+            onChange={(e) => setForm({ ...form, ap_historico: e.target.value })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Queixa principal</Label>
+          <Textarea
+            rows={2}
+            value={form.queixa_principal}
+            onChange={(e) => setForm({ ...form, queixa_principal: e.target.value })}
+          />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">

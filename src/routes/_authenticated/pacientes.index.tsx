@@ -48,6 +48,8 @@ function PatientsList() {
       observacoes: string;
       valor_sessao: string;
       custo_sessao: string;
+      ap_historico: string;
+      queixa_principal: string;
     }) => {
       const { data: userRes } = await supabase.auth.getUser();
       const user_id = userRes.user?.id;
@@ -61,6 +63,8 @@ function PatientsList() {
         observacoes: values.observacoes || null,
         valor_sessao: values.valor_sessao ? Number(values.valor_sessao) : null,
         custo_sessao: values.custo_sessao ? Number(values.custo_sessao) : null,
+        ap_historico: values.ap_historico || null,
+        queixa_principal: values.queixa_principal || null,
       });
       if (error) throw error;
     },
@@ -148,6 +152,8 @@ function PatientDialog({
     observacoes: string;
     valor_sessao: string;
     custo_sessao: string;
+    ap_historico: string;
+    queixa_principal: string;
   }) => void;
   loading: boolean;
 }) {
@@ -159,6 +165,8 @@ function PatientDialog({
     observacoes: "",
     valor_sessao: "",
     custo_sessao: "",
+    ap_historico: "",
+    queixa_principal: "",
   });
   return (
     <DialogContent>
@@ -190,6 +198,23 @@ function PatientDialog({
         <div className="space-y-2">
           <Label>Email</Label>
           <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        </div>
+        <div className="space-y-2">
+          <Label>AP / Histórico</Label>
+          <Textarea
+            rows={2}
+            placeholder="Ex: Demência dos corpos de Lewy"
+            value={form.ap_historico}
+            onChange={(e) => setForm({ ...form, ap_historico: e.target.value })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Queixa principal</Label>
+          <Textarea
+            rows={2}
+            value={form.queixa_principal}
+            onChange={(e) => setForm({ ...form, queixa_principal: e.target.value })}
+          />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">

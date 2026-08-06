@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, CreditCard, LogOut } from "lucide-react";
+import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -49,6 +49,7 @@ const nav = [
   { to: "/agenda", label: "Agenda", icon: Calendar },
   { to: "/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/assinatura", label: "Assinatura", icon: CreditCard },
+  { to: "/perfil", label: "Perfil", icon: UserCog },
 ] as const;
 
 function AuthedLayout() {

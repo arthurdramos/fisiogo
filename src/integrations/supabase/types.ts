@@ -130,6 +130,7 @@ export type Database = {
       }
       patients: {
         Row: {
+          ap_historico: string | null
           created_at: string
           custo_sessao: number | null
           data_nascimento: string | null
@@ -137,12 +138,18 @@ export type Database = {
           id: string
           nome: string
           observacoes: string | null
+          queixa_principal: string | null
           telefone: string | null
+          template_atendimentos_realizados: string | null
+          template_estado_geral: string | null
+          template_observacoes_evolucoes: string | null
+          template_sinais_vitais: string | null
           updated_at: string
           user_id: string
           valor_sessao: number | null
         }
         Insert: {
+          ap_historico?: string | null
           created_at?: string
           custo_sessao?: number | null
           data_nascimento?: string | null
@@ -150,12 +157,18 @@ export type Database = {
           id?: string
           nome: string
           observacoes?: string | null
+          queixa_principal?: string | null
           telefone?: string | null
+          template_atendimentos_realizados?: string | null
+          template_estado_geral?: string | null
+          template_observacoes_evolucoes?: string | null
+          template_sinais_vitais?: string | null
           updated_at?: string
           user_id: string
           valor_sessao?: number | null
         }
         Update: {
+          ap_historico?: string | null
           created_at?: string
           custo_sessao?: number | null
           data_nascimento?: string | null
@@ -163,7 +176,12 @@ export type Database = {
           id?: string
           nome?: string
           observacoes?: string | null
+          queixa_principal?: string | null
           telefone?: string | null
+          template_atendimentos_realizados?: string | null
+          template_estado_geral?: string | null
+          template_observacoes_evolucoes?: string | null
+          template_sinais_vitais?: string | null
           updated_at?: string
           user_id?: string
           valor_sessao?: number | null
@@ -228,6 +246,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      professional_profile: {
+        Row: {
+          agencia: string | null
+          banco: string | null
+          chave_pix: string | null
+          conta: string | null
+          created_at: string
+          crefito: string | null
+          nome: string | null
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agencia?: string | null
+          banco?: string | null
+          chave_pix?: string | null
+          conta?: string | null
+          created_at?: string
+          crefito?: string | null
+          nome?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agencia?: string | null
+          banco?: string | null
+          chave_pix?: string | null
+          conta?: string | null
+          created_at?: string
+          crefito?: string | null
+          nome?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       subscriptions: {
         Row: {
