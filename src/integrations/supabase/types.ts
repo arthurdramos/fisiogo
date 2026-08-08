@@ -188,6 +188,72 @@ export type Database = {
         }
         Relationships: []
       }
+      professional_profile: {
+        Row: {
+          agencia: string | null
+          banco: string | null
+          chave_pix: string | null
+          conta: string | null
+          created_at: string
+          crefito: string | null
+          nome: string | null
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agencia?: string | null
+          banco?: string | null
+          chave_pix?: string | null
+          conta?: string | null
+          created_at?: string
+          crefito?: string | null
+          nome?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agencia?: string | null
+          banco?: string | null
+          chave_pix?: string | null
+          conta?: string | null
+          created_at?: string
+          crefito?: string | null
+          nome?: string | null
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           created_at: string
@@ -249,72 +315,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      push_subscriptions: {
-        Row: {
-          auth: string
-          created_at: string
-          endpoint: string
-          id: string
-          p256dh: string
-          user_id: string
-        }
-        Insert: {
-          auth: string
-          created_at?: string
-          endpoint: string
-          id?: string
-          p256dh: string
-          user_id: string
-        }
-        Update: {
-          auth?: string
-          created_at?: string
-          endpoint?: string
-          id?: string
-          p256dh?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      professional_profile: {
-        Row: {
-          agencia: string | null
-          banco: string | null
-          chave_pix: string | null
-          conta: string | null
-          created_at: string
-          crefito: string | null
-          nome: string | null
-          telefone: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          agencia?: string | null
-          banco?: string | null
-          chave_pix?: string | null
-          conta?: string | null
-          created_at?: string
-          crefito?: string | null
-          nome?: string | null
-          telefone?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          agencia?: string | null
-          banco?: string | null
-          chave_pix?: string | null
-          conta?: string | null
-          created_at?: string
-          crefito?: string | null
-          nome?: string | null
-          telefone?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       subscriptions: {
         Row: {
