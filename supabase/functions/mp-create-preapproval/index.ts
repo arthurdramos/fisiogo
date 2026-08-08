@@ -8,6 +8,7 @@
 // disponíveis automaticamente em toda Edge Function do Supabase.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -20,8 +21,15 @@ const PLANS: Record<string, { amount: number; frequency: number; reason: string 
 };
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   const authHeader = req.headers.get("Authorization") ?? "";
@@ -31,19 +39,28 @@ Deno.serve(async (req) => {
 
   const { data: userRes, error: userErr } = await userClient.auth.getUser();
   if (userErr || !userRes.user) {
-    return new Response(JSON.stringify({ error: "Não autenticado" }), { status: 401 });
+    return new Response(JSON.stringify({ error: "Não autenticado" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   let body: { plano?: string };
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Corpo da requisição inválido" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Corpo da requisição inválido" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   const plan = body.plano ? PLANS[body.plano] : undefined;
   if (!plan) {
-    return new Response(JSON.stringify({ error: "Plano inválido" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Plano inválido" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   const origin = req.headers.get("origin") ?? "";
@@ -72,7 +89,10 @@ Deno.serve(async (req) => {
   if (!mpRes.ok) {
     const errBody = await mpRes.text();
     console.error("Mercado Pago create preapproval error:", errBody);
-    return new Response(JSON.stringify({ error: "Erro ao criar assinatura no Mercado Pago" }), { status: 502 });
+    return new Response(JSON.stringify({ error: "Erro ao criar assinatura no Mercado Pago" }), {
+      status: 502,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   const mpData = await mpRes.json();
@@ -84,6 +104,6 @@ Deno.serve(async (req) => {
     .eq("user_id", userRes.user.id);
 
   return new Response(JSON.stringify({ init_point: mpData.init_point }), {
-    headers: { "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
