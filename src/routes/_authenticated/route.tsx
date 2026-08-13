@@ -28,6 +28,18 @@ export const Route = createFileRoute("/_authenticated")({
       sub = await fetchSub();
     }
 
+    const { data: profile } = await supabase
+      .from("professional_profile")
+      .select("user_id")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    if (!profile) {
+      // Mesma lógica: cria a linha em professional_profile com os dados
+      // (crefito, telefone, aceite LGPD) informados no cadastro.
+      await supabase.functions.invoke("ensure-professional-profile");
+    }
+
     // Evita loop de redirecionamento: a própria tela de assinatura não exige assinatura ativa.
     if (location.pathname === "/assinatura") {
       return { user: data.user };

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
@@ -25,6 +26,9 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [crefito, setCrefito] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [lgpdAceite, setLgpdAceite] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -38,10 +42,22 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        if (!lgpdAceite) {
+          toast.error("É preciso aceitar os termos e a política de privacidade (LGPD).");
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/app" },
+          options: {
+            emailRedirectTo: window.location.origin + "/app",
+            data: {
+              crefito,
+              telefone,
+              lgpd_aceite: true,
+            },
+          },
         });
         if (error) throw error;
         toast.success("Conta criada! Verifique seu email se solicitado.");
@@ -133,6 +149,46 @@ function AuthPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+
+            {mode === "signup" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="crefito">CREFITO</Label>
+                  <Input
+                    id="crefito"
+                    type="text"
+                    required
+                    value={crefito}
+                    onChange={(e) => setCrefito(e.target.value)}
+                    placeholder="Ex: 123456-F"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="telefone">Telefone</Label>
+                  <Input
+                    id="telefone"
+                    type="tel"
+                    required
+                    value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="(11) 91234-5678"
+                  />
+                </div>
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="lgpd"
+                    checked={lgpdAceite}
+                    onCheckedChange={(checked) => setLgpdAceite(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <Label htmlFor="lgpd" className="text-sm font-normal leading-snug text-muted-foreground">
+                    Li e aceito os termos de uso e a política de privacidade, e concordo com o tratamento
+                    dos meus dados conforme a LGPD.
+                  </Label>
+                </div>
+              </>
+            )}
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Aguarde..." : mode === "signin" ? "Entrar" : "Criar conta"}
             </Button>
