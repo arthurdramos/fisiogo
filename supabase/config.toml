@@ -1,1 +1,5 @@
 project_id = "hfqeoetuxjpmrvdbiixq"
+
+[auth.email.template.confirmation]
+subject = "Confirme seu email — FisioFlow"
+content_path = "./supabase/templates/confirm-signup.html"
