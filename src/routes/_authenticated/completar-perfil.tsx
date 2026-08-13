@@ -13,6 +13,16 @@ export const Route = createFileRoute("/_authenticated/completar-perfil")({
   component: CompletarPerfil,
 });
 
+function extractErrorMessage(e: unknown): string | null {
+  if (e instanceof Error) return e.message;
+  // Erros do Supabase (Postgrest) vêm como objeto { message, details, hint, code },
+  // não como instância de Error — por isso o check acima sozinho perdia a mensagem real.
+  if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: unknown }).message === "string") {
+    return (e as { message: string }).message;
+  }
+  return null;
+}
+
 function CompletarPerfil() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -66,7 +76,7 @@ function CompletarPerfil() {
       await qc.invalidateQueries({ queryKey: ["professional-profile"] });
       navigate({ to: "/app" });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro ao salvar"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro ao salvar"),
   });
 
   return (
