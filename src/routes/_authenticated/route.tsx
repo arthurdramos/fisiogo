@@ -28,16 +28,31 @@ export const Route = createFileRoute("/_authenticated")({
       sub = await fetchSub();
     }
 
-    const { data: profile } = await supabase
-      .from("professional_profile")
-      .select("user_id")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
+    const fetchProfile = () =>
+      supabase
+        .from("professional_profile")
+        .select("nome, crefito, telefone, lgpd_aceite_em")
+        .eq("user_id", data.user.id)
+        .maybeSingle()
+        .then((res) => res.data);
+
+    let profile = await fetchProfile();
 
     if (!profile) {
       // Mesma lógica: cria a linha em professional_profile com os dados
-      // (crefito, telefone, aceite LGPD) informados no cadastro.
+      // (nome, crefito, telefone, aceite LGPD) informados no cadastro por
+      // email/senha (vêm de user_metadata). Quem entra via Google nunca
+      // passou por esse formulário, então a linha fica com os campos vazios
+      // — daí a checagem de perfil incompleto logo abaixo.
       await supabase.functions.invoke("ensure-professional-profile");
+      profile = await fetchProfile();
+    }
+
+    // Evita loop de redirecionamento: a própria tela de completar cadastro não exige perfil completo.
+    if (location.pathname !== "/completar-perfil") {
+      const profileComplete =
+        !!profile?.nome && !!profile?.crefito && !!profile?.telefone && !!profile?.lgpd_aceite_em;
+      if (!profileComplete) throw redirect({ to: "/completar-perfil" });
     }
 
     // Evita loop de redirecionamento: a própria tela de assinatura não exige assinatura ativa.
