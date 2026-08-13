@@ -21,6 +21,22 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  "Invalid login credentials": "Email ou senha inválidos.",
+  "Email not confirmed": "Confirme seu email antes de entrar — verifique sua caixa de entrada.",
+  "User already registered": "Já existe uma conta com esse email. Tente entrar.",
+  "Password should be at least 6 characters": "A senha deve ter pelo menos 6 caracteres.",
+  "Unable to validate email address: invalid format": "Email em formato inválido.",
+};
+
+function translateAuthError(message: string): string {
+  if (AUTH_ERROR_MESSAGES[message]) return AUTH_ERROR_MESSAGES[message];
+  if (message.toLowerCase().includes("rate limit")) {
+    return "Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.";
+  }
+  return "Não foi possível autenticar. Verifique os dados e tente novamente.";
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -69,7 +85,7 @@ function AuthPage() {
       }
       navigate({ to: "/app" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erro ao autenticar");
+      toast.error(err instanceof Error ? translateAuthError(err.message) : "Erro ao autenticar");
     } finally {
       setLoading(false);
     }
