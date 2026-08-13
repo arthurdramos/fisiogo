@@ -55,8 +55,10 @@ export const Route = createFileRoute("/_authenticated")({
       if (!profileComplete) throw redirect({ to: "/completar-perfil" });
     }
 
-    // Evita loop de redirecionamento: a própria tela de assinatura não exige assinatura ativa.
-    if (location.pathname === "/assinatura") {
+    // Evita loop de redirecionamento: nem a tela de assinatura exige assinatura ativa, nem a de
+    // completar cadastro exige assinatura ativa (senão alguém com perfil incompleto E assinatura
+    // inativa fica preso indo de um lado pro outro — foi exatamente esse o bug reportado).
+    if (location.pathname === "/assinatura" || location.pathname === "/completar-perfil") {
       return { user: data.user };
     }
 
