@@ -1,5 +1,5 @@
 // Edge Function: garante que o usuário autenticado tenha uma linha em
-// `professional_profile`, preenchida com crefito/telefone/aceite LGPD
+// `professional_profile`, preenchida com nome/crefito/telefone/aceite LGPD
 // informados no cadastro (gravados em auth.users.user_metadata pelo signUp,
 // já que na hora do signUp pode não haver sessão ainda se a confirmação de
 // email estiver ativa). Chama public.ensure_professional_profile, que é
@@ -42,6 +42,7 @@ Deno.serve(async (req) => {
   const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const { error } = await adminClient.rpc("ensure_professional_profile", {
     _user_id: userRes.user.id,
+    _nome: typeof meta.nome === "string" ? meta.nome : null,
     _crefito: typeof meta.crefito === "string" ? meta.crefito : null,
     _telefone: typeof meta.telefone === "string" ? meta.telefone : null,
     _lgpd_aceite: meta.lgpd_aceite === true,

@@ -26,6 +26,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nome, setNome] = useState("");
   const [crefito, setCrefito] = useState("");
   const [telefone, setTelefone] = useState("");
   const [lgpdAceite, setLgpdAceite] = useState(false);
@@ -53,6 +54,7 @@ function AuthPage() {
           options: {
             emailRedirectTo: window.location.origin + "/app",
             data: {
+              nome,
               crefito,
               telefone,
               lgpd_aceite: true,
@@ -152,6 +154,17 @@ function AuthPage() {
 
             {mode === "signup" && (
               <>
+                <div className="space-y-2">
+                  <Label htmlFor="nome">Nome completo</Label>
+                  <Input
+                    id="nome"
+                    type="text"
+                    required
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Seu nome completo"
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="crefito">CREFITO</Label>
                   <Input
