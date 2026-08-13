@@ -6,6 +6,11 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  pendingComponent: () => (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary" />
+    </div>
+  ),
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
@@ -48,18 +53,19 @@ export const Route = createFileRoute("/_authenticated")({
       profile = await fetchProfile();
     }
 
+    const profileComplete =
+      !!profile?.nome && !!profile?.crefito && !!profile?.telefone && !!profile?.lgpd_aceite_em;
+
     // Evita loop de redirecionamento: a própria tela de completar cadastro não exige perfil completo.
-    if (location.pathname !== "/completar-perfil") {
-      const profileComplete =
-        !!profile?.nome && !!profile?.crefito && !!profile?.telefone && !!profile?.lgpd_aceite_em;
-      if (!profileComplete) throw redirect({ to: "/completar-perfil" });
+    if (!profileComplete && location.pathname !== "/completar-perfil") {
+      throw redirect({ to: "/completar-perfil" });
     }
 
     // Evita loop de redirecionamento: nem a tela de assinatura exige assinatura ativa, nem a de
     // completar cadastro exige assinatura ativa (senão alguém com perfil incompleto E assinatura
     // inativa fica preso indo de um lado pro outro — foi exatamente esse o bug reportado).
     if (location.pathname === "/assinatura" || location.pathname === "/completar-perfil") {
-      return { user: data.user };
+      return { user: data.user, profileComplete };
     }
 
     const trialActive = !!sub && sub.status === "trial" && new Date(sub.trial_ends_at) > new Date();
@@ -67,7 +73,7 @@ export const Route = createFileRoute("/_authenticated")({
 
     if (!isActive) throw redirect({ to: "/assinatura" });
 
-    return { user: data.user };
+    return { user: data.user, profileComplete };
   },
   component: AuthedLayout,
 });
@@ -85,6 +91,7 @@ function AuthedLayout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { profileComplete } = Route.useRouteContext();
 
   const signOut = async () => {
     await queryClient.cancelQueries();
@@ -103,24 +110,30 @@ function AuthedLayout() {
           <span className="font-display text-base font-semibold">FisioFlow</span>
         </div>
         <nav className="flex-1 space-y-1 p-3">
-          {nav.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to || (to !== "/app" && pathname.startsWith(to));
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors " +
-                  (active
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground")
-                }
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </Link>
-            );
-          })}
+          {!profileComplete ? (
+            <p className="px-3 py-2 text-xs text-muted-foreground">
+              Complete seu cadastro para liberar o menu.
+            </p>
+          ) : (
+            nav.map(({ to, label, icon: Icon }) => {
+              const active = pathname === to || (to !== "/app" && pathname.startsWith(to));
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className={
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors " +
+                    (active
+                      ? "bg-accent text-accent-foreground font-medium"
+                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground")
+                  }
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </Link>
+              );
+            })
+          )}
         </nav>
         <div className="border-t border-border p-3">
           <Button variant="ghost" size="sm" className="w-full justify-start" onClick={signOut}>
@@ -141,24 +154,26 @@ function AuthedLayout() {
             <LogOut className="h-4 w-4" />
           </Button>
         </header>
-        <nav className="flex items-center gap-1 border-b border-border bg-background px-4 py-2 md:hidden">
-          {nav.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to || (to !== "/app" && pathname.startsWith(to));
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs " +
-                  (active ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground")
-                }
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
+        {profileComplete && (
+          <nav className="flex items-center gap-1 border-b border-border bg-background px-4 py-2 md:hidden">
+            {nav.map(({ to, label, icon: Icon }) => {
+              const active = pathname === to || (to !== "/app" && pathname.startsWith(to));
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className={
+                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs " +
+                    (active ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground")
+                  }
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
         <main className="flex-1 overflow-auto">
           <Outlet />
         </main>
