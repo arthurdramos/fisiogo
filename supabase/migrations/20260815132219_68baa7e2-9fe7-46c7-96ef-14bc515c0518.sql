@@ -1,0 +1,1 @@
+ALTER TABLE public.professional_profile ADD COLUMN IF NOT EXISTS lgpd_aceite_em timestamptz;

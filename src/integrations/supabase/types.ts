@@ -196,6 +196,7 @@ export type Database = {
           conta: string | null
           created_at: string
           crefito: string | null
+          lgpd_aceite_em: string | null
           nome: string | null
           telefone: string | null
           updated_at: string
@@ -208,6 +209,7 @@ export type Database = {
           conta?: string | null
           created_at?: string
           crefito?: string | null
+          lgpd_aceite_em?: string | null
           nome?: string | null
           telefone?: string | null
           updated_at?: string
@@ -220,6 +222,7 @@ export type Database = {
           conta?: string | null
           created_at?: string
           crefito?: string | null
+          lgpd_aceite_em?: string | null
           nome?: string | null
           telefone?: string | null
           updated_at?: string
