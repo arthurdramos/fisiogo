@@ -7,7 +7,7 @@ import { markSessionRealizada } from "@/lib/session-status";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/confirmar/$sessionId")({
-  head: () => ({ meta: [{ title: "Confirmar sessão — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Confirmar sessão — FisioGO" }] }),
   component: ConfirmarSessao,
 });
 

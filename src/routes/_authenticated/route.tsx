@@ -107,7 +107,7 @@ function AuthedLayout() {
           <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
             <Sparkles className="h-3.5 w-3.5" />
           </div>
-          <span className="font-display text-base font-semibold">FisioFlow</span>
+          <span className="font-display text-base font-semibold">FisioGO</span>
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {!profileComplete ? (
@@ -148,7 +148,7 @@ function AuthedLayout() {
             <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
               <Sparkles className="h-3.5 w-3.5" />
             </div>
-            <span className="font-display font-semibold">FisioFlow</span>
+            <span className="font-display font-semibold">FisioGO</span>
           </div>
           <Button variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="h-4 w-4" />

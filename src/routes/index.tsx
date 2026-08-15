@@ -7,13 +7,13 @@ import { Calendar, Users, ClipboardList, ShieldCheck, Sparkles } from "lucide-re
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "FisioFlow — Gestão simples para fisioterapeutas autônomos" },
+      { title: "FisioGO — Gestão simples para fisioterapeutas autônomos" },
       {
         name: "description",
         content:
           "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
-      { property: "og:title", content: "FisioFlow — Gestão simples para fisioterapeutas autônomos" },
+      { property: "og:title", content: "FisioGO — Gestão simples para fisioterapeutas autônomos" },
       {
         property: "og:description",
         content:
@@ -53,7 +53,7 @@ function Landing() {
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Sparkles className="h-4 w-4" />
             </div>
-            <span className="font-display text-lg font-semibold">FisioFlow</span>
+            <span className="font-display text-lg font-semibold">FisioGO</span>
           </Link>
           <nav className="flex items-center gap-2">
             {signed ? (
@@ -82,7 +82,7 @@ function Landing() {
             <span className="text-primary">Mais tempo com o paciente.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            FisioFlow organiza pacientes, agenda e evolução clínica em um só lugar.
+            FisioGO organiza pacientes, agenda e evolução clínica em um só lugar.
             Simples como uma anotação — confiável como um prontuário.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
@@ -120,7 +120,7 @@ function Landing() {
             <ShieldCheck className="h-4 w-4" />
             Seus dados são seus. Isolados por conta.
           </div>
-          <span>© {new Date().getFullYear()} FisioFlow</span>
+          <span>© {new Date().getFullYear()} FisioGO</span>
         </div>
       </footer>
     </div>

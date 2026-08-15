@@ -9,7 +9,7 @@ import { getPushPermissionState, subscribeToPush } from "@/lib/push";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
-  head: () => ({ meta: [{ title: "Perfil — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Perfil — FisioGO" }] }),
   component: Perfil,
 });
 
