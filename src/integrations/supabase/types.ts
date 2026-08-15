@@ -196,7 +196,6 @@ export type Database = {
           conta: string | null
           created_at: string
           crefito: string | null
-          lgpd_aceite_em: string | null
           nome: string | null
           telefone: string | null
           updated_at: string
@@ -209,7 +208,6 @@ export type Database = {
           conta?: string | null
           created_at?: string
           crefito?: string | null
-          lgpd_aceite_em?: string | null
           nome?: string | null
           telefone?: string | null
           updated_at?: string
@@ -222,7 +220,6 @@ export type Database = {
           conta?: string | null
           created_at?: string
           crefito?: string | null
-          lgpd_aceite_em?: string | null
           nome?: string | null
           telefone?: string | null
           updated_at?: string
@@ -434,16 +431,6 @@ export type Database = {
     }
     Functions: {
       ensure_subscription: { Args: { _user_id: string }; Returns: undefined }
-      ensure_professional_profile: {
-        Args: {
-          _user_id: string
-          _nome: string
-          _crefito: string
-          _telefone: string
-          _lgpd_aceite: boolean
-        }
-        Returns: undefined
-      }
     }
     Enums: {
       [_ in never]: never

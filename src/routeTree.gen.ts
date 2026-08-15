@@ -14,8 +14,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
-import { Route as AuthenticatedCompletarPerfilRouteImport } from './routes/_authenticated/completar-perfil'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
+import { Route as AuthenticatedCompletarPerfilRouteImport } from './routes/_authenticated/completar-perfil'
 import { Route as AuthenticatedAssinaturaRouteImport } from './routes/_authenticated/assinatura'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
@@ -47,17 +47,17 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCompletarPerfilRoute =
   AuthenticatedCompletarPerfilRouteImport.update({
     id: '/completar-perfil',
     path: '/completar-perfil',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
-  id: '/financeiro',
-  path: '/financeiro',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAssinaturaRoute = AuthenticatedAssinaturaRouteImport.update({
   id: '/assinatura',
   path: '/assinatura',
@@ -99,9 +99,9 @@ export interface FileRoutesByFullPath {
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
   '/assinatura': typeof AuthenticatedAssinaturaRoute
+  '/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
-  '/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
@@ -113,9 +113,9 @@ export interface FileRoutesByTo {
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
   '/assinatura': typeof AuthenticatedAssinaturaRoute
+  '/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
-  '/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
@@ -129,9 +129,9 @@ export interface FileRoutesById {
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/assinatura': typeof AuthenticatedAssinaturaRoute
+  '/_authenticated/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
-  '/_authenticated/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/_authenticated/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
@@ -145,9 +145,9 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/app'
     | '/assinatura'
+    | '/completar-perfil'
     | '/financeiro'
     | '/perfil'
-    | '/completar-perfil'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
     | '/pacientes/'
@@ -159,9 +159,9 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/app'
     | '/assinatura'
+    | '/completar-perfil'
     | '/financeiro'
     | '/perfil'
-    | '/completar-perfil'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
     | '/pacientes'
@@ -174,9 +174,9 @@ export interface FileRouteTypes {
     | '/_authenticated/agenda'
     | '/_authenticated/app'
     | '/_authenticated/assinatura'
+    | '/_authenticated/completar-perfil'
     | '/_authenticated/financeiro'
     | '/_authenticated/perfil'
-    | '/_authenticated/completar-perfil'
     | '/_authenticated/confirmar/$sessionId'
     | '/_authenticated/pacientes/$id'
     | '/_authenticated/pacientes/'
@@ -226,18 +226,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/completar-perfil': {
-      id: '/_authenticated/completar-perfil'
-      path: '/completar-perfil'
-      fullPath: '/completar-perfil'
-      preLoaderRoute: typeof AuthenticatedCompletarPerfilRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/financeiro': {
       id: '/_authenticated/financeiro'
       path: '/financeiro'
       fullPath: '/financeiro'
       preLoaderRoute: typeof AuthenticatedFinanceiroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/completar-perfil': {
+      id: '/_authenticated/completar-perfil'
+      path: '/completar-perfil'
+      fullPath: '/completar-perfil'
+      preLoaderRoute: typeof AuthenticatedCompletarPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/assinatura': {
@@ -289,9 +289,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedAssinaturaRoute: typeof AuthenticatedAssinaturaRoute
+  AuthenticatedCompletarPerfilRoute: typeof AuthenticatedCompletarPerfilRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
-  AuthenticatedCompletarPerfilRoute: typeof AuthenticatedCompletarPerfilRoute
   AuthenticatedConfirmarSessionIdRoute: typeof AuthenticatedConfirmarSessionIdRoute
   AuthenticatedPacientesIdRoute: typeof AuthenticatedPacientesIdRoute
   AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
@@ -301,9 +301,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedAssinaturaRoute: AuthenticatedAssinaturaRoute,
+  AuthenticatedCompletarPerfilRoute: AuthenticatedCompletarPerfilRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
-  AuthenticatedCompletarPerfilRoute: AuthenticatedCompletarPerfilRoute,
   AuthenticatedConfirmarSessionIdRoute: AuthenticatedConfirmarSessionIdRoute,
   AuthenticatedPacientesIdRoute: AuthenticatedPacientesIdRoute,
   AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
