@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/assinatura")({
-  head: () => ({ meta: [{ title: "Assinatura — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Assinatura — FisioGO" }] }),
   component: Assinatura,
 });
 
@@ -67,7 +67,7 @@ function Assinatura() {
         )}
         {!isActive && !trialActive && (
           <p className="mt-2 text-sm text-destructive">
-            Seu período de teste terminou. Assine um plano para continuar usando o FisioFlow.
+            Seu período de teste terminou. Assine um plano para continuar usando o FisioGO.
           </p>
         )}
       </div>

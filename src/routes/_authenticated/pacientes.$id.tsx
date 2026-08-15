@@ -22,7 +22,7 @@ import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/l
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
-  head: () => ({ meta: [{ title: "Paciente — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Paciente — FisioGO" }] }),
   component: PatientDetail,
 });
 

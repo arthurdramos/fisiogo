@@ -16,7 +16,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/financeiro")({
-  head: () => ({ meta: [{ title: "Financeiro — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Financeiro — FisioGO" }] }),
   component: Financeiro,
 });
 

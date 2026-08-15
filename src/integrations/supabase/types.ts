@@ -434,16 +434,6 @@ export type Database = {
     }
     Functions: {
       ensure_subscription: { Args: { _user_id: string }; Returns: undefined }
-      ensure_professional_profile: {
-        Args: {
-          _user_id: string
-          _nome: string
-          _crefito: string
-          _telefone: string
-          _lgpd_aceite: boolean
-        }
-        Returns: undefined
-      }
     }
     Enums: {
       [_ in never]: never

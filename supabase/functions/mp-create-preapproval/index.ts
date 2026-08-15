@@ -16,8 +16,8 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const MP_ACCESS_TOKEN = Deno.env.get("MERCADOPAGO_ACCESS_TOKEN")!;
 
 const PLANS: Record<string, { amount: number; frequency: number; reason: string }> = {
-  mensal: { amount: 29.9, frequency: 1, reason: "FisioFlow - Plano mensal" },
-  anual: { amount: 299.0, frequency: 12, reason: "FisioFlow - Plano anual" },
+  mensal: { amount: 29.9, frequency: 1, reason: "FisioGO - Plano mensal" },
+  anual: { amount: 299.0, frequency: 12, reason: "FisioGO - Plano anual" },
 };
 
 Deno.serve(async (req) => {

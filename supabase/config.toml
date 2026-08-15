@@ -1,5 +1,5 @@
 project_id = "hfqeoetuxjpmrvdbiixq"
 
 [auth.email.template.confirmation]
-subject = "Confirme seu email — FisioFlow"
+subject = "Confirme seu email — FisioGO"
 content_path = "./supabase/templates/confirm-signup.html"

@@ -18,7 +18,7 @@ import { Plus, Search, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/pacientes/")({
-  head: () => ({ meta: [{ title: "Pacientes — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Pacientes — FisioGO" }] }),
   component: PatientsList,
 });
 
