@@ -122,6 +122,11 @@ function Landing() {
           </div>
           <span>© {new Date().getFullYear()} FisioFlow</span>
         </div>
+        <div className="border-t border-border/60">
+          <div className="mx-auto max-w-6xl px-6 py-4 text-xs text-muted-foreground">
+            Desenvolvido por Flowvia — FLOWVIA DESENVOLVIMENTO DE SOFTWARE CUSTOMIZAVEL LTDA · CNPJ 68.558.820/0001-37
+          </div>
+        </div>
       </footer>
     </div>
   );
