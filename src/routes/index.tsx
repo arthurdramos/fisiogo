@@ -151,25 +151,55 @@ const faqs = [
 function Landing() {
   const navigate = useNavigate();
   const [signed, setSigned] = useState(false);
+  const [checkingOAuthReturn, setCheckingOAuthReturn] = useState(false);
 
   useEffect(() => {
+    // O login com Google redireciona de volta pra essa página com os tokens
+    // na hash da URL (#access_token=...), não direto pro /app. Enquanto isso
+    // não processa, escondemos o conteúdo de marketing por trás de um
+    // spinner — sem isso, a página mostrava os botões de login por alguns
+    // segundos com o token exposto na barra de endereço antes de entrar.
+    const hasAuthHash = window.location.hash.includes("access_token");
+    if (hasAuthHash) {
+      setCheckingOAuthReturn(true);
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       setSigned(!!data.session);
       if (data.session) navigate({ to: "/app" });
     });
 
-    // O login com Google redireciona de volta pra essa página (não direto pro
-    // /app), e a troca do código OAuth por sessão é assíncrona — pode não ter
-    // terminado no getSession() acima. Sem esse listener, a página ficava
-    // "presa" mostrando os botões de login até o usuário recarregar.
+    // A troca do token pela sessão é assíncrona — pode não ter terminado no
+    // getSession() acima. Sem esse listener, a página ficava "presa"
+    // mostrando os botões de login até o usuário recarregar. Não zeramos
+    // checkingOAuthReturn em nenhum evento aqui (o Supabase dispara um
+    // INITIAL_SESSION logo ao assinar, antes até da troca terminar) — só o
+    // SIGNED_IN (navega) ou o timeout de segurança abaixo encerram o spinner.
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setSigned(!!session);
       if (event === "SIGNED_IN") navigate({ to: "/app" });
     });
-    return () => authListener.subscription.unsubscribe();
+
+    // Se algo der errado na troca (token inválido/expirado), não deixa o
+    // spinner girando pra sempre — volta a mostrar a página normal.
+    const fallback = hasAuthHash ? setTimeout(() => setCheckingOAuthReturn(false), 6000) : undefined;
+
+    return () => {
+      authListener.subscription.unsubscribe();
+      if (fallback) clearTimeout(fallback);
+    };
   }, [navigate]);
 
   const goSignup = () => navigate({ to: "/auth", search: { mode: "signup" } as never });
+
+  if (checkingOAuthReturn) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
