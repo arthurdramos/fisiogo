@@ -104,8 +104,8 @@ const steps = [
 
 const differentials = [
   {
-    title: "Feito para quem atende sozinho",
-    desc: "Nada de módulos de clínica grande. Só o que um fisioterapeuta autônomo usa todo dia.",
+    title: "Pensado para o profissional autônomo.",
+    desc: "Nada de módulos robustos. Só o que um fisioterapeuta autônomo usa no seu dia a dia.",
   },
   {
     title: "Simples como uma anotação",
