@@ -113,7 +113,7 @@ const differentials = [
   },
   {
     title: "Clínico e financeiro juntos",
-    desc: "A mesma sessão que gera a evolução alimenta o seu faturamento. Sem retrabalho.",
+    desc: "A mesma sessão que gera a evolução alimenta o seu faturamento e controla suas cobranças e faz seu relatório. Sem retrabalho.",
   },
   {
     title: "Seus dados isolados por conta",
