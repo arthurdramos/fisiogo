@@ -120,8 +120,8 @@ const differentials = [
     desc: "Cada profissional enxerga apenas os próprios pacientes, com isolamento no banco de dados.",
   },
   {
-    title: "Funciona no celular",
-    desc: "Atende em domicílio? Consulte a ficha e registre a evolução direto do telefone.",
+    title: "Feito para mobile",
+    desc: "Consulte a ficha e registre a evolução direto do telefone, em qualquer atendimento.",
   },
   {
     title: "Teste sem compromisso",
