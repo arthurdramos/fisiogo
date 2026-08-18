@@ -6,7 +6,6 @@ import {
   Calendar,
   Users,
   ClipboardList,
-  Sparkles,
   Wallet,
   BellRing,
   CheckCircle2,
@@ -65,7 +64,7 @@ const features = [
   {
     icon: Wallet,
     title: "Financeiro",
-    desc: "Receita por período a partir das sessões realizadas e do valor de cada paciente.",
+    desc: "Receita controlada por período e dashboard atualizado a partir das sessões realizadas e dos valores de cada paciente. Relatórios de fechamentos e cobrança em 2 cliques.",
   },
   {
     icon: BellRing,
@@ -116,16 +115,16 @@ const differentials = [
     desc: "A mesma sessão que gera a evolução alimenta o seu faturamento e controla suas cobranças e faz seu relatório. Sem retrabalho.",
   },
   {
-    title: "Seus dados isolados por conta",
-    desc: "Cada profissional enxerga apenas os próprios pacientes, com isolamento no banco de dados.",
-  },
-  {
     title: "Feito para mobile",
     desc: "Consulte a ficha e registre a evolução direto do telefone, em qualquer atendimento.",
   },
   {
     title: "Teste sem compromisso",
     desc: "7 dias grátis, sem cartão. Assine só se fizer sentido para a sua rotina.",
+  },
+  {
+    title: "Seus dados protegidos.",
+    desc: "Cada profissional enxerga apenas os próprios pacientes, com isolamento no banco de dados.",
   },
 ];
 
@@ -205,11 +204,8 @@ function Landing() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <span className="font-display text-lg font-semibold">FisioGO</span>
+          <Link to="/" className="flex items-center">
+            <img src="/logo-fisiogo-horizontal.jpeg" alt="FisioGO" className="h-9 w-auto" />
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
@@ -240,6 +236,7 @@ function Landing() {
             className="pointer-events-none absolute inset-x-0 -top-40 h-96 bg-[radial-gradient(60%_60%_at_50%_50%,var(--color-primary)_0%,transparent_70%)] opacity-10"
           />
           <div className="relative mx-auto max-w-4xl px-6 pt-24 pb-20 text-center">
+            <img src="/logo-fisiogo.png" alt="FisioGO" className="mx-auto mb-8 h-20 w-auto" />
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               7 dias grátis · sem cartão de crédito
@@ -342,7 +339,7 @@ function Landing() {
               <div>
                 <p className="text-xs font-medium uppercase tracking-widest text-primary">Diferenciais</p>
                 <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Por que o FisioGO e não uma planilha?
+                  Por que o FisioGO ?
                 </h2>
                 <p className="mt-4 text-muted-foreground">
                   Nem pesado demais, nem frágil demais. O FisioGO é a gestão que cabe
