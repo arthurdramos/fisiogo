@@ -153,8 +153,21 @@ function Landing() {
   const [signed, setSigned] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSigned(!!data.session));
-  }, []);
+    supabase.auth.getSession().then(({ data }) => {
+      setSigned(!!data.session);
+      if (data.session) navigate({ to: "/app" });
+    });
+
+    // O login com Google redireciona de volta pra essa página (não direto pro
+    // /app), e a troca do código OAuth por sessão é assíncrona — pode não ter
+    // terminado no getSession() acima. Sem esse listener, a página ficava
+    // "presa" mostrando os botões de login até o usuário recarregar.
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setSigned(!!session);
+      if (event === "SIGNED_IN") navigate({ to: "/app" });
+    });
+    return () => authListener.subscription.unsubscribe();
+  }, [navigate]);
 
   const goSignup = () => navigate({ to: "/auth", search: { mode: "signup" } as never });
 
