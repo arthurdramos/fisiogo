@@ -259,86 +259,6 @@ function Landing() {
                 Já tenho conta
               </Button>
             </div>
-
-            <dl className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
-              {[
-                { k: "2 min", v: "para começar" },
-                { k: "1 tela", v: "para a semana toda" },
-                { k: "0", v: "planilhas" },
-                { k: "100%", v: "no celular" },
-              ].map(({ k, v }) => (
-                <div key={v} className="rounded-xl border border-border bg-card px-4 py-5">
-                  <dt className="font-display text-2xl font-semibold text-foreground">{k}</dt>
-                  <dd className="mt-1 text-xs text-muted-foreground">{v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        {/* Funcionalidades */}
-        <section id="funcionalidades" className="border-b border-border/60 py-24">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-medium uppercase tracking-widest text-primary">Funcionalidades</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Tudo o que a sua rotina precisa. Nada além disso.
-              </h2>
-              <p className="mt-4 text-muted-foreground">
-                Cada recurso existe para tirar uma tarefa manual do seu dia.
-              </p>
-            </div>
-
-            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {features.map(({ icon: Icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
-                >
-                  <div className="mb-4 grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-display text-base font-semibold">{title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Diferenciais */}
-        <section id="diferenciais" className="border-b border-border/60 bg-secondary/40 py-24">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-primary">Diferenciais</p>
-                <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Por que o FisioGO e não uma planilha?
-                </h2>
-                <p className="mt-4 text-muted-foreground">
-                  Softwares de clínica são pesados demais. Planilhas são frágeis demais.
-                  O FisioGO fica exatamente no meio: o suficiente para profissionalizar,
-                  leve o bastante para usar entre um atendimento e outro.
-                </p>
-                <Button className="mt-8" onClick={goSignup}>
-                  Experimentar grátis
-                </Button>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                {differentials.map(({ title, desc }) => (
-                  <div key={title} className="rounded-xl border border-border bg-card p-5">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      <div>
-                        <h3 className="font-display text-sm font-semibold">{title}</h3>
-                        <p className="mt-1.5 text-sm text-muted-foreground">{desc}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 
@@ -382,6 +302,91 @@ function Landing() {
                 <Clock className="h-4 w-4" /> Leva cerca de 2 minutos
               </span>
             </div>
+          </div>
+        </section>
+
+        {/* Funcionalidades */}
+        <section id="funcionalidades" className="border-b border-border/60 py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">Funcionalidades</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Tudo o que a sua rotina precisa. Nada além disso.
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Cada recurso existe para tirar uma tarefa manual do seu dia.
+              </p>
+            </div>
+
+            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {features.map(({ icon: Icon, title, desc }) => (
+                <div
+                  key={title}
+                  className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+                >
+                  <div className="mb-4 grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-display text-base font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Diferenciais */}
+        <section id="diferenciais" className="border-b border-border/60 bg-secondary/40 py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-widest text-primary">Diferenciais</p>
+                <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                  Por que o FisioGO e não uma planilha?
+                </h2>
+                <p className="mt-4 text-muted-foreground">
+                  Nem pesado demais, nem frágil demais. O FisioGO é a gestão que cabe
+                  no seu dia: leve o bastante pra usar entre um atendimento e outro,
+                  completo o bastante pra profissionalizar sua rotina.
+                </p>
+                <Button className="mt-8" onClick={goSignup}>
+                  Experimentar grátis
+                </Button>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {differentials.map(({ title, desc }) => (
+                  <div key={title} className="rounded-xl border border-border bg-card p-5">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div>
+                        <h3 className="font-display text-sm font-semibold">{title}</h3>
+                        <p className="mt-1.5 text-sm text-muted-foreground">{desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Números rápidos */}
+        <section className="border-b border-border/60 py-16">
+          <div className="mx-auto max-w-3xl px-6">
+            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {[
+                { k: "2 min", v: "para começar" },
+                { k: "1 tela", v: "para a semana toda" },
+                { k: "0", v: "planilhas" },
+                { k: "100%", v: "no celular" },
+              ].map(({ k, v }) => (
+                <div key={v} className="rounded-xl border border-border bg-card px-4 py-5">
+                  <dt className="font-display text-2xl font-semibold text-foreground">{k}</dt>
+                  <dd className="mt-1 text-xs text-muted-foreground">{v}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
 
