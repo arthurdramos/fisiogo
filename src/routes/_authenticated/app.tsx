@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Users, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
-  head: () => ({ meta: [{ title: "Início — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Início — FisioGO" }] }),
   component: Dashboard,
 });
 

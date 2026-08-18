@@ -12,10 +12,10 @@ import { Sparkles } from "lucide-react";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — FisioFlow" },
-      { name: "description", content: "Acesse sua conta FisioFlow." },
-      { property: "og:title", content: "Entrar — FisioFlow" },
-      { property: "og:description", content: "Acesse sua conta FisioFlow." },
+      { title: "Entrar — FisioGO" },
+      { name: "description", content: "Acesse sua conta FisioGO." },
+      { property: "og:title", content: "Entrar — FisioGO" },
+      { property: "og:description", content: "Acesse sua conta FisioGO." },
     ],
   }),
   component: AuthPage,
@@ -110,7 +110,7 @@ function AuthPage() {
           <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Sparkles className="h-4 w-4" />
           </div>
-          <span className="font-display text-lg font-semibold">FisioFlow</span>
+          <span className="font-display text-lg font-semibold">FisioGO</span>
         </Link>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">

@@ -26,7 +26,7 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
-  head: () => ({ meta: [{ title: "Agenda — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Agenda — FisioGO" }] }),
   component: Agenda,
 });
 

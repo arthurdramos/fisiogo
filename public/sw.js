@@ -3,10 +3,10 @@ self.addEventListener("push", (event) => {
   try {
     data = event.data ? event.data.json() : {};
   } catch {
-    data = { title: "FisioFlow", body: event.data ? event.data.text() : "" };
+    data = { title: "FisioGO", body: event.data ? event.data.text() : "" };
   }
 
-  const title = data.title || "FisioFlow";
+  const title = data.title || "FisioGO";
   const options = {
     body: data.body || "",
     icon: "/favicon.ico",

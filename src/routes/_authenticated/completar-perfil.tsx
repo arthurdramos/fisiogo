@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/completar-perfil")({
-  head: () => ({ meta: [{ title: "Completar cadastro — FisioFlow" }] }),
+  head: () => ({ meta: [{ title: "Completar cadastro — FisioGO" }] }),
   component: CompletarPerfil,
 });
 
@@ -84,7 +84,7 @@ function CompletarPerfil() {
       <div className="mb-8">
         <h1 className="font-display text-3xl font-semibold">Complete seu cadastro</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Faltam alguns dados obrigatórios para liberar o acesso ao FisioFlow.
+          Faltam alguns dados obrigatórios para liberar o acesso ao FisioGO.
         </p>
       </div>
 
