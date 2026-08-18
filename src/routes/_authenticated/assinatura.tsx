@@ -50,6 +50,7 @@ function Assinatura() {
     ? Math.max(0, Math.ceil((new Date(sub.trial_ends_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : 0;
   const isActive = sub?.status === "ativo";
+  const cortesia = sub?.status === "cortesia";
 
   return (
     <div className="mx-auto max-w-3xl p-6 md:p-10">
@@ -60,12 +61,17 @@ function Assinatura() {
             Sua assinatura está ativa ({sub.plano === "anual" ? "plano anual" : "plano mensal"}).
           </p>
         )}
-        {!isActive && trialActive && (
+        {cortesia && (
+          <p className="mt-2 text-sm text-emerald-600">
+            Acesso cortesia liberado — sem necessidade de assinatura.
+          </p>
+        )}
+        {!isActive && !cortesia && trialActive && (
           <p className="mt-2 text-sm text-muted-foreground">
             Você está no período de teste — {daysLeft} dia(s) restante(s).
           </p>
         )}
-        {!isActive && !trialActive && (
+        {!isActive && !cortesia && !trialActive && (
           <p className="mt-2 text-sm text-destructive">
             Seu período de teste terminou. Assine um plano para continuar usando o FisioGO.
           </p>
@@ -82,7 +88,7 @@ function Assinatura() {
           <Button
             className="mt-6 w-full"
             onClick={() => subscribe("mensal")}
-            disabled={loadingPlan !== null || isActive}
+            disabled={loadingPlan !== null || isActive || cortesia}
           >
             {loadingPlan === "mensal" ? "Redirecionando..." : "Assinar mensal"}
           </Button>
@@ -101,7 +107,7 @@ function Assinatura() {
           <Button
             className="mt-6 w-full"
             onClick={() => subscribe("anual")}
-            disabled={loadingPlan !== null || isActive}
+            disabled={loadingPlan !== null || isActive || cortesia}
           >
             {loadingPlan === "anual" ? "Redirecionando..." : "Assinar anual"}
           </Button>

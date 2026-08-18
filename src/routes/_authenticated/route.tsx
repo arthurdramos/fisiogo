@@ -69,7 +69,7 @@ export const Route = createFileRoute("/_authenticated")({
     }
 
     const trialActive = !!sub && sub.status === "trial" && new Date(sub.trial_ends_at) > new Date();
-    const isActive = sub?.status === "ativo" || trialActive;
+    const isActive = sub?.status === "ativo" || sub?.status === "cortesia" || trialActive;
 
     if (!isActive) throw redirect({ to: "/assinatura" });
 
