@@ -6,7 +6,6 @@ import {
   Calendar,
   Users,
   ClipboardList,
-  ShieldCheck,
   Sparkles,
   Wallet,
   BellRing,
@@ -382,17 +381,11 @@ function Landing() {
       </main>
 
       <footer className="border-t border-border/60">
-        <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-muted-foreground">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4" />
-              Seus dados são seus. Isolados por conta.
-            </div>
-            <span>© {new Date().getFullYear()} FisioGO</span>
-          </div>
-          <p className="mt-3 text-xs text-muted-foreground/80">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6 text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground/80">
             Desenvolvido por Flowvia — FLOWVIA DESENVOLVIMENTO DE SOFTWARE CUSTOMIZAVEL LTDA · CNPJ 68.558.820/0001-37
-          </p>
+          </span>
+          <span>© {new Date().getFullYear()} FisioGO</span>
         </div>
       </footer>
     </div>
