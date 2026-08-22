@@ -199,7 +199,7 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
           <Link to="/" className="flex items-center">
-            <img src="/logo-fisiogo-horizontal.jpeg" alt="FisioGO" className="h-9 w-auto" />
+            <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-9 w-auto" />
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
