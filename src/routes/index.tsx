@@ -331,6 +331,68 @@ function Landing() {
           </div>
         </section>
 
+        {/* Números rápidos */}
+        <div className="bg-brand-900 py-[52px]">
+          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-6 px-6 sm:grid-cols-4">
+            {[
+              {
+                num: "2 min",
+                lab: "para começar",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.7}>
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3.5 2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ),
+              },
+              {
+                num: "1 tela",
+                lab: "para a semana toda",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.7}>
+                    <rect x="3" y="4" width="18" height="13" rx="1.5" />
+                    <path d="M9 20h6M12 17v3" strokeLinecap="round" />
+                  </svg>
+                ),
+              },
+              {
+                num: "0",
+                lab: "planilhas",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.3}>
+                    <rect x="3.5" y="4" width="17" height="16" rx="1.5" />
+                    <path d="M3.5 9.5h17M3.5 14.5h17M9 4v16M15 4v16" />
+                    <path d="M2.5 2.5l19 19" strokeWidth={2} strokeLinecap="round" />
+                  </svg>
+                ),
+              },
+              {
+                num: "100%",
+                lab: "no celular",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.7}>
+                    <rect x="6.5" y="2.5" width="11" height="19" rx="2.5" />
+                    <path d="M11 19h2" strokeLinecap="round" />
+                  </svg>
+                ),
+              },
+            ].map((s, i) => (
+              <div
+                key={s.lab}
+                className={
+                  "px-3 text-center " +
+                  (i === 0 || i === 2 ? "border-l-0 " : "border-l border-white/[.14] ") +
+                  (i === 0 ? "sm:border-l-0" : "sm:border-l sm:border-white/[.14]")
+                }
+              >
+                <div className="mx-auto mb-3.5 h-[26px] w-[26px]">{s.icon}</div>
+                <div className="font-mono text-3xl font-semibold text-white">{s.num}</div>
+                <div className="mt-1 text-[13px] text-white/65">{s.lab}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Linha do tempo */}
         <section id="como-funciona" className="border-b border-border/60 py-24">
           <div className="mx-auto max-w-5xl px-6">
@@ -437,25 +499,6 @@ function Landing() {
                 ))}
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Números rápidos */}
-        <section className="border-b border-border/60 py-16">
-          <div className="mx-auto max-w-3xl px-6">
-            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {[
-                { k: "2 min", v: "para começar" },
-                { k: "1 tela", v: "para a semana toda" },
-                { k: "0", v: "planilhas" },
-                { k: "100%", v: "no celular" },
-              ].map(({ k, v }) => (
-                <div key={v} className="rounded-xl border border-border bg-card px-4 py-5">
-                  <dt className="font-display text-2xl font-semibold text-foreground">{k}</dt>
-                  <dd className="mt-1 text-xs text-muted-foreground">{v}</dd>
-                </div>
-              ))}
-            </dl>
           </div>
         </section>
 
