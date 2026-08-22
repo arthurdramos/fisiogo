@@ -417,10 +417,10 @@ function Landing() {
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="md:mt-5">
-                    <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                      Passo {i + 1}
+                    <span className="font-mono text-xs font-semibold text-muted-foreground">
+                      {String(i + 1).padStart(2, "0")}
                     </span>
-                    <h3 className="mt-1 font-display text-base font-semibold">{title}</h3>
+                    <h3 className="mt-1 font-serif text-base font-semibold">{title}</h3>
                     <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
                   </div>
                 </li>
