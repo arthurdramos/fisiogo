@@ -103,7 +103,11 @@ const steps = [
 
 const differentials = [
   {
-    title: "Pensado para o profissional autônomo.",
+    title: "Teste sem compromisso",
+    desc: "7 dias grátis, sem cartão. Assine só se fizer sentido para a sua rotina.",
+  },
+  {
+    title: "Pensado para o profissional autônomo",
     desc: "Nada de módulos robustos. Só o que um fisioterapeuta autônomo usa no seu dia a dia.",
   },
   {
@@ -119,11 +123,7 @@ const differentials = [
     desc: "Consulte a ficha e registre a evolução direto do telefone, em qualquer atendimento.",
   },
   {
-    title: "Teste sem compromisso",
-    desc: "7 dias grátis, sem cartão. Assine só se fizer sentido para a sua rotina.",
-  },
-  {
-    title: "Seus dados protegidos.",
+    title: "Seus dados protegidos",
     desc: "Cada profissional enxerga apenas os próprios pacientes, com isolamento no banco de dados.",
   },
 ];
@@ -339,7 +339,7 @@ function Landing() {
               <div>
                 <p className="text-xs font-medium uppercase tracking-widest text-primary">Diferenciais</p>
                 <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Por que o FisioGO ?
+                  Por que o FisioGO?
                 </h2>
                 <p className="mt-4 text-muted-foreground">
                   Nem pesado demais, nem frágil demais. O FisioGO é a gestão que cabe
