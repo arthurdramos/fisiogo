@@ -15,6 +15,8 @@ import {
   CalendarCheck,
   LineChart,
   Check,
+  Star,
+  Plus,
 } from "lucide-react";
 
 const TITLE = "FisioGO — Gestão simples para fisioterapeutas autônomos";
@@ -123,6 +125,31 @@ const differentials = [
   },
 ];
 
+// TODO: substituir por conteúdo real — depoimentos abaixo são fictícios/placeholder
+const testimonials = [
+  {
+    initials: "CR",
+    color: "bg-brand-700",
+    quote: "Consegui sair da agenda de papel numa tarde. Hoje fecho o mês sem abrir planilha nenhuma.",
+    name: "Camila R.",
+    role: "Fisioterapeuta ortopédica · Curitiba/PR",
+  },
+  {
+    initials: "RM",
+    color: "bg-accent-600",
+    quote: "O que mais uso é a evolução virar cobrança sozinha. Antes eu perdia sessão de vista o tempo todo.",
+    name: "Rafael M.",
+    role: "Fisioterapeuta domiciliar · Belo Horizonte/MG",
+  },
+  {
+    initials: "JP",
+    color: "bg-brand-500",
+    quote: "Testei três apps de clínica antes desse. Foi o único que não tentou me vender módulo que eu não uso.",
+    name: "Juliana P.",
+    role: "Fisioterapeuta autônoma · São Paulo/SP",
+  },
+];
+
 const faqs = [
   {
     q: "Preciso de cartão de crédito para testar?",
@@ -140,12 +167,17 @@ const faqs = [
     q: "Consigo exportar meus dados?",
     a: "Sim. Seus registros são seus e podem ser exportados quando você quiser.",
   },
+  {
+    q: "Quanto custa depois dos 7 dias de teste?",
+    a: "Um valor único por mês, sem taxa de adesão e sem fidelidade. Você só é cobrado se decidir continuar.",
+  },
 ];
 
 function Landing() {
   const navigate = useNavigate();
   const [signed, setSigned] = useState(false);
   const [checkingOAuthReturn, setCheckingOAuthReturn] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
     // O login com Google redireciona de volta pra essa página com os tokens
@@ -207,6 +239,8 @@ function Landing() {
             <a href="#funcionalidades" className="transition-colors hover:text-foreground">Funcionalidades</a>
             <a href="#diferenciais" className="transition-colors hover:text-foreground">Diferenciais</a>
             <a href="#como-funciona" className="transition-colors hover:text-foreground">Como funciona</a>
+            <a href="#depoimentos" className="transition-colors hover:text-foreground">Depoimentos</a>
+            <a href="#precos" className="transition-colors hover:text-foreground">Preços</a>
             <a href="#faq" className="transition-colors hover:text-foreground">Dúvidas</a>
           </nav>
 
@@ -525,6 +559,93 @@ function Landing() {
           </div>
         </section>
 
+        {/* Depoimentos */}
+        {/* TODO: substituir por conteúdo real — depoimentos abaixo são fictícios/placeholder */}
+        <section id="depoimentos" className="border-b border-border/60 bg-canvas py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">Depoimentos</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Fisioterapeutas que trocaram a planilha pelo FisioGO
+              </h2>
+            </div>
+            <div className="mt-14 grid gap-[22px] sm:grid-cols-3">
+              {testimonials.map(({ initials, color, quote, name, role }) => (
+                <div key={name} className="rounded-xl border border-line bg-paper p-7">
+                  <div className="flex gap-[3px] text-lp-accent">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="h-[15px] w-[15px] fill-current" />
+                    ))}
+                  </div>
+                  <p className="mt-4 text-[15px] leading-[1.55] text-ink">"{quote}"</p>
+                  <div className="mt-5 flex items-center gap-3">
+                    <span
+                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-[13px] font-extrabold text-white ${color}`}
+                    >
+                      {initials}
+                    </span>
+                    <div>
+                      <div className="text-[13.5px] font-extrabold text-ink">{name}</div>
+                      <div className="text-xs text-lp-muted">{role}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Preços */}
+        {/* TODO: substituir por conteúdo real — valor abaixo é placeholder */}
+        <section id="precos" className="border-b border-border/60 py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">Preços</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Um plano. Sem letra miúda.
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Tudo incluso desde o primeiro dia — sem módulo extra, sem limite de paciente escondido em
+                contrato.
+              </p>
+            </div>
+            <div className="mx-auto mt-14 max-w-[460px] rounded-2xl bg-brand-900 px-11 py-11 text-center text-white">
+              <div className="font-mono text-[12.5px] font-semibold uppercase tracking-[0.12em] text-lp-accent">
+                Plano FisioGO
+              </div>
+              <div className="mt-3.5 font-serif text-[52px] leading-none">
+                R${" "}
+                <span className="underline decoration-dashed decoration-white/50 underline-offset-[6px]">
+                  [valor]
+                </span>
+                <span className="font-sans text-base font-medium text-white/60"> /mês</span>
+              </div>
+              <ul className="mt-7 flex flex-col gap-3 text-left">
+                {[
+                  "Agenda e pacientes ilimitados",
+                  "Evolução clínica e plano de tratamento",
+                  "Financeiro, relatórios e cobrança",
+                  "Lembretes automáticos de sessão",
+                  "Suporte por chat",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-sm text-white/88">
+                    <Check className="h-4 w-4 shrink-0 text-lp-accent" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="lg"
+                className="mt-1.5 w-full bg-white text-brand-900 hover:bg-white/90"
+                onClick={goSignup}
+              >
+                Começar 7 dias grátis
+              </Button>
+              <div className="mt-3.5 text-xs text-white/55">Sem cartão de crédito · cancele quando quiser</div>
+            </div>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section id="faq" className="border-b border-border/60 bg-secondary/40 py-24">
           <div className="mx-auto max-w-4xl px-6">
@@ -535,12 +656,26 @@ function Landing() {
               </h2>
             </div>
             <div className="mt-12 grid gap-4 sm:grid-cols-2">
-              {faqs.map(({ q, a }) => (
-                <div key={q} className="rounded-xl border border-border bg-card p-6">
-                  <h3 className="font-display text-sm font-semibold">{q}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{a}</p>
-                </div>
-              ))}
+              {faqs.map(({ q, a }, i) => {
+                const isOpen = openFaq === i;
+                return (
+                  <button
+                    key={q}
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className="rounded-xl border border-border bg-card p-6 text-left"
+                    aria-expanded={isOpen}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <h3 className="font-display text-sm font-semibold">{q}</h3>
+                      <Plus
+                        className={`h-4 w-4 shrink-0 text-brand-700 transition-transform duration-200 ${isOpen ? "rotate-45" : ""}`}
+                      />
+                    </div>
+                    {isOpen && <p className="mt-2 text-sm text-muted-foreground">{a}</p>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -548,14 +683,18 @@ function Landing() {
         {/* CTA final */}
         <section className="py-24">
           <div className="mx-auto max-w-4xl px-6">
-            <div className="rounded-2xl border border-border bg-card px-8 py-14 text-center">
-              <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            <div className="rounded-2xl bg-gradient-to-br from-brand-900 to-brand-700 px-8 py-14 text-center">
+              <h2 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                 Sua próxima semana pode ser mais leve.
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+              <p className="mx-auto mt-4 max-w-xl text-white/72">
                 Crie sua conta gratuitamente e organize pacientes, agenda e financeiro hoje mesmo.
               </p>
-              <Button size="lg" className="mt-8" onClick={goSignup}>
+              <Button
+                size="lg"
+                className="mt-8 bg-white text-brand-900 hover:bg-white/90"
+                onClick={goSignup}
+              >
                 Começar grátis
               </Button>
             </div>
