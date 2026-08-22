@@ -449,19 +449,42 @@ function Landing() {
               </p>
             </div>
 
-            <div className="mt-14 flex flex-wrap justify-center gap-6">
-              {features.map(({ icon: Icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="w-full rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]"
-                >
-                  <div className="mb-4 grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-display text-base font-semibold">{title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
-                </div>
-              ))}
+            <div className="mt-14 grid grid-cols-1 gap-[18px] sm:grid-cols-2 sm:auto-rows-[150px] lg:grid-cols-4 lg:auto-rows-[170px]">
+              {(() => {
+                const featured = features.find((f) => f.title === "Evolução clínica")!;
+                const rest = features.filter((f) => f.title !== "Evolução clínica");
+                const FeaturedIcon = featured.icon;
+                return (
+                  <>
+                    <div className="flex flex-col justify-between rounded-[18px] bg-brand-900 p-[26px] text-white sm:col-span-2 sm:row-span-1 sm:min-h-[220px] lg:row-span-2 lg:min-h-0">
+                      <div>
+                        <div className="mb-4 grid h-[38px] w-[38px] place-items-center rounded-[10px] bg-white/[.12]">
+                          <FeaturedIcon className="h-[19px] w-[19px] text-white" />
+                        </div>
+                        <h3 className="font-sans text-lg font-extrabold text-white">{featured.title}</h3>
+                        <p className="mt-1.5 text-sm text-white/68">
+                          {featured.desc} — e é essa mesma nota que alimenta o financeiro.
+                        </p>
+                      </div>
+                      <div className="mt-[18px] rounded-xl bg-white/[.08] px-3.5 py-3 font-mono text-xs text-white/85">
+                        14:00 → nota salva → cobrança gerada
+                      </div>
+                    </div>
+                    {rest.map(({ icon: Icon, title, desc }) => (
+                      <div
+                        key={title}
+                        className="rounded-[18px] border border-line bg-canvas p-[26px] transition-all hover:-translate-y-1 hover:bg-paper hover:shadow-[0_10px_24px_-14px_rgba(14,31,82,.22)]"
+                      >
+                        <div className="mb-4 grid h-[38px] w-[38px] place-items-center rounded-[10px] bg-brand-100">
+                          <Icon className="h-[19px] w-[19px] text-brand-700" />
+                        </div>
+                        <h3 className="font-sans text-[15.5px] font-extrabold text-ink">{title}</h3>
+                        <p className="mt-1.5 text-sm text-body">{desc}</p>
+                      </div>
+                    ))}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </section>
