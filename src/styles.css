@@ -162,3 +162,44 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* Ilustração do hero da landing page (ETAPA 1) — nomes de classe
+   próprios (hero-*) pra não colidir com nada mais no app. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-chip-evolucao {
+    animation: hero-pop-in 0.6s 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .hero-chip-financeiro {
+    animation: hero-pop-in 0.6s 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .hero-flow-dot {
+    offset-path: path("M90 30 C 130 60, 40 90, 30 140");
+    animation: hero-travel 2.2s 1s ease-in-out infinite;
+  }
+}
+@keyframes hero-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes hero-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}

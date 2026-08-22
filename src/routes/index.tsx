@@ -14,6 +14,7 @@ import {
   UserPlus,
   CalendarCheck,
   LineChart,
+  Check,
 } from "lucide-react";
 
 const TITLE = "FisioGO — Gestão simples para fisioterapeutas autônomos";
@@ -224,31 +225,108 @@ function Landing() {
 
       <main>
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border/60">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 -top-40 h-96 bg-[radial-gradient(60%_60%_at_50%_50%,var(--color-primary)_0%,transparent_70%)] opacity-10"
-          />
-          <div className="relative mx-auto max-w-4xl px-6 pt-24 pb-20 text-center">
-            <img src="/logo-fisiogo.png" alt="FisioGO" className="mx-auto mb-8 h-20 w-auto" />
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              7 dias grátis · sem cartão de crédito
+        <section className="relative overflow-hidden border-b border-border/60 pt-20 pb-24">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-6 lg:grid-cols-2">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                7 dias grátis · sem cartão de crédito
+              </div>
+              <h1 className="mt-6 font-serif text-5xl font-semibold tracking-tight text-foreground sm:text-6xl">
+                Menos papel, planilha e WhatsApp.
+                <br />
+                <span className="text-primary">Mais tempo com o paciente.</span>
+              </h1>
+              <p className="mt-6 max-w-lg text-lg text-muted-foreground">
+                O FisioGO organiza pacientes, agenda, evolução clínica e financeiro em um só lugar.
+                Simples como uma anotação — confiável como um prontuário.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Button size="lg" onClick={goSignup}>Criar conta grátis</Button>
+                <Button size="lg" variant="outline" onClick={() => navigate({ to: "/auth" })}>
+                  Já tenho conta
+                </Button>
+              </div>
             </div>
-            <h1 className="font-display text-5xl font-semibold tracking-tight text-foreground sm:text-6xl">
-              Menos papel, planilha e WhatsApp.
-              <br />
-              <span className="text-primary">Mais tempo com o paciente.</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              O FisioGO organiza pacientes, agenda, evolução clínica e financeiro em um só lugar.
-              Simples como uma anotação — confiável como um prontuário.
-            </p>
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
-              <Button size="lg" onClick={goSignup}>Criar conta grátis</Button>
-              <Button size="lg" variant="outline" onClick={() => navigate({ to: "/auth" })}>
-                Já tenho conta
-              </Button>
+
+            {/* Ilustração: mini frame do app com agenda semanal + chips flutuantes */}
+            <div className="relative px-5 py-5">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(60%_60%_at_60%_30%,var(--brand-100),transparent_70%)]"
+              />
+              <div className="relative -rotate-[1.6deg] rounded-[28px] border border-line bg-paper shadow-[0_24px_48px_-24px_rgba(14,31,82,.28)]">
+                <div className="flex items-center gap-2 border-b border-line px-[18px] py-3.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#F97066]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#F5B94D]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#3FCF8E]" />
+                  <span className="ml-3 rounded-md bg-canvas px-3 py-1 font-mono text-[11px] text-lp-muted">
+                    app.fisiogo.com.br/agenda
+                  </span>
+                </div>
+                <div className="flex gap-5 px-5 pt-3.5 text-[13.5px] font-bold text-lp-muted">
+                  <span className="border-b-2 border-brand-700 pb-3 text-brand-700">Agenda</span>
+                  <span>Financeiro</span>
+                  <span>Pacientes</span>
+                </div>
+                <div className="px-5 pb-6 pt-[18px]">
+                  <div className="grid grid-cols-5 gap-2">
+                    {[
+                      { d: "SEG", tone: "plain" },
+                      { d: "TER", tone: "busy" },
+                      { d: "QUA", tone: "selected" },
+                      { d: "QUI", tone: "plain" },
+                      { d: "SEX", tone: "busy" },
+                    ].map(({ d, tone }) => (
+                      <div key={d}>
+                        <div className="mb-1 text-center font-mono text-[10.5px] text-lp-muted">{d}</div>
+                        <div
+                          className={
+                            "h-[34px] rounded-lg " +
+                            (tone === "selected"
+                              ? "bg-brand-700 shadow-[0_8px_16px_-8px_rgba(29,78,216,.6)]"
+                              : tone === "busy"
+                                ? "bg-brand-100"
+                                : "bg-canvas")
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3.5 flex items-center justify-between rounded-xl bg-canvas px-3.5 py-3 text-[12.5px]">
+                    <span>Ana T. · sessão de hoje</span>
+                    <strong className="font-mono text-xs text-ink">14:00</strong>
+                  </div>
+                </div>
+
+                <svg
+                  aria-hidden
+                  viewBox="0 0 140 160"
+                  fill="none"
+                  className="pointer-events-none absolute right-[2%] top-[6%] h-[70%] w-[36%]"
+                >
+                  <path
+                    d="M90 30 C 130 60, 40 90, 30 140"
+                    stroke="var(--line)"
+                    strokeWidth="2"
+                    strokeDasharray="4 6"
+                  />
+                  <circle className="hero-flow-dot" r="4" fill="var(--lp-accent)" />
+                </svg>
+
+                <div className="hero-chip-evolucao absolute -right-[8%] top-[8%] z-[2] flex items-center gap-2 rounded-2xl border border-line bg-paper px-3.5 py-2.5 text-xs font-bold shadow-[0_10px_24px_-14px_rgba(14,31,82,.22)]">
+                  <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-accent-100">
+                    <Check className="h-3 w-3 text-accent-600" strokeWidth={3} />
+                  </span>
+                  Evolução salva
+                </div>
+                <div className="hero-chip-financeiro absolute -left-[8%] bottom-[-6%] z-[2] flex items-center gap-2 rounded-2xl border border-line bg-paper px-3.5 py-2.5 text-xs font-bold shadow-[0_10px_24px_-14px_rgba(14,31,82,.22)]">
+                  <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-accent-100">
+                    <Check className="h-3 w-3 text-accent-600" strokeWidth={3} />
+                  </span>
+                  <span className="font-mono text-accent-600">+ R$ 120 cobrado</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
