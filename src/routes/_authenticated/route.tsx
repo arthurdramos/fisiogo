@@ -107,7 +107,7 @@ function AuthedLayout() {
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-60 shrink-0 border-r border-border bg-sidebar md:flex md:flex-col">
         <div className="flex h-14 items-center border-b border-border px-5">
-          <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-7 w-auto" />
+          <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-10 w-auto" />
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {!profileComplete ? (
@@ -151,7 +151,7 @@ function AuthedLayout() {
                 <span className="sr-only">Abrir menu</span>
               </Button>
             )}
-            <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-7 w-auto" />
+            <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-10 w-auto" />
           </div>
           <Button variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="h-4 w-4" />
@@ -163,7 +163,7 @@ function AuthedLayout() {
             <SheetContent side="left" className="flex w-72 flex-col p-0">
               <SheetHeader className="border-b border-border px-5 py-4 text-left">
                 <SheetTitle className="flex items-center">
-                  <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-7 w-auto" />
+                  <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-10 w-auto" />
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex-1 space-y-1 p-3">
