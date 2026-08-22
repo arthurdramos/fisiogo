@@ -10,7 +10,6 @@ import {
   BellRing,
   CheckCircle2,
   HeartPulse,
-  Smartphone,
   Clock,
   UserPlus,
   CalendarCheck,
@@ -70,11 +69,6 @@ const features = [
     icon: BellRing,
     title: "Lembretes de sessão",
     desc: "Avisos automáticos das próximas sessões para reduzir faltas na agenda.",
-  },
-  {
-    icon: Smartphone,
-    title: "Confirmação do paciente",
-    desc: "Link de confirmação de presença — sem depender de conversas soltas no WhatsApp.",
   },
 ];
 
@@ -315,11 +309,11 @@ function Landing() {
               </p>
             </div>
 
-            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-14 flex flex-wrap justify-center gap-6">
               {features.map(({ icon: Icon, title, desc }) => (
                 <div
                   key={title}
-                  className="rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+                  className="w-full rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]"
                 >
                   <div className="mb-4 grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
                     <Icon className="h-5 w-5" />
