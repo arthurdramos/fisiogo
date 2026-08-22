@@ -8,6 +8,31 @@
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
 
+  /* Tipografia da landing page (reforma visual — ver ETAPA 0).
+     font-serif/font-mono não têm uso relevante fora da landing hoje
+     (font-mono só aparece 1x, num tooltip de gráfico). */
+  --font-serif: "Fraunces", serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Paleta da landing page (reforma visual — ver ETAPA 0).
+     --lp-accent e --lp-muted são renomeados a partir do protótipo:
+     colidiam com --accent/--muted já usados pelo app autenticado
+     (hover de menu, botões etc.) com significados diferentes. */
+  --color-ink: var(--ink);
+  --color-body: var(--body);
+  --color-lp-muted: var(--lp-muted);
+  --color-brand-900: var(--brand-900);
+  --color-brand-700: var(--brand-700);
+  --color-brand-600: var(--brand-600);
+  --color-brand-500: var(--brand-500);
+  --color-brand-100: var(--brand-100);
+  --color-lp-accent: var(--lp-accent);
+  --color-accent-600: var(--accent-600);
+  --color-accent-100: var(--accent-100);
+  --color-paper: var(--paper);
+  --color-canvas: var(--canvas);
+  --color-line: var(--line);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -74,6 +99,23 @@
   --sidebar-accent-foreground: oklch(0.28 0.04 260);
   --sidebar-border: oklch(0.92 0.01 250);
   --sidebar-ring: oklch(0.62 0.19 256);
+
+  /* Landing page (ver ETAPA 0) — valores idênticos ao protótipo aprovado,
+     exceto --lp-accent/--lp-muted (renomeados por colisão, ver acima). */
+  --ink: #0b1220;
+  --body: #51607a;
+  --lp-muted: #8592a8;
+  --brand-900: #0e1f52;
+  --brand-700: #1d4ed8;
+  --brand-600: #2a5cf0;
+  --brand-500: #5b87f6;
+  --brand-100: #eaf1ff;
+  --lp-accent: #0ea5a0;
+  --accent-600: #0b8f8a;
+  --accent-100: #e3fbf7;
+  --paper: #ffffff;
+  --canvas: #f7f9fc;
+  --line: #e4e9f2;
 }
 
 .dark {
