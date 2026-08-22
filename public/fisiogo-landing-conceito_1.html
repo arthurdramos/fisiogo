@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FisioGO — Gestão simples para fisioterapeutas autônomos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1220;
+    --body:#51607A;
+    --muted:#8592A8;
+    --brand-900:#0E1F52;
+    --brand-700:#1D4ED8;
+    --brand-600:#2A5CF0;
+    --brand-500:#5B87F6;
+    --brand-100:#EAF1FF;
+    --accent:#0EA5A0;
+    --accent-600:#0B8F8A;
+    --accent-100:#E3FBF7;
+    --paper:#FFFFFF;
+    --canvas:#F7F9FC;
+    --line:#E4E9F2;
+    --radius-lg:28px;
+    --radius-md:18px;
+    --radius-sm:12px;
+    --shadow-md:0 24px 48px -24px rgba(14,31,82,.28);
+    --shadow-sm:0 10px 24px -14px rgba(14,31,82,.22);
+    --serif:'Fraunces', serif;
+    --sans:'Plus Jakarta Sans', -apple-system, sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--sans); color:var(--body); background:var(--paper); line-height:1.5; -webkit-font-smoothing:antialiased;}
+  img,svg{display:block; max-width:100%;}
+  a{color:inherit; text-decoration:none;}
+  ul{list-style:none;}
+  h1,h2,h3{font-family:var(--serif); color:var(--ink); font-weight:600; line-height:1.08; letter-spacing:-.01em;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  .eyebrow{font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-600);}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:var(--sans); font-weight:700; font-size:15px; padding:14px 26px; border-radius:100px; cursor:pointer; border:1.5px solid transparent; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{background:var(--brand-700); color:#fff; box-shadow:0 14px 28px -12px rgba(29,78,216,.55);}
+  .btn-primary:hover{background:var(--brand-600);}
+  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--brand-700); color:var(--brand-700);}
+  .btn-white{background:#fff; color:var(--brand-700);}
+  .btn-white:hover{background:#EAF1FF;}
+  section{padding:112px 0;}
+  .section-head{max-width:640px; margin-bottom:56px;}
+  .section-head.center{margin-left:auto; margin-right:auto; text-align:center;}
+  .section-head h2{font-size:clamp(30px,3.6vw,42px); margin-top:14px;}
+  .section-head p{margin-top:16px; font-size:17px; color:var(--body);}
+
+  /* NAV */
+  header.nav{position:sticky; top:0; z-index:50; background:rgba(255,255,255,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-inner{max-width:1180px; margin:0 auto; padding:18px 32px; display:flex; align-items:center; justify-content:space-between;}
+  .logo{display:flex; align-items:center; gap:10px; font-family:var(--serif); font-weight:700; font-size:21px; color:var(--ink);}
+  .logo span{color:var(--accent-600);}
+  .logo-mark{width:34px; height:34px;}
+  .nav-links{display:flex; align-items:center; gap:34px; font-size:14.5px; font-weight:600; color:var(--body);}
+  .nav-links a:hover{color:var(--brand-700);}
+  .nav-actions{display:flex; align-items:center; gap:22px;}
+  .nav-actions .btn{padding:11px 22px; font-size:14px;}
+  .link-enter{font-weight:700; font-size:14.5px; color:var(--ink);}
+  .burger{display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;}
+  .burger span{width:22px; height:2px; background:var(--ink);}
+
+  /* HERO */
+  .hero{padding:88px 0 0 0; overflow:hidden;}
+  .hero-inner{display:grid; grid-template-columns:1.02fr .98fr; gap:56px; align-items:center;}
+  .badge{display:inline-flex; align-items:center; gap:8px; background:var(--brand-100); color:var(--brand-700); font-weight:700; font-size:13px; padding:8px 16px; border-radius:100px;}
+  .badge i{width:7px; height:7px; border-radius:50%; background:var(--accent); display:inline-block;}
+  .hero h1{font-size:clamp(38px,4.6vw,58px); margin-top:22px;}
+  .hero h1 .accent-line{color:var(--brand-700);}
+  .hero p.lead{font-size:18.5px; margin-top:22px; max-width:480px;}
+  .hero-ctas{display:flex; align-items:center; gap:18px; margin-top:34px; flex-wrap:wrap;}
+  .trust-micro{margin-top:20px; font-size:13.5px; color:var(--muted); display:flex; align-items:center; gap:8px;}
+  .trust-micro svg{width:16px; height:16px; stroke:var(--accent-600);}
+
+  /* HERO MOCKUP */
+  .mock-stage{position:relative; padding:20px;}
+  .mock-glow{position:absolute; inset:-40px; background:radial-gradient(60% 60% at 60% 30%, var(--brand-100), transparent 70%); z-index:0;}
+  .app-frame{position:relative; z-index:1; background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow-md); border:1px solid var(--line); transform:rotate(-1.6deg); overflow:visible;}
+  .app-topbar{display:flex; align-items:center; gap:8px; padding:14px 18px; border-bottom:1px solid var(--line);}
+  .dot{width:9px; height:9px; border-radius:50%;}
+  .dot.r{background:#F97066;} .dot.a{background:#F5B94D;} .dot.g{background:#3FCF8E;}
+  .addr{margin-left:12px; background:var(--canvas); border-radius:8px; padding:5px 12px; font-family:var(--mono); font-size:11px; color:var(--muted);}
+  .app-tabs{display:flex; gap:22px; padding:14px 20px 0 20px; font-size:13.5px; font-weight:700; color:var(--muted);}
+  .app-tabs .active{color:var(--brand-700); border-bottom:2px solid var(--brand-700); padding-bottom:12px;}
+  .app-body{padding:18px 20px 26px 20px;}
+  .cal-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:6px;}
+  .cal-day-label{font-family:var(--mono); font-size:10.5px; color:var(--muted); text-align:center; margin-bottom:4px;}
+  .cal-cell{background:var(--canvas); border-radius:8px; height:34px;}
+  .cal-cell.busy{background:var(--brand-100);}
+  .cal-cell.selected{background:var(--brand-700); box-shadow:0 8px 16px -8px rgba(29,78,216,.6);}
+  .cal-note{display:flex; align-items:center; justify-content:space-between; margin-top:14px; background:var(--canvas); border-radius:12px; padding:12px 14px; font-size:12.5px;}
+  .cal-note strong{font-family:var(--mono); font-size:12px; color:var(--ink);}
+
+  .floating-chip{position:absolute; background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-sm); padding:10px 14px; font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:8px; z-index:2;}
+  .chip-evolucao{top:8%; right:-8%;}
+  .chip-financeiro{bottom:-6%; left:-8%;}
+  .chip-check{width:18px; height:18px; border-radius:50%; background:var(--accent-100); display:flex; align-items:center; justify-content:center;}
+  .chip-check svg{width:11px; height:11px; stroke:var(--accent-600);}
+  .chip-financeiro .value{font-family:var(--mono); color:var(--accent-600);}
+  .flow-line{position:absolute; top:6%; right:2%; width:36%; height:70%; z-index:1; pointer-events:none;}
+
+  @media (prefers-reduced-motion:no-preference){
+    .chip-evolucao{animation:pop-in .6s .5s cubic-bezier(.2,.8,.2,1) both;}
+    .chip-financeiro{animation:pop-in .6s 1.1s cubic-bezier(.2,.8,.2,1) both;}
+    .flow-dot{animation:travel 2.2s 1s ease-in-out infinite;}
+  }
+  @keyframes pop-in{from{opacity:0; transform:translateY(8px) scale(.94);} to{opacity:1; transform:translateY(0) scale(1);}}
+  @keyframes travel{0%{offset-distance:0%; opacity:0;} 8%{opacity:1;} 92%{opacity:1;} 100%{offset-distance:100%; opacity:0;}}
+
+  /* STAT BAND */
+  .statband{background:var(--brand-900); padding:52px 0; margin-top:100px;}
+  .stat-row{display:grid; grid-template-columns:repeat(4,1fr);}
+  .stat{text-align:center; border-left:1px solid rgba(255,255,255,.14); padding:6px 12px;}
+  .stat:first-child{border-left:none;}
+  .stat .stat-icon{width:26px; height:26px; margin:0 auto 14px auto;}
+  .stat .stat-icon svg{width:100%; height:100%; stroke:var(--accent); fill:none; stroke-width:1.7;}
+  .stat .num{font-family:var(--mono); font-weight:600; font-size:clamp(26px,3vw,34px); color:#fff;}
+  .stat .lab{font-size:13px; color:rgba(255,255,255,.65); margin-top:4px;}
+
+  /* HOW IT WORKS */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:28px; position:relative; margin-top:20px;}
+  .steps::before{content:'';position:absolute; top:26px; left:6%; right:6%; height:1px; background:var(--line); z-index:0;}
+  .step{position:relative; z-index:1;}
+  .step-num{width:52px; height:52px; border-radius:50%; background:#fff; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:600; color:var(--brand-700); margin-bottom:20px;}
+  .step h3{font-size:18px; margin-bottom:8px;}
+  .step p{font-size:14.5px;}
+  .how-cta{margin-top:48px; display:flex; align-items:center; gap:16px;}
+  .how-cta .micro{font-size:13.5px; color:var(--muted); display:flex; align-items:center; gap:6px;}
+
+  /* FEATURES BENTO */
+  .bento{display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:170px; gap:18px;}
+  .card{background:var(--canvas); border:1px solid var(--line); border-radius:var(--radius-md); padding:26px; transition:transform .18s ease, box-shadow .18s ease;}
+  .card:hover{transform:translateY(-4px); box-shadow:var(--shadow-sm); background:#fff;}
+  .card .icon{width:38px; height:38px; border-radius:10px; background:var(--brand-100); display:flex; align-items:center; justify-content:center; margin-bottom:16px;}
+  .card .icon svg{width:19px; height:19px; stroke:var(--brand-700);}
+  .card h4{font-family:var(--sans); font-weight:800; font-size:15.5px; color:var(--ink); margin-bottom:6px;}
+  .card p{font-size:13.5px;}
+  .card.feature-lg{grid-column:span 2; grid-row:span 2; background:var(--brand-900); border:none; color:#fff; display:flex; flex-direction:column; justify-content:space-between;}
+  .feature-lg .icon{background:rgba(255,255,255,.12);}
+  .feature-lg .icon svg{stroke:#fff;}
+  .feature-lg h4{color:#fff; font-size:19px;}
+  .feature-lg p{color:rgba(255,255,255,.68); font-size:14px;}
+  .mini-note{margin-top:18px; background:rgba(255,255,255,.08); border-radius:12px; padding:12px 14px; font-size:12px; font-family:var(--mono); color:rgba(255,255,255,.85);}
+
+  /* DIFERENCIAIS */
+  .diff-wrap{display:grid; grid-template-columns:.85fr 1.15fr; gap:60px; align-items:start;}
+  .diff-cards{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .diff-card{background:#fff; border:1px solid var(--line); border-radius:var(--radius-sm); padding:22px; transition:box-shadow .15s ease, border-color .15s ease;}
+  .diff-card:hover{box-shadow:var(--shadow-sm); border-color:var(--brand-500);}
+  .diff-card .chk{width:26px; height:26px; border-radius:50%; background:var(--accent-100); display:flex; align-items:center; justify-content:center; margin-bottom:12px;}
+  .diff-card .chk svg{width:13px; height:13px; stroke:var(--accent-600);}
+  .diff-card h4{font-family:var(--sans); font-weight:800; font-size:14.5px; color:var(--ink); margin-bottom:6px;}
+  .diff-card p{font-size:13px;}
+
+  /* TESTIMONIALS */
+  .testi-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .testi-card{background:#fff; border:1px solid var(--line); border-radius:var(--radius-md); padding:28px;}
+  .stars{display:flex; gap:3px; margin-bottom:16px;}
+  .stars svg{width:15px; height:15px; fill:var(--accent);}
+  .testi-quote{font-size:15px; color:var(--ink); line-height:1.55;}
+  .testi-person{display:flex; align-items:center; gap:12px; margin-top:20px;}
+  .avatar{width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:13px; font-family:var(--sans);}
+  .testi-person .name{font-weight:800; font-size:13.5px; color:var(--ink);}
+  .testi-person .role{font-size:12px; color:var(--muted);}
+
+  /* PRICING */
+  .price-card{max-width:460px; margin:0 auto; background:var(--brand-900); border-radius:var(--radius-lg); padding:44px; color:#fff; text-align:center; box-shadow:var(--shadow-md);}
+  .price-card .plan-name{font-family:var(--mono); font-size:12.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent);}
+  .price-value{font-family:var(--serif); font-size:52px; margin:14px 0 4px 0;}
+  .price-value .ph{text-decoration:underline dashed rgba(255,255,255,.5); text-underline-offset:6px;}
+  .price-value .per{font-family:var(--sans); font-size:16px; color:rgba(255,255,255,.6); font-weight:500;}
+  .price-list{text-align:left; margin:28px 0; display:flex; flex-direction:column; gap:12px;}
+  .price-list li{display:flex; align-items:center; gap:10px; font-size:14px; color:rgba(255,255,255,.88);}
+  .price-list svg{width:16px; height:16px; stroke:var(--accent); flex-shrink:0;}
+  .price-card .btn-white{width:100%; margin-top:6px;}
+  .price-note{margin-top:14px; font-size:12.5px; color:rgba(255,255,255,.55);}
+
+  /* FAQ */
+  .faq-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .faq-item{border:1px solid var(--line); border-radius:var(--radius-sm); padding:22px 24px; cursor:pointer;}
+  .faq-q{display:flex; align-items:center; justify-content:space-between; gap:16px; font-weight:800; font-size:15px; color:var(--ink);}
+  .faq-q svg{width:16px; height:16px; stroke:var(--brand-700); flex-shrink:0; transition:transform .2s ease;}
+  .faq-item.open .faq-q svg{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .25s ease;}
+  .faq-item.open .faq-a{max-height:200px;}
+  .faq-a p{padding-top:12px; font-size:14px;}
+
+  /* FINAL CTA */
+  .cta-final{background:linear-gradient(135deg, var(--brand-900), var(--brand-700)); border-radius:var(--radius-lg); padding:72px 40px; text-align:center; max-width:1180px; margin:0 auto;}
+  .cta-final h2{color:#fff; font-size:clamp(28px,3.4vw,38px);}
+  .cta-final p{color:rgba(255,255,255,.72); margin:16px auto 32px auto; max-width:460px; font-size:16px;}
+
+  footer{padding:56px 0 40px 0; border-top:1px solid var(--line); margin-top:60px;}
+  .foot-inner{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;}
+  .foot-legal{font-size:12.5px; color:var(--muted);}
+
+  @media (max-width:960px){
+    .nav-links, .nav-actions .link-enter{display:none;}
+    .burger{display:flex;}
+    .hero-inner{grid-template-columns:1fr; gap:52px;}
+    .mock-stage{padding:10px;}
+    .stat-row{grid-template-columns:repeat(2,1fr); row-gap:24px;}
+    .stat:nth-child(3){border-left:none;}
+    .steps{grid-template-columns:1fr 1fr; row-gap:36px;}
+    .steps::before{display:none;}
+    .bento{grid-template-columns:1fr 1fr; grid-auto-rows:150px;}
+    .card.feature-lg{grid-column:span 2; grid-row:span 1; min-height:220px;}
+    .diff-wrap{grid-template-columns:1fr;}
+    .diff-cards{grid-template-columns:1fr 1fr;}
+    .testi-grid{grid-template-columns:1fr;}
+    .faq-grid{grid-template-columns:1fr;}
+    section{padding:76px 0;}
+  }
+  @media (max-width:560px){
+    .wrap{padding:0 20px;}
+    .bento{grid-template-columns:1fr;}
+    .card.feature-lg{grid-column:span 1;}
+    .diff-cards{grid-template-columns:1fr;}
+    .hero-ctas{flex-direction:column; align-items:stretch;}
+    .hero-ctas .btn{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="19" stroke="#1D4ED8" stroke-width="2"/>
+        <path d="M12 24c2-6 4-10 6-10s2 8 4 8 2-6 4-6 2 4 4 4" stroke="#0EA5A0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Fisio<span>GO</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#funcionalidades">Funcionalidades</a>
+      <a href="#diferenciais">Diferenciais</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#depoimentos">Depoimentos</a>
+      <a href="#precos">Preços</a>
+      <a href="#duvidas">Dúvidas</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="#" class="link-enter">Entrar</a>
+      <a href="#" class="btn btn-primary">Começar grátis</a>
+      <button class="burger" aria-label="menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div>
+        <span class="badge"><i></i>7 dias grátis · sem cartão de crédito</span>
+        <h1>Menos papel, planilha<br>e WhatsApp.<br><span class="accent-line">Mais tempo com o paciente.</span></h1>
+        <p class="lead">O FisioGO organiza pacientes, agenda, evolução clínica e financeiro em um só lugar. Simples como uma anotação — confiável como um prontuário.</p>
+        <div class="hero-ctas">
+          <a href="#" class="btn btn-primary">Criar conta grátis</a>
+          <a href="#como-funciona" class="btn btn-ghost">Ver como funciona</a>
+        </div>
+        <div class="trust-micro">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+          Sem instalar nada · funciona direto no navegador do celular
+        </div>
+      </div>
+
+      <div class="mock-stage">
+        <div class="mock-glow"></div>
+        <div class="app-frame">
+          <div class="app-topbar">
+            <span class="dot r"></span><span class="dot a"></span><span class="dot g"></span>
+            <span class="addr">app.fisiogo.com.br/agenda</span>
+          </div>
+          <div class="app-tabs">
+            <span class="active">Agenda</span>
+            <span>Financeiro</span>
+            <span>Pacientes</span>
+          </div>
+          <div class="app-body">
+            <div class="cal-grid">
+              <div><div class="cal-day-label">SEG</div><div class="cal-cell"></div></div>
+              <div><div class="cal-day-label">TER</div><div class="cal-cell busy"></div></div>
+              <div><div class="cal-day-label">QUA</div><div class="cal-cell selected"></div></div>
+              <div><div class="cal-day-label">QUI</div><div class="cal-cell"></div></div>
+              <div><div class="cal-day-label">SEX</div><div class="cal-cell busy"></div></div>
+            </div>
+            <div class="cal-note">
+              <span>Ana T. · sessão de hoje</span>
+              <strong>14:00</strong>
+            </div>
+          </div>
+
+          <svg class="flow-line" viewBox="0 0 140 160" fill="none">
+            <path id="flowpath" d="M90 30 C 130 60, 40 90, 30 140" stroke="#CBD9FB" stroke-width="2" stroke-dasharray="4 6"/>
+            <circle class="flow-dot" r="4" fill="#0EA5A0" style="offset-path:path('M90 30 C 130 60, 40 90, 30 140');"/>
+          </svg>
+
+          <div class="floating-chip chip-evolucao">
+            <span class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+            Evolução salva
+          </div>
+          <div class="floating-chip chip-financeiro">
+            <span class="chip-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+            <span class="value">+ R$ 120 cobrado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAT BAND -->
+  <div class="statband">
+    <div class="wrap stat-row">
+      <div class="stat">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="num">2 min</div><div class="lab">para começar</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M9 20h6M12 17v3" stroke-linecap="round"/></svg></div>
+        <div class="num">1 tela</div><div class="lab">para a semana toda</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><path d="M3.5 9.5h17M3.5 14.5h17M9 4v16M15 4v16" stroke-width="1.3"/><path d="M2.5 2.5l19 19" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="num">0</div><div class="lab">planilhas</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 19h2" stroke-linecap="round"/></svg></div>
+        <div class="num">100%</div><div class="lab">no celular</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como-funciona">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Como funciona</span>
+        <h2>Comece em poucos passos</h2>
+        <p>Do cadastro ao primeiro resultado financeiro, sem configuração complicada.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Crie sua conta</h3>
+          <p>Em 2 minutos, sem cartão de crédito. Email e senha ou login com Google.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Cadastre seus pacientes</h3>
+          <p>Ficha, contatos secundários e plano de tratamento em poucos campos.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Agende suas consultas</h3>
+          <p>Monte a semana, registre a evolução e marque as sessões realizadas.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <h3>Veja seus resultados</h3>
+          <p>Acompanhe atendimentos e receita sem abrir uma planilha.</p>
+        </div>
+      </div>
+      <div class="how-cta">
+        <a href="#" class="btn btn-primary">Criar minha conta</a>
+        <span class="micro">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8592A8" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Leva cerca de 2 minutos
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONALIDADES -->
+  <section id="funcionalidades" style="background:var(--canvas);">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Funcionalidades</span>
+        <h2>Tudo o que a sua rotina precisa. Nada além disso.</h2>
+        <p>Cada recurso existe para tirar uma tarefa manual do seu dia.</p>
+      </div>
+      <div class="bento">
+        <div class="card feature-lg">
+          <div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 12h6M9 16h4M8 4h8a2 2 0 012 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 012-2z"/></svg></div>
+            <h4>Evolução clínica</h4>
+            <p>Uma nota por sessão. O histórico completo do paciente a um clique — e é essa mesma nota que alimenta o financeiro.</p>
+          </div>
+          <div class="mini-note">14:00 → nota salva → cobrança gerada</div>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
+          <h4>Cadastro de pacientes</h4>
+          <p>Dados de contato, nascimento, observações e valor da sessão numa ficha só.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <h4>Contatos secundários</h4>
+          <p>Familiares e cuidadores vinculados ao paciente, com relação e telefone.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></div>
+          <h4>Agenda semanal</h4>
+          <p>Duração e status (agendada, realizada, cancelada) em uma visão clara da semana.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 10l4-3 4 3"/></svg></div>
+          <h4>Plano de tratamento</h4>
+          <p>Objetivos e exercícios prescritos, com séries, repetições e observações.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/></svg></div>
+          <h4>Financeiro</h4>
+          <p>Dashboard atualizado a partir das sessões. Relatórios e cobrança em 2 cliques.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+          <h4>Lembretes de sessão</h4>
+          <p>Avisos automáticos das próximas sessões para reduzir faltas na agenda.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6"/></svg></div>
+          <h4>Confirmação do paciente</h4>
+          <p>Link de confirmação de presença — sem depender de conversas soltas no WhatsApp.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFERENCIAIS -->
+  <section id="diferenciais">
+    <div class="wrap diff-wrap">
+      <div>
+        <span class="eyebrow">Diferenciais</span>
+        <h2 style="margin-top:14px;">Por que o FisioGO?</h2>
+        <p style="margin-top:16px; font-size:16.5px;">Nem pesado demais, nem frágil demais. O FisioGO é a gestão que cabe no seu dia: leve o bastante pra usar entre um atendimento e outro, completo o bastante pra profissionalizar sua rotina.</p>
+        <a href="#" class="btn btn-primary" style="margin-top:28px;">Experimentar grátis</a>
+      </div>
+      <div class="diff-cards">
+        <div class="diff-card">
+          <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <h4>Teste sem compromisso</h4>
+          <p>7 dias grátis, sem cartão. Assine só se fizer sentido para a sua rotina.</p>
+        </div>
+        <div class="diff-card">
+          <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <h4>Pensado para o profissional autônomo</h4>
+          <p>Nada de módulos robustos. Só o que um fisioterapeuta autônomo usa no seu dia a dia.</p>
+        </div>
+        <div class="diff-card">
+          <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <h4>Simples como uma anotação</h4>
+          <p>Interface limpa, sem treinamento. Você cadastra o primeiro paciente no primeiro minuto.</p>
+        </div>
+        <div class="diff-card">
+          <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <h4>Clínico e financeiro juntos</h4>
+          <p>A mesma sessão que gera a evolução alimenta o seu faturamento e controla suas cobranças. Sem retrabalho.</p>
+        </div>
+        <div class="diff-card">
+          <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <h4>Feito para mobile</h4>
+          <p>Consulte a ficha e registre a evolução direto do telefone, em qualquer atendimento.</p>
+        </div>
+        <div class="diff-card">
+          <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <h4>Seus dados protegidos</h4>
+          <p>Cada profissional enxerga apenas os próprios pacientes, com isolamento no banco de dados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPOIMENTOS -->
+  <section id="depoimentos" style="background:var(--canvas);">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">Depoimentos</span>
+        <h2>Fisioterapeutas que trocaram a planilha pelo FisioGO</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+          </div>
+          <p class="testi-quote">"Consegui sair da agenda de papel numa tarde. Hoje fecho o mês sem abrir planilha nenhuma."</p>
+          <div class="testi-person">
+            <span class="avatar" style="background:var(--brand-700);">CR</span>
+            <div><div class="name">Camila R.</div><div class="role">Fisioterapeuta ortopédica · Curitiba/PR</div></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+          </div>
+          <p class="testi-quote">"O que mais uso é a evolução virar cobrança sozinha. Antes eu perdia sessão de vista o tempo todo."</p>
+          <div class="testi-person">
+            <span class="avatar" style="background:var(--accent-600);">RM</span>
+            <div><div class="name">Rafael M.</div><div class="role">Fisioterapeuta domiciliar · Belo Horizonte/MG</div></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+          </div>
+          <p class="testi-quote">"Testei três apps de clínica antes desse. Foi o único que não tentou me vender módulo que eu não uso."</p>
+          <div class="testi-person">
+            <span class="avatar" style="background:var(--brand-500);">JP</span>
+            <div><div class="name">Juliana P.</div><div class="role">Fisioterapeuta autônoma · São Paulo/SP</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="precos">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">Preços</span>
+        <h2>Um plano. Sem letra miúda.</h2>
+        <p>Tudo incluso desde o primeiro dia — sem módulo extra, sem limite de paciente escondido em contrato.</p>
+      </div>
+      <div class="price-card">
+        <div class="plan-name">Plano FisioGO</div>
+        <div class="price-value">R$ <span class="ph">[valor]</span><span class="per"> /mês</span></div>
+        <ul class="price-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Agenda e pacientes ilimitados</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Evolução clínica e plano de tratamento</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Financeiro, relatórios e cobrança</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Lembretes automáticos de sessão</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Suporte por chat</li>
+        </ul>
+        <a href="#" class="btn btn-white">Começar 7 dias grátis</a>
+        <div class="price-note">Sem cartão de crédito · cancele quando quiser</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="duvidas" style="background:var(--canvas);">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">Dúvidas frequentes</span>
+        <h2>Antes de criar sua conta</h2>
+      </div>
+      <div class="faq-grid">
+        <div class="faq-item open">
+          <div class="faq-q">Preciso de cartão de crédito para testar?<svg viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="faq-a"><p>Não. A conta começa com 7 dias de teste gratuito e você só informa pagamento se decidir continuar.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Serve para atendimento domiciliar?<svg viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="faq-a"><p>Sim. O FisioGO funciona no navegador do celular, então você consulta e registra tudo no atendimento.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Meus pacientes precisam instalar algo?<svg viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="faq-a"><p>Não. Eles recebem apenas um link de confirmação de sessão quando você quiser.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Consigo exportar meus dados?<svg viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="faq-a"><p>Sim. Seus registros são seus e podem ser exportados quando você quiser.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Quanto custa depois dos 7 dias de teste?<svg viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="faq-a"><p>Um valor único por mês, sem taxa de adesão e sem fidelidade. Você só é cobrado se decidir continuar.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Dá para usar em mais de um consultório?<svg viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="faq-a"><p>Sim, sua conta acompanha você — funciona igual em qualquer lugar com internet.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section style="padding-bottom:0;">
+    <div class="wrap">
+      <div class="cta-final">
+        <h2>Sua próxima semana pode ser mais leve.</h2>
+        <p>Crie sua conta gratuitamente e organize pacientes, agenda e financeiro hoje mesmo.</p>
+        <a href="#" class="btn btn-white">Começar grátis</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <a href="#" class="logo" style="font-size:17px;">
+      <svg class="logo-mark" width="26" height="26" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="19" stroke="#1D4ED8" stroke-width="2"/>
+        <path d="M12 24c2-6 4-10 6-10s2 8 4 8 2-6 4-6 2 4 4 4" stroke="#0EA5A0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Fisio<span>GO</span>
+    </a>
+    <div class="foot-legal">Desenvolvido por Flowvia — FLOWVIA DESENVOLVIMENTO DE SOFTWARE CUSTOMIZAVEL LTDA · CNPJ 68.558.820/0001-37</div>
+    <div class="foot-legal">© 2026 FisioGO</div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
+      if(!wasOpen){ item.classList.add('open'); }
+    });
+  });
+  var burger = document.querySelector('.burger');
+  if(burger){
+    burger.addEventListener('click', function(){
+      document.querySelector('.nav-links').style.display =
+        document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex';
+    });
+  }
+</script>
+
+</body>
+</html>
