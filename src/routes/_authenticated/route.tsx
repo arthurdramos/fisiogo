@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useQueryClient } from "@tanstack/react-query";
@@ -106,11 +106,8 @@ function AuthedLayout() {
   return (
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-60 shrink-0 border-r border-border bg-sidebar md:flex md:flex-col">
-        <div className="flex h-14 items-center gap-2 border-b border-border px-5">
-          <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
-            <Sparkles className="h-3.5 w-3.5" />
-          </div>
-          <span className="font-display text-base font-semibold">FisioGO</span>
+        <div className="flex h-14 items-center border-b border-border px-5">
+          <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-7 w-auto" />
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {!profileComplete ? (
@@ -154,10 +151,7 @@ function AuthedLayout() {
                 <span className="sr-only">Abrir menu</span>
               </Button>
             )}
-            <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
-              <Sparkles className="h-3.5 w-3.5" />
-            </div>
-            <span className="font-display font-semibold">FisioGO</span>
+            <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-7 w-auto" />
           </div>
           <Button variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="h-4 w-4" />
@@ -168,11 +162,8 @@ function AuthedLayout() {
           <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetContent side="left" className="flex w-72 flex-col p-0">
               <SheetHeader className="border-b border-border px-5 py-4 text-left">
-                <SheetTitle className="flex items-center gap-2 font-display text-base">
-                  <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
-                    <Sparkles className="h-3.5 w-3.5" />
-                  </div>
-                  FisioGO
+                <SheetTitle className="flex items-center">
+                  <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-7 w-auto" />
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex-1 space-y-1 p-3">
