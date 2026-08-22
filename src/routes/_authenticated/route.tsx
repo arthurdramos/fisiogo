@@ -1,7 +1,9 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut } from "lucide-react";
+import { Sparkles, LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -92,6 +94,7 @@ function AuthedLayout() {
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { profileComplete } = Route.useRouteContext();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const signOut = async () => {
     await queryClient.cancelQueries();
@@ -143,8 +146,14 @@ function AuthedLayout() {
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b border-border px-6 md:hidden">
+        <header className="flex h-14 items-center justify-between border-b border-border px-4 md:hidden">
           <div className="flex items-center gap-2">
+            {profileComplete && (
+              <Button variant="ghost" size="icon" onClick={() => setMobileNavOpen(true)}>
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Abrir menu</span>
+              </Button>
+            )}
             <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
               <Sparkles className="h-3.5 w-3.5" />
             </div>
@@ -154,25 +163,54 @@ function AuthedLayout() {
             <LogOut className="h-4 w-4" />
           </Button>
         </header>
+
         {profileComplete && (
-          <nav className="flex items-center gap-1 border-b border-border bg-background px-4 py-2 md:hidden">
-            {nav.map(({ to, label, icon: Icon }) => {
-              const active = pathname === to || (to !== "/app" && pathname.startsWith(to));
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  className={
-                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs " +
-                    (active ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground")
-                  }
+          <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+            <SheetContent side="left" className="flex w-72 flex-col p-0">
+              <SheetHeader className="border-b border-border px-5 py-4 text-left">
+                <SheetTitle className="flex items-center gap-2 font-display text-base">
+                  <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
+                    <Sparkles className="h-3.5 w-3.5" />
+                  </div>
+                  FisioGO
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="flex-1 space-y-1 p-3">
+                {nav.map(({ to, label, icon: Icon }) => {
+                  const active = pathname === to || (to !== "/app" && pathname.startsWith(to));
+                  return (
+                    <Link
+                      key={to}
+                      to={to}
+                      onClick={() => setMobileNavOpen(false)}
+                      className={
+                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors " +
+                        (active
+                          ? "bg-accent text-accent-foreground font-medium"
+                          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground")
+                      }
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+              <div className="border-t border-border p-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    signOut();
+                  }}
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
+                  <LogOut className="mr-2 h-4 w-4" /> Sair
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         )}
         <main className="flex-1 overflow-auto">
           <Outlet />
