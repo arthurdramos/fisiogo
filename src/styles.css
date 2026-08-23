@@ -10,9 +10,13 @@
 
   /* Tipografia da landing page (reforma visual — ver ETAPA 0).
      font-serif/font-mono não têm uso relevante fora da landing hoje
-     (font-mono só aparece 1x, num tooltip de gráfico). */
+     (font-mono só aparece 1x, num tooltip de gráfico).
+     font-body é a fonte de corpo/UI da landing (Plus Jakarta Sans) — não
+     reaproveitamos --font-sans porque ele já é usado pelo app autenticado
+     (Manrope) e o resto do app não deve mudar de fonte. */
   --font-serif: "Fraunces", serif;
   --font-mono: "IBM Plex Mono", monospace;
+  --font-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
   /* Paleta da landing page (reforma visual — ver ETAPA 0).
      --lp-accent e --lp-muted são renomeados a partir do protótipo:

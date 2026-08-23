@@ -228,7 +228,7 @@ function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-body">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
           <Link to="/" className="flex items-center">
@@ -432,7 +432,7 @@ function Landing() {
           <div className="mx-auto max-w-5xl px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Como funciona</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Comece em poucos passos
               </h2>
               <p className="mt-4 text-muted-foreground">
@@ -475,7 +475,7 @@ function Landing() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Funcionalidades</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Tudo o que a sua rotina precisa. Nada além disso.
               </h2>
               <p className="mt-4 text-muted-foreground">
@@ -495,7 +495,7 @@ function Landing() {
                         <div className="mb-4 grid h-[38px] w-[38px] place-items-center rounded-[10px] bg-white/[.12]">
                           <FeaturedIcon className="h-[19px] w-[19px] text-white" />
                         </div>
-                        <h3 className="font-sans text-lg font-extrabold text-white">{featured.title}</h3>
+                        <h3 className="font-body text-lg font-extrabold text-white">{featured.title}</h3>
                         <p className="mt-1.5 text-sm text-white/68">
                           {featured.desc} — e é essa mesma nota que alimenta o financeiro.
                         </p>
@@ -512,7 +512,7 @@ function Landing() {
                         <div className="mb-4 grid h-[38px] w-[38px] place-items-center rounded-[10px] bg-brand-100">
                           <Icon className="h-[19px] w-[19px] text-brand-700" />
                         </div>
-                        <h3 className="font-sans text-[15.5px] font-extrabold text-ink">{title}</h3>
+                        <h3 className="font-body text-[15.5px] font-extrabold text-ink">{title}</h3>
                         <p className="mt-1.5 text-sm text-body">{desc}</p>
                       </div>
                     ))}
@@ -529,7 +529,7 @@ function Landing() {
             <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
               <div>
                 <p className="text-xs font-medium uppercase tracking-widest text-primary">Diferenciais</p>
-                <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                   Por que o FisioGO?
                 </h2>
                 <p className="mt-4 text-muted-foreground">
@@ -548,7 +548,7 @@ function Landing() {
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <div>
-                        <h3 className="font-display text-sm font-semibold">{title}</h3>
+                        <h3 className="font-body text-sm font-semibold">{title}</h3>
                         <p className="mt-1.5 text-sm text-muted-foreground">{desc}</p>
                       </div>
                     </div>
@@ -565,7 +565,7 @@ function Landing() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Depoimentos</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Fisioterapeutas que trocaram a planilha pelo FisioGO
               </h2>
             </div>
@@ -601,7 +601,7 @@ function Landing() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Preços</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Um plano. Sem letra miúda.
               </h2>
               <p className="mt-4 text-muted-foreground">
@@ -618,7 +618,7 @@ function Landing() {
                 <span className="underline decoration-dashed decoration-white/50 underline-offset-[6px]">
                   [valor]
                 </span>
-                <span className="font-sans text-base font-medium text-white/60"> /mês</span>
+                <span className="font-body text-base font-medium text-white/60"> /mês</span>
               </div>
               <ul className="mt-7 flex flex-col gap-3 text-left">
                 {[
@@ -651,7 +651,7 @@ function Landing() {
           <div className="mx-auto max-w-4xl px-6">
             <div className="text-center">
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Dúvidas frequentes</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Antes de criar sua conta
               </h2>
             </div>
@@ -667,7 +667,7 @@ function Landing() {
                     aria-expanded={isOpen}
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <h3 className="font-display text-sm font-semibold">{q}</h3>
+                      <h3 className="font-body text-sm font-semibold">{q}</h3>
                       <Plus
                         className={`h-4 w-4 shrink-0 text-brand-700 transition-transform duration-200 ${isOpen ? "rotate-45" : ""}`}
                       />
@@ -684,7 +684,7 @@ function Landing() {
         <section className="py-24">
           <div className="mx-auto max-w-4xl px-6">
             <div className="rounded-2xl bg-gradient-to-br from-brand-900 to-brand-700 px-8 py-14 text-center">
-              <h2 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              <h2 className="font-serif text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                 Sua próxima semana pode ser mais leve.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-white/72">
