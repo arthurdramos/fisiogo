@@ -85,7 +85,7 @@ function CompletarPerfil() {
   return (
     <div className="mx-auto max-w-lg p-6 md:p-10">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-semibold">Complete seu cadastro</h1>
+        <h1 className="font-serif text-3xl font-semibold">Complete seu cadastro</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Faltam alguns dados obrigatórios para liberar o acesso ao FisioGO.
         </p>

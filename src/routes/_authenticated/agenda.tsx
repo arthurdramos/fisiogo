@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { addDays, addMonths, formatMonthLabel, formatTime, startOfDay, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
-import { sessionColorClass, sessionDotClass } from "@/lib/session-status";
+import { sessionBlockClass, sessionColorClass, sessionDotClass } from "@/lib/session-status";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,6 +31,10 @@ export const Route = createFileRoute("/_authenticated/agenda")({
 });
 
 type ViewMode = "dia" | "semana" | "mes";
+
+const HOUR_PX = 56;
+const DEFAULT_START_HOUR = 7;
+const DEFAULT_END_HOUR = 21;
 
 function weekStartOf(d: Date) {
   const start = startOfDay(d);
@@ -133,6 +137,27 @@ function Agenda() {
 
   const dayList = byDay.get(anchor.toDateString()) ?? [];
 
+  // Faixa de horas exibida na grade da semana — cobre 07h-21h por padrão e se
+  // estica automaticamente se alguma sessão do período começar ou terminar
+  // fora desse intervalo, pra nunca cortar um atendimento fora do grid.
+  const hourBounds = useMemo(() => {
+    let start = DEFAULT_START_HOUR;
+    let end = DEFAULT_END_HOUR;
+    (sessions.data ?? []).forEach((s) => {
+      const d = new Date(s.scheduled_at);
+      const startHour = d.getHours();
+      const endHour = Math.ceil(d.getHours() + d.getMinutes() / 60 + s.duration_min / 60);
+      if (startHour < start) start = startHour;
+      if (endHour > end) end = endHour;
+    });
+    return { start, end };
+  }, [sessions.data]);
+
+  const hours = useMemo(
+    () => Array.from({ length: hourBounds.end - hourBounds.start }, (_, i) => hourBounds.start + i),
+    [hourBounds],
+  );
+
   const headerLabel =
     view === "dia"
       ? anchor.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })
@@ -144,7 +169,7 @@ function Agenda() {
     <div className="mx-auto max-w-6xl p-6 md:p-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-semibold">Agenda</h1>
+          <h1 className="font-serif text-3xl font-semibold">Agenda</h1>
           <p className="mt-1 text-sm capitalize text-muted-foreground">{headerLabel}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -211,46 +236,76 @@ function Agenda() {
       )}
 
       {view === "semana" && (
-        <div className="grid gap-3 md:grid-cols-7">
-          {weekDays.map((d) => {
-            const list = byDay.get(d.toDateString()) ?? [];
-            const isToday = d.toDateString() === new Date().toDateString();
-            return (
-              <div key={d.toISOString()} className={"rounded-xl border bg-card " + (isToday ? "border-primary/60" : "border-border")}>
-                <button
-                  onClick={() => { setAnchor(d); setView("dia"); }}
-                  className="block w-full border-b border-border px-3 py-2 text-left hover:bg-accent/40"
-                >
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {d.toLocaleDateString("pt-BR", { weekday: "short" })}
-                  </p>
-                  <p className={"font-display text-lg font-semibold " + (isToday ? "text-primary" : "")}>
-                    {d.getDate()}
-                  </p>
-                </button>
-                <ul className="min-h-[80px] space-y-1 p-2">
-                  {list.length === 0 && (
-                    <li className="px-1 py-2 text-xs text-muted-foreground">—</li>
-                  )}
-                  {list.map((s) => {
-                    const patient = s.patients as { nome: string } | null;
-                    return (
-                      <li key={s.id}>
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+          <div className="min-w-[720px]">
+            <div className="grid border-b border-border" style={{ gridTemplateColumns: `56px repeat(7, 1fr)` }}>
+              <div />
+              {weekDays.map((d) => {
+                const isToday = d.toDateString() === new Date().toDateString();
+                return (
+                  <button
+                    key={d.toISOString()}
+                    onClick={() => { setAnchor(d); setView("dia"); }}
+                    className={"border-l border-border py-2.5 text-center hover:bg-accent/40 " + (isToday ? "bg-accent" : "")}
+                  >
+                    <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted-foreground">
+                      {d.toLocaleDateString("pt-BR", { weekday: "short" })}
+                    </p>
+                    <p className={"mt-0.5 font-mono text-lg font-semibold " + (isToday ? "text-primary" : "")}>
+                      {d.getDate()}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="grid" style={{ gridTemplateColumns: `56px repeat(7, 1fr)` }}>
+              <div className="flex flex-col">
+                {hours.map((h) => (
+                  <div
+                    key={h}
+                    style={{ height: HOUR_PX }}
+                    className="-translate-y-[7px] pr-2 text-right font-mono text-[11px] text-muted-foreground"
+                  >
+                    {String(h).padStart(2, "0")}:00
+                  </div>
+                ))}
+              </div>
+              {weekDays.map((d) => {
+                const list = byDay.get(d.toDateString()) ?? [];
+                const isToday = d.toDateString() === new Date().toDateString();
+                return (
+                  <div
+                    key={d.toISOString()}
+                    className={"relative border-l border-border " + (isToday ? "bg-accent/20" : "")}
+                    style={{ height: hours.length * HOUR_PX }}
+                  >
+                    {hours.map((_, i) => (
+                      <div key={i} style={{ height: HOUR_PX }} className="border-b border-dashed border-border" />
+                    ))}
+                    {list.map((s) => {
+                      const patient = s.patients as { nome: string } | null;
+                      const start = new Date(s.scheduled_at);
+                      const minutesFromStart = (start.getHours() - hourBounds.start) * 60 + start.getMinutes();
+                      const top = (minutesFromStart / 60) * HOUR_PX;
+                      const height = Math.max((s.duration_min / 60) * HOUR_PX, 22);
+                      return (
                         <Link
+                          key={s.id}
                           to="/pacientes/$id"
                           params={{ id: s.patient_id }}
-                          className={"block rounded-md px-2 py-1.5 text-xs transition-colors " + sessionColorClass(s)}
+                          className={"absolute left-[3px] right-[3px] overflow-hidden rounded-md px-2 py-1 text-[11px] leading-tight shadow " + sessionBlockClass(s)}
+                          style={{ top, height }}
                         >
-                          <p className="font-medium">{formatTime(s.scheduled_at)}</p>
-                          <p className="truncate">{patient?.nome ?? "Paciente"}</p>
+                          <span className="block font-mono font-semibold opacity-90">{formatTime(s.scheduled_at)}</span>
+                          <span className="block truncate font-medium">{patient?.nome ?? "Paciente"}</span>
                         </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            );
-          })}
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 

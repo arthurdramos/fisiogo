@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -96,6 +96,15 @@ function AuthedLayout() {
   const { profileComplete } = Route.useRouteContext();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
+  // A classe .app-theme (paleta navy/teal da reforma visual) precisa estar no
+  // <body>, não só nesta div: Dialog/Select/Sheet/Toaster renderizam via
+  // portal direto no <body>, fora da árvore desta página, e só herdam
+  // variáveis CSS de ancestrais reais no DOM.
+  useEffect(() => {
+    document.body.classList.add("app-theme");
+    return () => document.body.classList.remove("app-theme");
+  }, []);
+
   const signOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -105,13 +114,15 @@ function AuthedLayout() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-60 shrink-0 border-r border-border bg-sidebar md:flex md:flex-col">
-        <div className="flex h-14 items-center border-b border-border px-5">
-          <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-10 w-auto" />
+      <aside className="hidden w-60 shrink-0 bg-sidebar md:flex md:flex-col">
+        <div className="flex h-14 items-center border-b border-sidebar-border px-5">
+          <div className="rounded-md bg-white px-2.5 py-1.5">
+            <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-7 w-auto" />
+          </div>
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {!profileComplete ? (
-            <p className="px-3 py-2 text-xs text-muted-foreground">
+            <p className="px-3 py-2 text-xs text-sidebar-foreground/60">
               Complete seu cadastro para liberar o menu.
             </p>
           ) : (
@@ -122,10 +133,10 @@ function AuthedLayout() {
                   key={to}
                   to={to}
                   className={
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors " +
+                    "flex items-center gap-3 rounded-md border-l-[3px] py-2 pr-3 text-sm transition-colors " +
                     (active
-                      ? "bg-accent text-accent-foreground font-medium"
-                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground")
+                      ? "border-l-sidebar-primary bg-sidebar-accent pl-[9px] font-medium text-sidebar-foreground"
+                      : "border-l-transparent pl-[9px] text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground")
                   }
                 >
                   <Icon className="h-4 w-4" />
@@ -135,8 +146,13 @@ function AuthedLayout() {
             })
           )}
         </nav>
-        <div className="border-t border-border p-3">
-          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={signOut}>
+        <div className="border-t border-sidebar-border p-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            onClick={signOut}
+          >
             <LogOut className="mr-2 h-4 w-4" /> Sair
           </Button>
         </div>

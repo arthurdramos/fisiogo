@@ -111,7 +111,7 @@ function Financeiro() {
     <div className="mx-auto max-w-5xl p-6 md:p-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-semibold">Financeiro</h1>
+          <h1 className="font-serif text-3xl font-semibold">Financeiro</h1>
           <p className="mt-1 text-sm capitalize text-muted-foreground">{formatMonthLabel(monthStart)}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -132,7 +132,7 @@ function Financeiro() {
           <p className="text-sm text-muted-foreground">À receber</p>
           <Receipt className="h-4 w-4 text-muted-foreground" />
         </div>
-        <p className={"mt-2 font-display text-2xl font-semibold " + (aReceber > 0 ? "text-amber-600 dark:text-amber-400" : "")}>
+        <p className={"mt-2 font-mono text-2xl font-semibold " + (aReceber > 0 ? "text-amber-600 dark:text-amber-400" : "")}>
           {formatCurrency(aReceber)}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -169,7 +169,7 @@ function Financeiro() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-5">
-        <h2 className="font-display text-lg font-semibold">Comparativo com o mês anterior</h2>
+        <h2 className="font-serif text-lg font-semibold">Comparativo com o mês anterior</h2>
         <p className="mt-1 text-sm capitalize text-muted-foreground">{formatMonthLabel(prevMonthStart)}</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <ComparisonRow label="Valor faturado" current={current.faturado} previous={previous.faturado} isCurrency />
@@ -209,11 +209,11 @@ function MetricCard({
         <p className="text-sm text-muted-foreground">{label}</p>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </div>
-      <p className="mt-2 font-display text-2xl font-semibold">{value}</p>
+      <p className="mt-2 font-mono text-2xl font-semibold">{value}</p>
       {Trend && (
         <p className={"mt-1 flex items-center gap-1 text-xs " + (isPositive ? "text-emerald-600" : "text-destructive")}>
           <Trend className="h-3 w-3" />
-          {Math.abs(change).toFixed(0)}% vs. mês anterior
+          <span className="font-mono">{Math.abs(change).toFixed(0)}%</span> vs. mês anterior
         </p>
       )}
     </div>
@@ -240,12 +240,12 @@ function ComparisonRow({
       <div>
         <p className="text-sm font-medium">{label}</p>
         <p className="text-xs text-muted-foreground">
-          Mês anterior: {isCurrency ? formatCurrency(previous) : previous}
+          Mês anterior: <span className="font-mono">{isCurrency ? formatCurrency(previous) : previous}</span>
         </p>
       </div>
       <div className="text-right">
-        <p className="font-display text-lg font-semibold">{isCurrency ? formatCurrency(current) : current}</p>
-        <p className={"text-xs " + (isPositive ? "text-emerald-600" : "text-destructive")}>
+        <p className="font-mono text-lg font-semibold">{isCurrency ? formatCurrency(current) : current}</p>
+        <p className={"font-mono text-xs " + (isPositive ? "text-emerald-600" : "text-destructive")}>
           {change >= 0 ? "+" : ""}
           {change.toFixed(0)}%
         </p>

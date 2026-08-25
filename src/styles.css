@@ -37,6 +37,16 @@
   --color-canvas: var(--canvas);
   --color-line: var(--line);
 
+  /* Paleta do app autenticado (reforma visual — ver prompt de redesign). */
+  --color-navy-900: var(--navy-900);
+  --color-navy-800: var(--navy-800);
+  --color-navy-700: var(--navy-700);
+  --color-app-blue-600: var(--app-blue-600);
+  --color-app-slate-600: var(--app-slate-600);
+  --color-app-slate-400: var(--app-slate-400);
+  --color-app-bg: var(--app-bg);
+  --color-app-border: var(--app-border);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -104,6 +114,26 @@
   --sidebar-border: oklch(0.92 0.01 250);
   --sidebar-ring: oklch(0.62 0.19 256);
 
+  /* Paleta do app autenticado (reforma visual — ver prompt de redesign).
+     Só as constantes de cor ficam globais aqui (mesmo padrão do --brand-900
+     etc. da landing, logo abaixo); o remapeamento de tokens semânticos
+     (--primary, --card, --sidebar etc.) fica isolado em .app-theme, que só
+     é aplicado dentro do shell autenticado — landing e login continuam na
+     paleta "Cloud White" original acima, sem qualquer mudança de cor.
+     Teal e fontes são os MESMOS da landing page (--lp-accent/--accent-100
+     já são #0ea5a0/#e3fbf7, idênticos à referência) — reaproveitados aqui
+     de propósito pra landing e app ficarem coerentes. Navy/azul/slate são
+     novos porque a landing usa uma paleta de azul diferente (--brand-900
+     etc.), pensada pra outro contexto (marketing), e não devem mudar. */
+  --navy-900: #0b2540;
+  --navy-800: #12314f;
+  --navy-700: #1b3f63;
+  --app-blue-600: #2e6ff2;
+  --app-slate-600: #55677e;
+  --app-slate-400: #8da0b5;
+  --app-bg: #f5f8fa;
+  --app-border: #e4eaf0;
+
   /* Landing page (ver ETAPA 0) — valores idênticos ao protótipo aprovado,
      exceto --lp-accent/--lp-muted (renomeados por colisão, ver acima). */
   --ink: #0b1220;
@@ -120,6 +150,43 @@
   --paper: #ffffff;
   --canvas: #f7f9fc;
   --line: #e4e9f2;
+}
+
+/* Reforma visual do app autenticado (ver prompt de redesign) — aplicada só
+   dentro do shell autenticado (classe colocada no wrapper raiz em
+   _authenticated/route.tsx). Landing e login ficam com a paleta "Cloud
+   White" original do :root, sem herdar nada disso. */
+.app-theme {
+  /* radius base 12px -> md (botões/inputs) = 10px, xl (cards) = 16px,
+     exatamente os valores da reforma visual do app. */
+  --radius: 0.75rem;
+  --shadow: 0 1px 2px rgba(11, 37, 64, 0.05);
+
+  --background: var(--app-bg);
+  --foreground: var(--navy-900);
+  --card: #ffffff;
+  --card-foreground: var(--navy-900);
+  --popover: #ffffff;
+  --popover-foreground: var(--navy-900);
+  --primary: var(--navy-900);
+  --primary-foreground: #ffffff;
+  --secondary: var(--app-bg);
+  --secondary-foreground: var(--navy-900);
+  --muted: var(--app-bg);
+  --muted-foreground: var(--app-slate-600);
+  --accent: var(--accent-100);
+  --accent-foreground: var(--navy-900);
+  --border: var(--app-border);
+  --input: var(--app-border);
+  --ring: var(--lp-accent);
+  --sidebar: var(--navy-900);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: var(--lp-accent);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--lp-accent);
 }
 
 .dark {
@@ -162,8 +229,17 @@
     text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: var(--font-serif);
     letter-spacing: -0.02em;
+  }
+  /* Reforma visual do app — a maioria dos "cards" do app é montada com
+     classes soltas (rounded-xl border bg-card ...) em vez do componente
+     <Card>, então a sombra leve do design novo é aplicada aqui, pela
+     própria cor de fundo, pra valer em todo lugar sem editar cada tela.
+     Escopado a .app-theme pra não alterar o "bg-card" já aprovado na
+     landing page (alguns pontos dela reaproveitam essa mesma classe). */
+  .app-theme .bg-card {
+    box-shadow: var(--shadow);
   }
 }
 

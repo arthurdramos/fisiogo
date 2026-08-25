@@ -172,7 +172,7 @@ function PatientDetail() {
 
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold">{p.nome}</h1>
+          <h1 className="font-serif text-3xl font-semibold">{p.nome}</h1>
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
             {p.telefone && <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{p.telefone}</span>}
             {p.email && <span className="inline-flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{p.email}</span>}
@@ -542,9 +542,6 @@ function SessionsSection({
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <span className={"rounded-md px-2 py-1 text-xs " + sessionColorClass(s)}>
-                {sessionStatusLabel(s)}
-              </span>
               {s.status === "realizada" && !s.pago && (
                 <Button size="sm" variant="outline" onClick={() => markPaid.mutate(s.id)} disabled={markPaid.isPending}>
                   Marcar como pago
@@ -553,7 +550,8 @@ function SessionsSection({
               <select
                 value={s.status}
                 onChange={(e) => updateStatus.mutate({ id: s.id, status: e.target.value })}
-                className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                title={sessionStatusLabel(s)}
+                className={"rounded-md border-0 px-2 py-1 text-xs font-medium " + sessionColorClass(s)}
               >
                 <option value="agendada">Agendada</option>
                 <option value="realizada">Realizada</option>
@@ -656,7 +654,7 @@ function SaldoSection({ patientId, aReceber }: { patientId: string; aReceber: nu
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm text-muted-foreground">Saldo do paciente</p>
-            <p className={"font-display text-2xl font-semibold " + (saldo < 0 ? "text-destructive" : "")}>
+            <p className={"font-serif text-2xl font-semibold " + (saldo < 0 ? "text-destructive" : "")}>
               {formatCurrency(saldo)}
             </p>
           </div>
@@ -684,7 +682,7 @@ function SaldoSection({ patientId, aReceber }: { patientId: string; aReceber: nu
 
       <div className="mb-6 rounded-lg border border-border bg-card p-5">
         <p className="text-sm text-muted-foreground">À receber</p>
-        <p className={"font-display text-2xl font-semibold " + (aReceber > 0 ? "text-amber-600 dark:text-amber-400" : "")}>
+        <p className={"font-serif text-2xl font-semibold " + (aReceber > 0 ? "text-amber-600 dark:text-amber-400" : "")}>
           {formatCurrency(aReceber)}
         </p>
       </div>
@@ -882,7 +880,7 @@ function BillingSection({
     <div className="space-y-6">
       <div className="rounded-lg border border-border bg-card p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-display font-semibold">Sessões em aberto</h3>
+          <h3 className="font-serif font-semibold">Sessões em aberto</h3>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={selectAllOpen} disabled={unpaid.length === 0}>
               Selecionar todas em aberto
@@ -954,7 +952,7 @@ function BillingSection({
 
       <div className="rounded-lg border border-border bg-card">
         <div className="border-b border-border px-5 py-3">
-          <h3 className="font-display font-semibold">Relatórios gerados</h3>
+          <h3 className="font-serif font-semibold">Relatórios gerados</h3>
           <p className="text-xs text-muted-foreground">Últimos 12 ficam salvos aqui.</p>
         </div>
         <ul className="divide-y divide-border">
@@ -1311,7 +1309,7 @@ function PlanSection({ patientId, plan }: { patientId: string; plan: any }) {
 
       <div className="rounded-lg border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <h3 className="font-display font-semibold">Exercícios prescritos</h3>
+          <h3 className="font-serif font-semibold">Exercícios prescritos</h3>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline"><Plus className="mr-1 h-4 w-4" /> Adicionar</Button>
@@ -1424,7 +1422,7 @@ function ContactsSection({
     <div className="rounded-lg border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div>
-          <h3 className="font-display font-semibold">Contatos secundários</h3>
+          <h3 className="font-serif font-semibold">Contatos secundários</h3>
           <p className="text-xs text-muted-foreground">Familiares, cuidadores ou responsáveis pela gestão.</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>

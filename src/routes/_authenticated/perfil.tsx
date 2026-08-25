@@ -87,7 +87,7 @@ function Perfil() {
   return (
     <div className="mx-auto max-w-2xl p-6 md:p-10">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-semibold">Perfil</h1>
+        <h1 className="font-serif text-3xl font-semibold">Perfil</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Esses dados aparecem automaticamente nos relatórios de cobrança gerados para seus pacientes.
         </p>
@@ -101,7 +101,7 @@ function Perfil() {
         }}
       >
         <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="mb-4 font-display font-semibold">Dados profissionais</h2>
+          <h2 className="mb-4 font-serif font-semibold">Dados profissionais</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Nome completo</Label>
@@ -128,7 +128,7 @@ function Perfil() {
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="mb-4 font-display font-semibold">Dados bancários</h2>
+          <h2 className="mb-4 font-serif font-semibold">Dados bancários</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Banco</Label>
@@ -184,7 +184,7 @@ function NotificacoesSection() {
 
   return (
     <div>
-      <h2 className="mb-1 font-display font-semibold">Notificações</h2>
+      <h2 className="mb-1 font-serif font-semibold">Notificações</h2>
       <p className="mb-4 text-sm text-muted-foreground">
         Receba um lembrete 1h após o horário de cada sessão perguntando se ela aconteceu.
       </p>

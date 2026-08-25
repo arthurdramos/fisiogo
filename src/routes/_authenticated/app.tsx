@@ -43,35 +43,39 @@ function Dashboard() {
     <div className="mx-auto max-w-5xl p-6 md:p-10">
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="font-display text-3xl font-semibold">Início</h1>
+          <h1 className="font-serif text-3xl font-semibold">Início</h1>
           <p className="mt-1 text-sm text-muted-foreground">Sua semana em um olhar.</p>
         </div>
       </div>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Pacientes ativos</p>
-              <p className="mt-1 font-display text-3xl font-semibold">{patientCount.data ?? "—"}</p>
+              <p className="mt-1 font-mono text-3xl font-semibold">{patientCount.data ?? "—"}</p>
             </div>
-            <Users className="h-6 w-6 text-muted-foreground" />
+            <div className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-[11px] bg-accent text-accent-foreground">
+              <Users className="h-[19px] w-[19px]" />
+            </div>
           </div>
-          <Link to="/pacientes" className="mt-4 inline-flex text-sm text-primary hover:underline">
+          <Link to="/pacientes" className="mt-4 inline-flex text-sm font-medium text-app-blue-600 hover:underline">
             Ver pacientes →
           </Link>
         </div>
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Sessões nos próximos 7 dias</p>
-              <p className="mt-1 font-display text-3xl font-semibold">
+              <p className="mt-1 font-mono text-3xl font-semibold">
                 {upcoming.data?.length ?? "—"}
               </p>
             </div>
-            <Calendar className="h-6 w-6 text-muted-foreground" />
+            <div className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-[11px] bg-accent text-accent-foreground">
+              <Calendar className="h-[19px] w-[19px]" />
+            </div>
           </div>
-          <Link to="/agenda" className="mt-4 inline-flex text-sm text-primary hover:underline">
+          <Link to="/agenda" className="mt-4 inline-flex text-sm font-medium text-app-blue-600 hover:underline">
             Abrir agenda →
           </Link>
         </div>
@@ -79,9 +83,9 @@ function Dashboard() {
 
       <div className="rounded-xl border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="font-display text-lg font-semibold">Próximas sessões</h2>
+          <h2 className="font-serif text-lg font-semibold">Próximas sessões</h2>
           <Link to="/agenda">
-            <Button size="sm" variant="outline">
+            <Button size="sm">
               <Plus className="mr-1 h-4 w-4" /> Nova sessão
             </Button>
           </Link>
@@ -91,7 +95,18 @@ function Dashboard() {
             <li className="p-5 text-sm text-muted-foreground">Carregando...</li>
           )}
           {upcoming.data?.length === 0 && (
-            <li className="p-5 text-sm text-muted-foreground">Nenhuma sessão agendada para os próximos 7 dias.</li>
+            <li className="flex flex-col items-center gap-3 px-6 py-9 text-center">
+              <div className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-accent text-accent-foreground">
+                <Calendar className="h-[26px] w-[26px]" />
+              </div>
+              <div>
+                <p className="font-medium">Nenhuma sessão marcada por enquanto</p>
+                <p className="mx-auto mt-1 max-w-[320px] text-sm text-muted-foreground">
+                  Sua agenda dos próximos 7 dias está livre. Toque em "Nova sessão" para marcar o primeiro
+                  atendimento da semana.
+                </p>
+              </div>
+            </li>
           )}
           {upcoming.data?.map((s) => {
             const patient = s.patients as { nome: string } | null;

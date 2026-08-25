@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Search, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { formatCPF } from "@/lib/format";
+import { formatCPF, initials } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/pacientes/")({
   head: () => ({ meta: [{ title: "Pacientes — FisioGO" }] }),
@@ -88,7 +88,7 @@ function PatientsList() {
     <div className="mx-auto max-w-5xl p-6 md:p-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-semibold">Pacientes</h1>
+          <h1 className="font-serif text-3xl font-semibold">Pacientes</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {patients.data?.length ?? 0} pacientes cadastrados
           </p>
@@ -124,16 +124,21 @@ function PatientsList() {
               <Link
                 to="/pacientes/$id"
                 params={{ id: p.id }}
-                className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent/40"
+                className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-accent/40"
               >
-                <div>
-                  <p className="font-medium">{p.nome}</p>
-                  <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    {p.telefone && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" />{p.telefone}</span>}
-                    {p.email && <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" />{p.email}</span>}
+                <div className="flex items-center gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-foreground">
+                    {initials(p.nome)}
+                  </div>
+                  <div>
+                    <p className="font-medium">{p.nome}</p>
+                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      {p.telefone && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" />{p.telefone}</span>}
+                      {p.email && <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" />{p.email}</span>}
+                    </div>
                   </div>
                 </div>
-                <span className="text-xs text-primary">Abrir →</span>
+                <span className="shrink-0 text-xs text-primary">Abrir →</span>
               </Link>
             </li>
           ))}

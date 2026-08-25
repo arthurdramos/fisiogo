@@ -61,7 +61,7 @@ function ConfirmarSessao() {
 
   return (
     <div className="mx-auto max-w-md p-10 text-center">
-      <h1 className="font-display text-2xl font-semibold">A sessão aconteceu?</h1>
+      <h1 className="font-serif text-2xl font-semibold">A sessão aconteceu?</h1>
       <p className="mt-2 text-muted-foreground">
         {patient?.nome ?? "Paciente"} · {formatDateTime(s.scheduled_at)}
       </p>

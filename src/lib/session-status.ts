@@ -25,6 +25,27 @@ export function sessionColorClass(s: SessionStatusInfo): string {
   return "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300";
 }
 
+// Variante com fundo sólido (em vez do tom claro de sessionColorClass), usada
+// nos blocos posicionados por horário da grade semanal da Agenda — precisam
+// de mais contraste porque ficam sobre o fundo da coluna do dia, não num chip.
+export function sessionBlockClass(s: SessionStatusInfo): string {
+  if (s.status === "cancelada") {
+    return "bg-muted-foreground/50 text-white line-through";
+  }
+  if (s.status !== "realizada") {
+    return "bg-primary text-primary-foreground";
+  }
+  if (s.pago) {
+    return "bg-emerald-600 text-white";
+  }
+  const sessionMonth = startOfMonth(new Date(s.scheduled_at));
+  const currentMonth = startOfMonth(new Date());
+  if (sessionMonth < currentMonth) {
+    return "bg-destructive text-white";
+  }
+  return "bg-amber-500 text-white";
+}
+
 export function sessionDotClass(s: SessionStatusInfo): string {
   if (s.status === "cancelada") {
     return "bg-muted-foreground/40";

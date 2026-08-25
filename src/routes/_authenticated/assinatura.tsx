@@ -55,7 +55,7 @@ function Assinatura() {
   return (
     <div className="mx-auto max-w-3xl p-6 md:p-10">
       <div className="mb-8 text-center">
-        <h1 className="font-display text-3xl font-semibold">Assinatura</h1>
+        <h1 className="font-serif text-3xl font-semibold">Assinatura</h1>
         {isActive && (
           <p className="mt-2 text-sm text-emerald-600">
             Sua assinatura está ativa ({sub.plano === "anual" ? "plano anual" : "plano mensal"}).
@@ -80,7 +80,7 @@ function Assinatura() {
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-6">
-          <h2 className="font-display text-xl font-semibold">Mensal</h2>
+          <h2 className="font-serif text-xl font-semibold">Mensal</h2>
           <p className="mt-2 text-3xl font-semibold">
             {formatCurrency(29.9)}
             <span className="text-sm font-normal text-muted-foreground">/mês</span>
@@ -95,7 +95,7 @@ function Assinatura() {
         </div>
         <div className="rounded-xl border border-primary bg-card p-6">
           <div className="flex items-center gap-2">
-            <h2 className="font-display text-xl font-semibold">Anual</h2>
+            <h2 className="font-serif text-xl font-semibold">Anual</h2>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
               2 meses grátis
             </span>
