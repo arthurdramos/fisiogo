@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getPushPermissionState, subscribeToPush } from "@/lib/push";
+import { formatCPF } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -17,6 +18,7 @@ function Perfil() {
   const qc = useQueryClient();
   const [form, setForm] = useState({
     nome: "",
+    cpf: "",
     crefito: "",
     telefone: "",
     banco: "",
@@ -45,6 +47,7 @@ function Perfil() {
     if (profile.data && !loaded) {
       setForm({
         nome: profile.data.nome ?? "",
+        cpf: profile.data.cpf ?? "",
         crefito: profile.data.crefito ?? "",
         telefone: profile.data.telefone ?? "",
         banco: profile.data.banco ?? "",
@@ -64,6 +67,7 @@ function Perfil() {
       const { error } = await supabase.from("professional_profile").upsert({
         user_id,
         nome: form.nome || null,
+        cpf: form.cpf || null,
         crefito: form.crefito || null,
         telefone: form.telefone || null,
         banco: form.banco || null,
@@ -102,6 +106,15 @@ function Perfil() {
             <div className="space-y-2">
               <Label>Nome completo</Label>
               <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>CPF</Label>
+              <Input
+                value={form.cpf}
+                placeholder="000.000.000-00"
+                inputMode="numeric"
+                onChange={(e) => setForm({ ...form, cpf: formatCPF(e.target.value) })}
+              />
             </div>
             <div className="space-y-2">
               <Label>CREFITO</Label>

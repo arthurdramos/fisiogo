@@ -131,6 +131,7 @@ export type Database = {
       patients: {
         Row: {
           ap_historico: string | null
+          cpf: string | null
           created_at: string
           custo_sessao: number | null
           data_nascimento: string | null
@@ -150,6 +151,7 @@ export type Database = {
         }
         Insert: {
           ap_historico?: string | null
+          cpf?: string | null
           created_at?: string
           custo_sessao?: number | null
           data_nascimento?: string | null
@@ -169,6 +171,7 @@ export type Database = {
         }
         Update: {
           ap_historico?: string | null
+          cpf?: string | null
           created_at?: string
           custo_sessao?: number | null
           data_nascimento?: string | null
@@ -194,6 +197,7 @@ export type Database = {
           banco: string | null
           chave_pix: string | null
           conta: string | null
+          cpf: string | null
           created_at: string
           crefito: string | null
           lgpd_aceite_em: string | null
@@ -207,6 +211,7 @@ export type Database = {
           banco?: string | null
           chave_pix?: string | null
           conta?: string | null
+          cpf?: string | null
           created_at?: string
           crefito?: string | null
           lgpd_aceite_em?: string | null
@@ -220,6 +225,7 @@ export type Database = {
           banco?: string | null
           chave_pix?: string | null
           conta?: string | null
+          cpf?: string | null
           created_at?: string
           crefito?: string | null
           lgpd_aceite_em?: string | null

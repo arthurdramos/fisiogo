@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ArrowLeft, CalendarPlus, Download, Pencil, Plus, Share2, Trash2, Phone, Mail } from "lucide-react";
-import { addMonths, calcAge, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
+import { addMonths, calcAge, formatCPF, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { calcularSaldo, markSessionRealizada, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
 import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/lib/billing-report";
 import { toast } from "sonner";
@@ -95,6 +95,7 @@ function PatientDetail() {
   const updatePatient = useMutation({
     mutationFn: async (values: {
       nome: string;
+      cpf: string;
       telefone: string;
       email: string;
       data_nascimento: string;
@@ -108,6 +109,7 @@ function PatientDetail() {
         .from("patients")
         .update({
           nome: values.nome,
+          cpf: values.cpf || null,
           telefone: values.telefone || null,
           email: values.email || null,
           data_nascimento: values.data_nascimento || null,
@@ -169,6 +171,7 @@ function PatientDetail() {
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
             {p.telefone && <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{p.telefone}</span>}
             {p.email && <span className="inline-flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{p.email}</span>}
+            {p.cpf && <span>CPF: {p.cpf}</span>}
             {p.data_nascimento && (
               <span>
                 Nasc: {new Date(p.data_nascimento).toLocaleDateString("pt-BR")} ({calcAge(p.data_nascimento)} anos)
@@ -266,6 +269,7 @@ function PatientEditDialog({
 }: {
   patient: {
     nome: string;
+    cpf: string | null;
     telefone: string | null;
     email: string | null;
     data_nascimento: string | null;
@@ -277,6 +281,7 @@ function PatientEditDialog({
   };
   onSubmit: (v: {
     nome: string;
+    cpf: string;
     telefone: string;
     email: string;
     data_nascimento: string;
@@ -290,6 +295,7 @@ function PatientEditDialog({
 }) {
   const [form, setForm] = useState({
     nome: patient.nome,
+    cpf: patient.cpf ?? "",
     telefone: patient.telefone ?? "",
     email: patient.email ?? "",
     data_nascimento: patient.data_nascimento ?? "",
@@ -317,6 +323,15 @@ function PatientEditDialog({
           <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} required />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>CPF</Label>
+            <Input
+              value={form.cpf}
+              placeholder="000.000.000-00"
+              inputMode="numeric"
+              onChange={(e) => setForm({ ...form, cpf: formatCPF(e.target.value) })}
+            />
+          </div>
           <div className="space-y-2">
             <Label>Telefone</Label>
             <Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} />

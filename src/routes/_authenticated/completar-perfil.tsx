@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatCPF } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/completar-perfil")({
@@ -26,7 +27,7 @@ function extractErrorMessage(e: unknown): string | null {
 function CompletarPerfil() {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [form, setForm] = useState({ nome: "", crefito: "", telefone: "" });
+  const [form, setForm] = useState({ nome: "", cpf: "", crefito: "", telefone: "" });
   const [lgpdAceite, setLgpdAceite] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -49,6 +50,7 @@ function CompletarPerfil() {
     if (profile.data && !loaded) {
       setForm({
         nome: profile.data.nome ?? "",
+        cpf: profile.data.cpf ?? "",
         crefito: profile.data.crefito ?? "",
         telefone: profile.data.telefone ?? "",
       });
@@ -65,6 +67,7 @@ function CompletarPerfil() {
       const { error } = await supabase.from("professional_profile").upsert({
         user_id,
         nome: form.nome,
+        cpf: form.cpf || null,
         crefito: form.crefito,
         telefone: form.telefone,
         lgpd_aceite_em: profile.data?.lgpd_aceite_em ?? new Date().toISOString(),
@@ -110,6 +113,16 @@ function CompletarPerfil() {
             value={form.nome}
             onChange={(e) => setForm({ ...form, nome: e.target.value })}
             required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="cpf">CPF</Label>
+          <Input
+            id="cpf"
+            value={form.cpf}
+            placeholder="000.000.000-00"
+            inputMode="numeric"
+            onChange={(e) => setForm({ ...form, cpf: formatCPF(e.target.value) })}
           />
         </div>
         <div className="space-y-2">

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Search, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { formatCPF } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/pacientes/")({
   head: () => ({ meta: [{ title: "Pacientes — FisioGO" }] }),
@@ -42,6 +43,7 @@ function PatientsList() {
   const create = useMutation({
     mutationFn: async (values: {
       nome: string;
+      cpf: string;
       telefone: string;
       email: string;
       data_nascimento: string;
@@ -57,6 +59,7 @@ function PatientsList() {
       const { error } = await supabase.from("patients").insert({
         user_id,
         nome: values.nome,
+        cpf: values.cpf || null,
         telefone: values.telefone || null,
         email: values.email || null,
         data_nascimento: values.data_nascimento || null,
@@ -146,6 +149,7 @@ function PatientDialog({
 }: {
   onSubmit: (v: {
     nome: string;
+    cpf: string;
     telefone: string;
     email: string;
     data_nascimento: string;
@@ -159,6 +163,7 @@ function PatientDialog({
 }) {
   const [form, setForm] = useState({
     nome: "",
+    cpf: "",
     telefone: "",
     email: "",
     data_nascimento: "",
@@ -186,6 +191,15 @@ function PatientDialog({
           <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} required />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>CPF</Label>
+            <Input
+              value={form.cpf}
+              placeholder="000.000.000-00"
+              inputMode="numeric"
+              onChange={(e) => setForm({ ...form, cpf: formatCPF(e.target.value) })}
+            />
+          </div>
           <div className="space-y-2">
             <Label>Telefone</Label>
             <Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} />
