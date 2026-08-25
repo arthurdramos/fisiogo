@@ -103,6 +103,7 @@ function Agenda() {
       toast.success("Sessão agendada");
       qc.invalidateQueries({ queryKey: ["agenda-sessions"] });
       qc.invalidateQueries({ queryKey: ["upcoming-sessions"] });
+      qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
       setOpen(false);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),

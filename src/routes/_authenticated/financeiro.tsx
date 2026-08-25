@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   DollarSign,
+  Receipt,
   TrendingDown,
   TrendingUp,
   Wallet,
@@ -83,6 +84,29 @@ function Financeiro() {
     return summarize(rows);
   }, [sessions.data, prevMonthStart, monthStart]);
 
+  // "À receber": soma de todos os agendamentos confirmados (não cancelados) ainda não
+  // pagos, de qualquer mês — não é escopado ao mês selecionado, é um saldo corrente,
+  // igual ao quadrante equivalente na ficha do paciente.
+  const receivable = useQuery({
+    queryKey: ["financeiro-a-receber"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sessions")
+        .select("valor_cobrado, patients(valor_sessao)")
+        .neq("status", "cancelada")
+        .eq("pago", false);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const aReceber = useMemo(() => {
+    return (receivable.data ?? []).reduce(
+      (acc, s) => acc + Number(s.valor_cobrado ?? s.patients?.valor_sessao ?? 0),
+      0,
+    );
+  }, [receivable.data]);
+
   return (
     <div className="mx-auto max-w-5xl p-6 md:p-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -101,6 +125,19 @@ function Financeiro() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+      </div>
+
+      <div className="mb-6 rounded-xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">À receber</p>
+          <Receipt className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <p className={"mt-2 font-display text-2xl font-semibold " + (aReceber > 0 ? "text-amber-600 dark:text-amber-400" : "")}>
+          {formatCurrency(aReceber)}
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Soma de todos os agendamentos confirmados ainda não pagos, de qualquer mês
+        </p>
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

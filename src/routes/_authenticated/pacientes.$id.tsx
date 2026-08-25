@@ -149,6 +149,7 @@ function PatientDetail() {
       qc.invalidateQueries({ queryKey: ["patient-sessions", id] });
       qc.invalidateQueries({ queryKey: ["agenda-sessions"] });
       qc.invalidateQueries({ queryKey: ["upcoming-sessions"] });
+      qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
       setScheduleOpen(false);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
@@ -158,6 +159,10 @@ function PatientDetail() {
   if (!patient.data) return <div className="p-10 text-sm">Paciente não encontrado.</div>;
 
   const p = patient.data;
+
+  const aReceber = (sessions.data ?? [])
+    .filter((s) => s.status !== "cancelada" && !s.pago)
+    .reduce((acc, s) => acc + Number(s.valor_cobrado ?? p.valor_sessao ?? 0), 0);
 
   return (
     <div className="mx-auto max-w-4xl p-6 md:p-10">
@@ -232,7 +237,7 @@ function PatientDetail() {
         </div>
       )}
 
-      <SaldoSection patientId={id} />
+      <SaldoSection patientId={id} aReceber={aReceber} />
 
       <Tabs defaultValue="sessoes">
         <TabsList>
@@ -474,6 +479,7 @@ function SessionsSection({
     qc.invalidateQueries({ queryKey: ["patient-sessions", patientId] });
     qc.invalidateQueries({ queryKey: ["patient-payments", patientId] });
     qc.invalidateQueries({ queryKey: ["patient-credited-sessions", patientId] });
+    qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
   };
 
   const saveNotes = useMutation({
@@ -591,7 +597,7 @@ function SessionsSection({
 
 // ================== Saldo / carteira ==================
 
-function SaldoSection({ patientId }: { patientId: string }) {
+function SaldoSection({ patientId, aReceber }: { patientId: string; aReceber: number }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
 
@@ -645,35 +651,44 @@ function SaldoSection({ patientId }: { patientId: string }) {
   });
 
   return (
-    <div className="mb-6 rounded-lg border border-border bg-card p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm text-muted-foreground">Saldo do paciente</p>
-          <p className={"font-display text-2xl font-semibold " + (saldo < 0 ? "text-destructive" : "")}>
-            {formatCurrency(saldo)}
-          </p>
+    <>
+      <div className="mb-4 rounded-lg border border-border bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">Saldo do paciente</p>
+            <p className={"font-display text-2xl font-semibold " + (saldo < 0 ? "text-destructive" : "")}>
+              {formatCurrency(saldo)}
+            </p>
+          </div>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline"><Plus className="mr-1 h-4 w-4" /> Registrar depósito</Button>
+            </DialogTrigger>
+            <PaymentDialog onSubmit={addPayment.mutate} loading={addPayment.isPending} />
+          </Dialog>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" variant="outline"><Plus className="mr-1 h-4 w-4" /> Registrar depósito</Button>
-          </DialogTrigger>
-          <PaymentDialog onSubmit={addPayment.mutate} loading={addPayment.isPending} />
-        </Dialog>
+        {payments.data && payments.data.length > 0 && (
+          <ul className="mt-4 divide-y divide-border border-t border-border pt-2">
+            {payments.data.map((pay) => (
+              <li key={pay.id} className="flex items-center justify-between py-2 text-sm">
+                <div>
+                  <p>{formatDate(pay.data)}</p>
+                  {pay.observacao && <p className="text-xs text-muted-foreground">{pay.observacao}</p>}
+                </div>
+                <span className="font-medium">{formatCurrency(Number(pay.valor))}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      {payments.data && payments.data.length > 0 && (
-        <ul className="mt-4 divide-y divide-border border-t border-border pt-2">
-          {payments.data.map((pay) => (
-            <li key={pay.id} className="flex items-center justify-between py-2 text-sm">
-              <div>
-                <p>{formatDate(pay.data)}</p>
-                {pay.observacao && <p className="text-xs text-muted-foreground">{pay.observacao}</p>}
-              </div>
-              <span className="font-medium">{formatCurrency(Number(pay.valor))}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+
+      <div className="mb-6 rounded-lg border border-border bg-card p-5">
+        <p className="text-sm text-muted-foreground">À receber</p>
+        <p className={"font-display text-2xl font-semibold " + (aReceber > 0 ? "text-amber-600 dark:text-amber-400" : "")}>
+          {formatCurrency(aReceber)}
+        </p>
+      </div>
+    </>
   );
 }
 
@@ -840,6 +855,7 @@ function BillingSection({
       toast.success("Sessões marcadas como pagas");
       clearSelection();
       qc.invalidateQueries({ queryKey: ["patient-sessions", patientId] });
+      qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
   });
