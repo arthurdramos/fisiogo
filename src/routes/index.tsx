@@ -17,6 +17,13 @@ import {
   Check,
   Star,
   Plus,
+  Compass,
+  Share2,
+  SquarePlus,
+  Smartphone,
+  Globe,
+  MoreVertical,
+  Download,
 } from "lucide-react";
 
 const TITLE = "FisioGO — Gestão simples para fisioterapeutas autônomos";
@@ -170,6 +177,63 @@ const faqs = [
   {
     q: "Quanto custa depois dos 7 dias de teste?",
     a: "Um valor único por mês, sem taxa de adesão e sem fidelidade. Você só é cobrado se decidir continuar.",
+  },
+];
+
+const installSteps = [
+  {
+    platform: "No iPhone",
+    badge: "Safari",
+    hint: "iPhone e iPad · precisa ser pelo Safari",
+    steps: [
+      {
+        icon: Compass,
+        title: "Abra no Safari",
+        desc: "Acesse app.fisiogo.com.br pelo Safari (só ele instala no iPhone).",
+      },
+      {
+        icon: Share2,
+        title: "Toque em Compartilhar",
+        desc: "É o ícone de quadrado com uma seta pra cima, na barra de baixo.",
+      },
+      {
+        icon: SquarePlus,
+        title: "Adicionar à Tela de Início",
+        desc: "Role a lista e toque nessa opção.",
+      },
+      {
+        icon: Smartphone,
+        title: "Toque em Adicionar",
+        desc: "Pronto! Abra o FisioGO pelo ícone novo na tela inicial.",
+      },
+    ],
+  },
+  {
+    platform: "No Android",
+    badge: "Chrome",
+    hint: "Android · pelo Chrome (ou Edge/Samsung Internet)",
+    steps: [
+      {
+        icon: Globe,
+        title: "Abra no Chrome",
+        desc: "Acesse app.fisiogo.com.br pelo navegador.",
+      },
+      {
+        icon: MoreVertical,
+        title: "Toque no menu (⋮)",
+        desc: "São os três pontinhos no canto superior direito.",
+      },
+      {
+        icon: Download,
+        title: "Adicionar à tela inicial",
+        desc: "Toque em \"Adicionar à tela inicial\" (o nome exato pode variar um pouco conforme a versão do Chrome).",
+      },
+      {
+        icon: Smartphone,
+        title: "Confirme e abra pelo ícone",
+        desc: "Toque em \"Adicionar\". O atalho aparece na sua tela inicial.",
+      },
+    ],
   },
 ];
 
@@ -642,6 +706,52 @@ function Landing() {
                 Começar 7 dias grátis
               </Button>
               <div className="mt-3.5 text-xs text-white/55">Sem cartão de crédito · cancele quando quiser</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Instalar no celular */}
+        <section id="instalar" className="border-b border-border/60 bg-canvas py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">No seu celular</p>
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+                Tenha o FisioGO na tela inicial do celular
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Sem loja de aplicativos. Adicione o FisioGO à tela de início e abra em um toque — leva 20
+                segundos e é grátis.
+              </p>
+            </div>
+            <div className="mt-14 grid gap-6 sm:grid-cols-2">
+              {installSteps.map(({ platform, badge, hint, steps }) => (
+                <div key={platform} className="rounded-xl border border-line bg-paper p-7">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-sans text-lg font-extrabold text-ink">{platform}</h3>
+                      <p className="mt-1 text-sm text-body">{hint}</p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-accent-100 px-3 py-1 text-xs font-semibold text-accent-600">
+                      {badge}
+                    </span>
+                  </div>
+                  <ol className="mt-6 divide-y divide-line">
+                    {steps.map(({ icon: Icon, title, desc }, i) => (
+                      <li key={title} className="flex gap-3.5 py-4 first:pt-0 last:pb-0">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-brand-100 text-brand-700">
+                          <Icon className="h-[18px] w-[18px]" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-ink">
+                            {i + 1} · {title}
+                          </p>
+                          <p className="mt-0.5 text-sm text-body">{desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
             </div>
           </div>
         </section>
