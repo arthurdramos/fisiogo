@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -104,17 +103,14 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="app-theme flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <span className="font-display text-lg font-semibold">FisioGO</span>
+        <Link to="/" className="mb-8 flex items-center justify-center">
+          <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-10 w-auto" />
         </Link>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-          <h1 className="font-display text-2xl font-semibold">
+          <h1 className="font-serif text-2xl font-semibold">
             {mode === "signin" ? "Bem-vindo de volta" : "Criar sua conta"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -228,7 +224,7 @@ function AuthPage() {
             <button
               type="button"
               onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-              className="font-medium text-primary hover:underline"
+              className="font-medium text-app-blue-600 hover:underline"
             >
               {mode === "signin" ? "Criar conta" : "Entrar"}
             </button>
