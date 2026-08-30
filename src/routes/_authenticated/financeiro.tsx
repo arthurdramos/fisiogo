@@ -97,12 +97,28 @@ function periodLabel(granularity: Granularity, range: Range) {
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
-const TODAY_LABEL: Record<Exclude<Granularity, "personalizado">, string> = {
-  semana: "Esta semana",
-  mes: "Este mês",
-  trimestre: "Este trimestre",
-  ano: "Este ano",
-};
+// Período correspondente a uma data-âncora, pras 4 granularidades fixas
+// (a "personalizado" usa datas escolhidas à mão, não uma âncora).
+function anchorRange(granularity: Exclude<Granularity, "personalizado">, anchor: Date): Range {
+  switch (granularity) {
+    case "semana": {
+      const start = startOfWeek(anchor);
+      return { start, end: addDays(start, 7) };
+    }
+    case "trimestre": {
+      const start = startOfQuarter(anchor);
+      return { start, end: addQuarters(start, 1) };
+    }
+    case "ano": {
+      const start = startOfYear(anchor);
+      return { start, end: addYears(start, 1) };
+    }
+    default: {
+      const start = startOfMonth(anchor);
+      return { start, end: addMonths(start, 1) };
+    }
+  }
+}
 
 function Financeiro() {
   const [granularity, setGranularity] = useState<Granularity>("mes");
@@ -111,30 +127,18 @@ function Financeiro() {
   const [customEnd, setCustomEnd] = useState(() => toDateInputValue(new Date()));
 
   const currentRange = useMemo((): Range => {
-    switch (granularity) {
-      case "personalizado": {
-        const start = startOfDay(new Date(customStart + "T00:00:00"));
-        const rawEnd = startOfDay(new Date(customEnd + "T00:00:00"));
-        return { start, end: addDays(rawEnd < start ? start : rawEnd, 1) };
-      }
-      case "semana": {
-        const start = startOfWeek(anchor);
-        return { start, end: addDays(start, 7) };
-      }
-      case "trimestre": {
-        const start = startOfQuarter(anchor);
-        return { start, end: addQuarters(start, 1) };
-      }
-      case "ano": {
-        const start = startOfYear(anchor);
-        return { start, end: addYears(start, 1) };
-      }
-      default: {
-        const start = startOfMonth(anchor);
-        return { start, end: addMonths(start, 1) };
-      }
+    if (granularity === "personalizado") {
+      const start = startOfDay(new Date(customStart + "T00:00:00"));
+      const rawEnd = startOfDay(new Date(customEnd + "T00:00:00"));
+      return { start, end: addDays(rawEnd < start ? start : rawEnd, 1) };
     }
+    return anchorRange(granularity, anchor);
   }, [granularity, anchor, customStart, customEnd]);
+
+  // O botão de voltar pro período corrente só faz sentido (e só aparece)
+  // quando o período visto não é o atual — daí a comparação abaixo.
+  const isCurrentPeriod =
+    granularity === "personalizado" ? true : currentRange.start.getTime() === anchorRange(granularity, new Date()).start.getTime();
 
   // Período de comparação: pro "personalizado", espelha o mesmo intervalo de
   // dias um mês antes (ex: 01-17/08 -> 01-17/07); pros demais, é só o
@@ -260,9 +264,11 @@ function Financeiro() {
             <Button variant="outline" size="icon" onClick={goPrev}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={goToday}>
-              {TODAY_LABEL[granularity]}
-            </Button>
+            {!isCurrentPeriod && (
+              <Button variant="outline" size="sm" onClick={goToday}>
+                Atual
+              </Button>
+            )}
             <Button variant="outline" size="icon" onClick={goNext}>
               <ChevronRight className="h-4 w-4" />
             </Button>
