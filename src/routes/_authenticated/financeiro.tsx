@@ -78,18 +78,31 @@ function pctChange(curr: number, prev: number) {
 
 // Rótulo de um período — usado tanto pro atual quanto pro de comparação
 // (que é sempre um Range de verdade, então o mesmo formato serve pros dois).
+// Capitaliza só a primeira letra na mão em vez de usar a classe CSS
+// "capitalize": ela deixa cada palavra maiúscula ("Agosto De 2026", "1º
+// Trimestre De 2026"), não só a primeira do texto.
 function periodLabel(granularity: Granularity, range: Range) {
-  if (granularity === "semana" || granularity === "personalizado") {
-    const lastDay = addDays(range.end, -1);
-    return `${range.start.toLocaleDateString("pt-BR")} a ${lastDay.toLocaleDateString("pt-BR")}`;
-  }
-  if (granularity === "trimestre") {
-    const q = Math.floor(range.start.getMonth() / 3) + 1;
-    return `${q}º trimestre de ${range.start.getFullYear()}`;
-  }
-  if (granularity === "ano") return String(range.start.getFullYear());
-  return formatMonthLabel(range.start);
+  const raw = (() => {
+    if (granularity === "semana" || granularity === "personalizado") {
+      const lastDay = addDays(range.end, -1);
+      return `${range.start.toLocaleDateString("pt-BR")} a ${lastDay.toLocaleDateString("pt-BR")}`;
+    }
+    if (granularity === "trimestre") {
+      const q = Math.floor(range.start.getMonth() / 3) + 1;
+      return `${q}º trimestre de ${range.start.getFullYear()}`;
+    }
+    if (granularity === "ano") return String(range.start.getFullYear());
+    return formatMonthLabel(range.start);
+  })();
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
+
+const TODAY_LABEL: Record<Exclude<Granularity, "personalizado">, string> = {
+  semana: "Esta semana",
+  mes: "Este mês",
+  trimestre: "Este trimestre",
+  ano: "Este ano",
+};
 
 function Financeiro() {
   const [granularity, setGranularity] = useState<Granularity>("mes");
@@ -212,7 +225,7 @@ function Financeiro() {
     <div className="mx-auto max-w-5xl p-6 md:p-10">
       <div className="mb-6">
         <h1 className="font-serif text-3xl font-semibold">Financeiro</h1>
-        <p className="mt-1 text-sm capitalize text-muted-foreground">{periodLabel(granularity, currentRange)}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{periodLabel(granularity, currentRange)}</p>
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -248,7 +261,7 @@ function Financeiro() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={goToday}>
-              Hoje
+              {TODAY_LABEL[granularity]}
             </Button>
             <Button variant="outline" size="icon" onClick={goNext}>
               <ChevronRight className="h-4 w-4" />
@@ -300,7 +313,7 @@ function Financeiro() {
 
       <div className="rounded-xl border border-border bg-card p-5">
         <h2 className="font-serif text-lg font-semibold">Comparativo com o período anterior</h2>
-        <p className="mt-1 text-sm capitalize text-muted-foreground">{periodLabel(granularity, previousRange)}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{periodLabel(granularity, previousRange)}</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <ComparisonRow label="Valor faturado" current={current.faturado} previous={previous.faturado} isCurrency />
           <ComparisonRow label="Despesas" current={current.despesas} previous={previous.despesas} isCurrency invert />
