@@ -24,6 +24,7 @@ import { addDays, addMonths, formatMonthLabel, formatTime, startOfDay, startOfMo
 import { sessionBlockClass, sessionColorClass, sessionDotClass } from "@/lib/session-status";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { extractErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
   head: () => ({ meta: [{ title: "Agenda — FisioGO" }] }),
@@ -110,7 +111,7 @@ function Agenda() {
       qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
       setOpen(false);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);

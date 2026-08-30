@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getPushPermissionState, subscribeToPush } from "@/lib/push";
 import { formatCPF } from "@/lib/format";
+import { extractErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -81,7 +82,7 @@ function Perfil() {
       toast.success("Perfil salvo");
       qc.invalidateQueries({ queryKey: ["professional-profile"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   return (

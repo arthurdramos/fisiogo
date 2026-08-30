@@ -7,22 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCPF } from "@/lib/format";
+import { extractErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/completar-perfil")({
   head: () => ({ meta: [{ title: "Completar cadastro — FisioGO" }] }),
   component: CompletarPerfil,
 });
-
-function extractErrorMessage(e: unknown): string | null {
-  if (e instanceof Error) return e.message;
-  // Erros do Supabase (Postgrest) vêm como objeto { message, details, hint, code },
-  // não como instância de Error — por isso o check acima sozinho perdia a mensagem real.
-  if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: unknown }).message === "string") {
-    return (e as { message: string }).message;
-  }
-  return null;
-}
 
 function CompletarPerfil() {
   const navigate = useNavigate();

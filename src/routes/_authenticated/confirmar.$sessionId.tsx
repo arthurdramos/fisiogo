@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
 import { markSessionRealizada } from "@/lib/session-status";
+import { extractErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/confirmar/$sessionId")({
@@ -39,7 +40,7 @@ function ConfirmarSessao() {
       toast.success(aconteceu ? "Sessão marcada como realizada" : "Tudo bem, deixamos como agendada");
       navigate({ to: "/agenda" });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   if (session.isLoading) return <div className="p-10 text-center text-sm text-muted-foreground">Carregando...</div>;

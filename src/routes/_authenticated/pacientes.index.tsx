@@ -17,6 +17,7 @@ import {
 import { Plus, Search, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { formatCPF, initials } from "@/lib/format";
+import { extractErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/pacientes/")({
   head: () => ({ meta: [{ title: "Pacientes — FisioGO" }] }),
@@ -77,7 +78,7 @@ function PatientsList() {
       qc.invalidateQueries({ queryKey: ["patient-count"] });
       setOpen(false);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   const filtered = patients.data?.filter((p) =>

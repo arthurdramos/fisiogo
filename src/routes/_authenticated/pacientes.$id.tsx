@@ -19,6 +19,7 @@ import { ArrowLeft, CalendarPlus, Download, Pencil, Plus, Share2, Trash2, Phone,
 import { addMonths, calcAge, formatCPF, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { calcularSaldo, markSessionRealizada, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
 import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/lib/billing-report";
+import { extractErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
@@ -128,7 +129,7 @@ function PatientDetail() {
       qc.invalidateQueries({ queryKey: ["patients"] });
       setEditOpen(false);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   const scheduleSession = useMutation({
@@ -152,7 +153,7 @@ function PatientDetail() {
       qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
       setScheduleOpen(false);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   if (patient.isLoading) return <div className="p-10 text-sm text-muted-foreground">Carregando...</div>;
@@ -504,7 +505,7 @@ function SessionsSection({
       await markSessionRealizada(id, patientId);
     },
     onSuccess: invalidateAll,
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   const markPaid = useMutation({
@@ -519,7 +520,7 @@ function SessionsSection({
       toast.success("Sessão marcada como paga");
       invalidateAll();
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   if (sessions.length === 0)
@@ -645,7 +646,7 @@ function SaldoSection({ patientId, aReceber }: { patientId: string; aReceber: nu
       qc.invalidateQueries({ queryKey: ["patient-payments", patientId] });
       setOpen(false);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   return (
@@ -855,7 +856,7 @@ function BillingSection({
       qc.invalidateQueries({ queryKey: ["patient-sessions", patientId] });
       qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   const downloadPast = async (path: string) => {
@@ -1150,7 +1151,7 @@ function ReportOptionsDialog({
       downloadBlob(blob, `relatorio-${patient.nome}.pdf`);
       onGenerated();
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
   });
 
   return (
