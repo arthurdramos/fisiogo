@@ -95,7 +95,7 @@ export function generateBillingReportPdf(data: BillingReportData): Blob {
   }
 
   if (data.queixaPrincipal) {
-    heading("Queixa principal");
+    heading("Quadro clínico");
     paragraph(data.queixaPrincipal);
   }
 

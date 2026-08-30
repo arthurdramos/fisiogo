@@ -230,7 +230,7 @@ function PatientDetail() {
           )}
           {p.queixa_principal && (
             <p>
-              <span className="font-medium">Queixa principal: </span>
+              <span className="font-medium">Quadro clínico: </span>
               <span className="text-muted-foreground">{p.queixa_principal}</span>
             </p>
           )}
@@ -360,7 +360,7 @@ function PatientEditDialog({
           />
         </div>
         <div className="space-y-2">
-          <Label>Queixa principal</Label>
+          <Label>Quadro clínico</Label>
           <Textarea
             rows={2}
             value={form.queixa_principal}

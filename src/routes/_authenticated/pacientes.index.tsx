@@ -229,7 +229,7 @@ function PatientDialog({
           />
         </div>
         <div className="space-y-2">
-          <Label>Queixa principal</Label>
+          <Label>Quadro clínico</Label>
           <Textarea
             rows={2}
             value={form.queixa_principal}
