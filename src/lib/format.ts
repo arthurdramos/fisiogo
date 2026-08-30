@@ -41,6 +41,39 @@ export function addMonths(d: Date, n: number) {
   return new Date(d.getFullYear(), d.getMonth() + n, 1);
 }
 
+// Como addMonths, mas preserva o dia do mês em vez de sempre voltar pro
+// dia 1 — usado pra "espelhar" um intervalo personalizado no mês anterior
+// (ex: 01-17/08 -> 01-17/07). Meses mais curtos que o dia original ficam
+// presos no último dia válido (ex: 31/08 -> 28 ou 29/02).
+export function addMonthsClamped(d: Date, n: number) {
+  const first = new Date(d.getFullYear(), d.getMonth() + n, 1);
+  const daysInTarget = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  first.setDate(Math.min(d.getDate(), daysInTarget));
+  return first;
+}
+
+export function startOfWeek(d: Date) {
+  const x = startOfDay(d);
+  x.setDate(x.getDate() - x.getDay());
+  return x;
+}
+
+export function startOfQuarter(d: Date) {
+  return new Date(d.getFullYear(), Math.floor(d.getMonth() / 3) * 3, 1);
+}
+
+export function addQuarters(d: Date, n: number) {
+  return new Date(d.getFullYear(), d.getMonth() + n * 3, 1);
+}
+
+export function startOfYear(d: Date) {
+  return new Date(d.getFullYear(), 0, 1);
+}
+
+export function addYears(d: Date, n: number) {
+  return new Date(d.getFullYear() + n, d.getMonth(), 1);
+}
+
 export function formatMonthLabel(d: Date) {
   return d.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 }
@@ -73,4 +106,9 @@ export function initials(nome: string) {
 export function toDatetimeLocalValue(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function toDateInputValue(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
