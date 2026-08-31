@@ -347,82 +347,112 @@ function Landing() {
               </div>
             </div>
 
-            {/* Ilustração: mini frame do app com agenda semanal + chips flutuantes */}
-            <div className="relative px-5 py-5">
+            {/* Ilustração: leque de 3 cards (Agenda, Relatório, Financeiro) */}
+            <div className="relative mx-auto aspect-[6/5] w-full max-w-[440px] px-3 py-6 sm:px-6">
               <div
                 aria-hidden
                 className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(60%_60%_at_60%_30%,var(--brand-100),transparent_70%)]"
               />
-              <div className="relative -rotate-[1.6deg] rounded-[28px] border border-line bg-paper shadow-[0_24px_48px_-24px_rgba(14,31,82,.28)]">
-                <div className="flex items-center gap-2 border-b border-line px-[18px] py-3.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#F97066]" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#F5B94D]" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#3FCF8E]" />
-                  <span className="ml-3 rounded-md bg-canvas px-3 py-1 font-mono text-[11px] text-lp-muted">
-                    app.fisiogo.com.br/agenda
-                  </span>
-                </div>
-                <div className="flex gap-5 px-5 pt-3.5 text-[13.5px] font-bold text-lp-muted">
-                  <span className="border-b-2 border-brand-700 pb-3 text-brand-700">Agenda</span>
-                  <span>Financeiro</span>
-                  <span>Pacientes</span>
-                </div>
-                <div className="px-5 pb-6 pt-[18px]">
-                  <div className="grid grid-cols-5 gap-2">
-                    {[
-                      { d: "SEG", tone: "plain" },
-                      { d: "TER", tone: "busy" },
-                      { d: "QUA", tone: "selected" },
-                      { d: "QUI", tone: "plain" },
-                      { d: "SEX", tone: "busy" },
-                    ].map(({ d, tone }) => (
-                      <div key={d}>
-                        <div className="mb-1 text-center font-mono text-[10.5px] text-lp-muted">{d}</div>
-                        <div
-                          className={
-                            "h-[34px] rounded-lg " +
-                            (tone === "selected"
-                              ? "bg-brand-700 shadow-[0_8px_16px_-8px_rgba(29,78,216,.6)]"
-                              : tone === "busy"
-                                ? "bg-brand-100"
-                                : "bg-canvas")
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3.5 flex items-center justify-between rounded-xl bg-canvas px-3.5 py-3 text-[12.5px]">
-                    <span>Ana T. · sessão de hoje</span>
-                    <strong className="font-mono text-xs text-ink">14:00</strong>
-                  </div>
-                </div>
 
-                <svg
-                  aria-hidden
-                  viewBox="0 0 140 160"
-                  fill="none"
-                  className="pointer-events-none absolute right-[2%] top-[6%] h-[70%] w-[36%]"
-                >
-                  <path
-                    d="M90 30 C 130 60, 40 90, 30 140"
-                    stroke="var(--line)"
-                    strokeWidth="2"
-                    strokeDasharray="4 6"
-                  />
-                  <circle className="hero-flow-dot" r="4" fill="var(--lp-accent)" />
-                </svg>
-
-                <div className="hero-chip-evolucao absolute -right-[8%] top-[8%] z-[2] flex items-center gap-2 rounded-2xl border border-line bg-paper px-3.5 py-2.5 text-xs font-bold shadow-[0_10px_24px_-14px_rgba(14,31,82,.22)]">
-                  <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-accent-100">
-                    <Check className="h-3 w-3 text-accent-600" strokeWidth={3} />
-                  </span>
-                  Evolução salva
+              {/* Agenda */}
+              <div className="absolute left-[3%] top-[14%] z-10 w-[43%] -rotate-[8deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
+                <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Agenda</p>
+                <p className="mt-0.5 text-[14px] font-extrabold text-ink">Semana</p>
+                <div className="mt-3 grid grid-cols-5 gap-1">
+                  {["SEG", "TER", "QUA", "QUI", "SEX"].map((d, i) => (
+                    <div key={d}>
+                      <div className="mb-1 text-center font-mono text-[7.5px] text-lp-muted">{d}</div>
+                      <div className={"h-[18px] rounded " + (i === 2 ? "bg-brand-700" : "bg-canvas")} />
+                    </div>
+                  ))}
                 </div>
-                <div className="hero-chip-financeiro absolute -left-[8%] bottom-[-6%] z-[2] flex items-center gap-2 rounded-2xl border border-line bg-paper px-3.5 py-2.5 text-xs font-bold shadow-[0_10px_24px_-14px_rgba(14,31,82,.22)]">
-                  <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-accent-100">
-                    <Check className="h-3 w-3 text-accent-600" strokeWidth={3} />
-                  </span>
-                  <span className="font-mono text-accent-600">+ R$ 120 cobrado</span>
+                <ul className="mt-2.5 space-y-1">
+                  {[
+                    { nome: "Ana T.", hora: "08:00" },
+                    { nome: "Carlos M.", hora: "09:30" },
+                    { nome: "Diego R.", hora: "11:15" },
+                    { nome: "Beatriz L.", hora: "14:00", sel: true },
+                    { nome: "Fernanda M.", hora: "15:30" },
+                  ].map((s) => (
+                    <li
+                      key={s.nome}
+                      className={
+                        "flex items-center justify-between rounded-md px-1.5 py-1 text-[9.5px] " +
+                        (s.sel ? "bg-brand-100 font-bold text-brand-700" : "text-ink")
+                      }
+                    >
+                      <span>{s.nome}</span>
+                      <span className="font-mono text-lp-muted">{s.hora}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Relatório */}
+              <div className="absolute left-[27%] top-[9%] z-30 w-[48%] -rotate-[1deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_28px_56px_-24px_rgba(14,31,82,.4)]">
+                <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Relatório</p>
+                <p className="mt-0.5 text-[12.5px] font-extrabold text-ink">
+                  Beatriz L. <span className="font-normal text-lp-muted">· 64 anos</span>
+                </p>
+                <div className="mt-2.5 grid grid-cols-3 gap-1 border-y border-line py-2 text-center">
+                  {[
+                    ["2", "sessões"],
+                    ["18d", "período"],
+                    ["03–20", "ago"],
+                  ].map(([v, l]) => (
+                    <div key={l}>
+                      <div className="font-mono text-[11px] font-bold text-ink">{v}</div>
+                      <div className="text-[7.5px] text-lp-muted">{l}</div>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 text-[9.5px] leading-snug text-ink">
+                  <span className="font-bold">Objetivo:</span> Aprimorar capacidade motora
+                </p>
+                <p className="mt-1 text-[9.5px] leading-snug text-ink">
+                  <span className="font-bold">Evolução:</span> Atividade de subir e descer escada sem auxílio.
+                </p>
+                <ul className="mt-2 space-y-1 border-t border-line pt-1.5 text-[9.5px]">
+                  <li className="flex justify-between">
+                    <span className="text-lp-muted">20 de ago.</span>
+                    <span className="font-mono text-ink">R$ 250</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-lp-muted">03 de ago.</span>
+                    <span className="font-mono text-ink">R$ 250</span>
+                  </li>
+                </ul>
+                <div className="mt-1.5 flex justify-between border-t border-line pt-1.5 text-[10px] font-bold text-ink">
+                  <span>Total</span>
+                  <span className="font-mono">R$ 500</span>
+                </div>
+                <p className="mt-1 text-[8.5px] text-lp-muted">Chave Pix XXXXXXXXX</p>
+              </div>
+
+              {/* Financeiro */}
+              <div className="absolute left-[52%] top-0 z-20 w-[42%] rotate-[7deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
+                <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Financeiro</p>
+                <p className="mt-0.5 text-[14px] font-extrabold text-ink">Agosto</p>
+                <div className="mt-2.5 rounded-xl bg-canvas p-2.5">
+                  <p className="text-[8.5px] text-lp-muted">À receber</p>
+                  <p className="font-mono text-[15px] font-bold text-amber-600">R$ 1.800</p>
+                  <p className="text-[7.5px] text-lp-muted">Confirmadas, ainda não pagas</p>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-1.5">
+                  {[
+                    { l: "Faturado", v: "R$ 5.750", pct: "↑400%", up: true },
+                    { l: "Lucro", v: "R$ 4.900", pct: "↑446%", up: true },
+                    { l: "Despesas", v: "R$ 850", pct: "↓100%", up: false },
+                    { l: "Atend.", v: "23", pct: "↑200%", up: true },
+                  ].map((s) => (
+                    <div key={s.l} className="rounded-lg border border-line p-1.5">
+                      <p className="text-[7.5px] text-lp-muted">{s.l}</p>
+                      <p className="font-mono text-[10.5px] font-bold text-ink">{s.v}</p>
+                      <p className={"text-[7.5px] font-medium " + (s.up ? "text-emerald-600" : "text-red-500")}>
+                        {s.pct}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
