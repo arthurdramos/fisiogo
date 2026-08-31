@@ -324,7 +324,7 @@ function Landing() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border/60 pt-20 pb-24">
-          <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-6 lg:grid-cols-2">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 lg:grid-cols-[1fr_1.15fr]">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -347,112 +347,114 @@ function Landing() {
               </div>
             </div>
 
-            {/* Ilustração: leque de 3 cards (Agenda, Relatório, Financeiro) */}
-            <div className="relative mx-auto aspect-[6/5] w-full max-w-[520px] px-3 py-6 sm:px-6">
+            {/* Ilustração: 3 cards lado a lado (Agenda, Relatório, Financeiro) */}
+            <div className="relative mx-auto max-w-[600px] px-2 py-4 lg:max-w-none">
               <div
                 aria-hidden
                 className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(60%_60%_at_60%_30%,var(--brand-100),transparent_70%)]"
               />
 
-              {/* Agenda */}
-              <div className="absolute left-0 top-[14%] z-10 w-[40%] -rotate-[8deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
-                <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Agenda</p>
-                <p className="mt-0.5 text-[14px] font-extrabold text-ink">Semana</p>
-                <div className="mt-3 grid grid-cols-5 gap-1">
-                  {["SEG", "TER", "QUA", "QUI", "SEX"].map((d, i) => (
-                    <div key={d}>
-                      <div className="mb-1 text-center font-mono text-[7.5px] text-lp-muted">{d}</div>
-                      <div className={"h-[18px] rounded " + (i === 2 ? "bg-brand-700" : "bg-canvas")} />
-                    </div>
-                  ))}
+              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start">
+                {/* Agenda */}
+                <div className="flex-1 rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.3)]">
+                  <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Agenda</p>
+                  <p className="mt-0.5 text-[14px] font-extrabold text-ink">Semana</p>
+                  <div className="mt-3 grid grid-cols-5 gap-1">
+                    {["SEG", "TER", "QUA", "QUI", "SEX"].map((d, i) => (
+                      <div key={d}>
+                        <div className="mb-1 text-center font-mono text-[7.5px] text-lp-muted">{d}</div>
+                        <div className={"h-[18px] rounded " + (i === 2 ? "bg-brand-700" : "bg-canvas")} />
+                      </div>
+                    ))}
+                  </div>
+                  <ul className="mt-2.5 space-y-1">
+                    {[
+                      { nome: "Ana T.", hora: "08:00" },
+                      { nome: "Carlos M.", hora: "09:30" },
+                      { nome: "Diego R.", hora: "11:15" },
+                      { nome: "Beatriz L.", hora: "14:00", sel: true },
+                      { nome: "Fernanda M.", hora: "15:30" },
+                    ].map((s) => (
+                      <li
+                        key={s.nome}
+                        className={
+                          "flex items-center justify-between rounded-md px-1.5 py-1 text-[9.5px] " +
+                          (s.sel ? "bg-brand-100 font-bold text-brand-700" : "text-ink")
+                        }
+                      >
+                        <span>{s.nome}</span>
+                        <span className="font-mono text-lp-muted">{s.hora}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="mt-2.5 space-y-1">
-                  {[
-                    { nome: "Ana T.", hora: "08:00" },
-                    { nome: "Carlos M.", hora: "09:30" },
-                    { nome: "Diego R.", hora: "11:15" },
-                    { nome: "Beatriz L.", hora: "14:00", sel: true },
-                    { nome: "Fernanda M.", hora: "15:30" },
-                  ].map((s) => (
-                    <li
-                      key={s.nome}
-                      className={
-                        "flex items-center justify-between rounded-md px-1.5 py-1 text-[9.5px] " +
-                        (s.sel ? "bg-brand-100 font-bold text-brand-700" : "text-ink")
-                      }
-                    >
-                      <span>{s.nome}</span>
-                      <span className="font-mono text-lp-muted">{s.hora}</span>
+
+                {/* Relatório */}
+                <div className="flex-[1.1] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.3)]">
+                  <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Relatório</p>
+                  <p className="mt-0.5 text-[12.5px] font-extrabold text-ink">
+                    Beatriz L. <span className="font-normal text-lp-muted">· 64 anos</span>
+                  </p>
+                  <div className="mt-2.5 grid grid-cols-3 gap-1 border-y border-line py-2 text-center">
+                    {[
+                      ["2", "sessões"],
+                      ["18d", "período"],
+                      ["03–20", "ago"],
+                    ].map(([v, l]) => (
+                      <div key={l}>
+                        <div className="font-mono text-[11px] font-bold text-ink">{v}</div>
+                        <div className="text-[7.5px] text-lp-muted">{l}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[9.5px] leading-snug text-ink">
+                    <span className="font-bold">Objetivo:</span> Aprimorar capacidade motora
+                  </p>
+                  <p className="mt-1 text-[9.5px] leading-snug text-ink">
+                    <span className="font-bold">Evolução:</span> Atividade de subir e descer escada sem auxílio.
+                  </p>
+                  <ul className="mt-2 space-y-1 border-t border-line pt-1.5 text-[9.5px]">
+                    <li className="flex justify-between">
+                      <span className="text-lp-muted">20 de ago.</span>
+                      <span className="font-mono text-ink">R$ 250</span>
                     </li>
-                  ))}
-                </ul>
-              </div>
+                    <li className="flex justify-between">
+                      <span className="text-lp-muted">03 de ago.</span>
+                      <span className="font-mono text-ink">R$ 250</span>
+                    </li>
+                  </ul>
+                  <div className="mt-1.5 flex justify-between border-t border-line pt-1.5 text-[10px] font-bold text-ink">
+                    <span>Total</span>
+                    <span className="font-mono">R$ 500</span>
+                  </div>
+                  <p className="mt-1 text-[8.5px] text-lp-muted">Chave Pix XXXXXXXXX</p>
+                </div>
 
-              {/* Relatório */}
-              <div className="absolute left-[30%] top-[6%] z-30 w-[42%] -rotate-[1deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_28px_56px_-24px_rgba(14,31,82,.4)]">
-                <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Relatório</p>
-                <p className="mt-0.5 text-[12.5px] font-extrabold text-ink">
-                  Beatriz L. <span className="font-normal text-lp-muted">· 64 anos</span>
-                </p>
-                <div className="mt-2.5 grid grid-cols-3 gap-1 border-y border-line py-2 text-center">
-                  {[
-                    ["2", "sessões"],
-                    ["18d", "período"],
-                    ["03–20", "ago"],
-                  ].map(([v, l]) => (
-                    <div key={l}>
-                      <div className="font-mono text-[11px] font-bold text-ink">{v}</div>
-                      <div className="text-[7.5px] text-lp-muted">{l}</div>
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-2 text-[9.5px] leading-snug text-ink">
-                  <span className="font-bold">Objetivo:</span> Aprimorar capacidade motora
-                </p>
-                <p className="mt-1 text-[9.5px] leading-snug text-ink">
-                  <span className="font-bold">Evolução:</span> Atividade de subir e descer escada sem auxílio.
-                </p>
-                <ul className="mt-2 space-y-1 border-t border-line pt-1.5 text-[9.5px]">
-                  <li className="flex justify-between">
-                    <span className="text-lp-muted">20 de ago.</span>
-                    <span className="font-mono text-ink">R$ 250</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-lp-muted">03 de ago.</span>
-                    <span className="font-mono text-ink">R$ 250</span>
-                  </li>
-                </ul>
-                <div className="mt-1.5 flex justify-between border-t border-line pt-1.5 text-[10px] font-bold text-ink">
-                  <span>Total</span>
-                  <span className="font-mono">R$ 500</span>
-                </div>
-                <p className="mt-1 text-[8.5px] text-lp-muted">Chave Pix XXXXXXXXX</p>
-              </div>
-
-              {/* Financeiro */}
-              <div className="absolute left-[68%] top-0 z-20 w-[32%] rotate-[7deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
-                <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Financeiro</p>
-                <p className="mt-0.5 text-[14px] font-extrabold text-ink">Agosto</p>
-                <div className="mt-2.5 rounded-xl bg-canvas p-2.5">
-                  <p className="text-[8.5px] text-lp-muted">À receber</p>
-                  <p className="font-mono text-[15px] font-bold text-amber-600">R$ 1.800</p>
-                  <p className="text-[7.5px] text-lp-muted">Confirmadas, ainda não pagas</p>
-                </div>
-                <div className="mt-2 grid grid-cols-2 gap-1.5">
-                  {[
-                    { l: "Faturado", v: "R$ 5.750", pct: "↑400%", up: true },
-                    { l: "Lucro", v: "R$ 4.900", pct: "↑446%", up: true },
-                    { l: "Despesas", v: "R$ 850", pct: "↓100%", up: false },
-                    { l: "Atend.", v: "23", pct: "↑200%", up: true },
-                  ].map((s) => (
-                    <div key={s.l} className="rounded-lg border border-line p-1.5">
-                      <p className="text-[7.5px] text-lp-muted">{s.l}</p>
-                      <p className="font-mono text-[10.5px] font-bold text-ink">{s.v}</p>
-                      <p className={"text-[7.5px] font-medium " + (s.up ? "text-emerald-600" : "text-red-500")}>
-                        {s.pct}
-                      </p>
-                    </div>
-                  ))}
+                {/* Financeiro */}
+                <div className="flex-1 rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.3)]">
+                  <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Financeiro</p>
+                  <p className="mt-0.5 text-[14px] font-extrabold text-ink">Agosto</p>
+                  <div className="mt-2.5 rounded-xl bg-canvas p-2.5">
+                    <p className="text-[8.5px] text-lp-muted">À receber</p>
+                    <p className="font-mono text-[15px] font-bold text-amber-600">R$ 1.800</p>
+                    <p className="text-[7.5px] text-lp-muted">Confirmadas, ainda não pagas</p>
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-1.5">
+                    {[
+                      { l: "Faturado", v: "R$ 5.750", pct: "↑400%", up: true },
+                      { l: "Lucro", v: "R$ 4.900", pct: "↑446%", up: true },
+                      { l: "Despesas", v: "R$ 850", pct: "↓100%", up: false },
+                      { l: "Atend.", v: "23", pct: "↑200%", up: true },
+                    ].map((s) => (
+                      <div key={s.l} className="rounded-lg border border-line p-1.5">
+                        <p className="text-[7.5px] text-lp-muted">{s.l}</p>
+                        <p className="font-mono text-[10.5px] font-bold text-ink">{s.v}</p>
+                        <p className={"text-[7.5px] font-medium " + (s.up ? "text-emerald-600" : "text-red-500")}>
+                          {s.pct}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
