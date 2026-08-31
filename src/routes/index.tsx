@@ -348,14 +348,14 @@ function Landing() {
             </div>
 
             {/* Ilustração: leque de 3 cards (Agenda, Relatório, Financeiro) */}
-            <div className="relative mx-auto aspect-[6/5] w-full max-w-[440px] px-3 py-6 sm:px-6">
+            <div className="relative mx-auto aspect-[6/5] w-full max-w-[520px] px-3 py-6 sm:px-6">
               <div
                 aria-hidden
                 className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(60%_60%_at_60%_30%,var(--brand-100),transparent_70%)]"
               />
 
               {/* Agenda */}
-              <div className="absolute left-[3%] top-[14%] z-10 w-[43%] -rotate-[8deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
+              <div className="absolute left-0 top-[14%] z-10 w-[40%] -rotate-[8deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
                 <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Agenda</p>
                 <p className="mt-0.5 text-[14px] font-extrabold text-ink">Semana</p>
                 <div className="mt-3 grid grid-cols-5 gap-1">
@@ -389,7 +389,7 @@ function Landing() {
               </div>
 
               {/* Relatório */}
-              <div className="absolute left-[27%] top-[9%] z-30 w-[48%] -rotate-[1deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_28px_56px_-24px_rgba(14,31,82,.4)]">
+              <div className="absolute left-[30%] top-[6%] z-30 w-[42%] -rotate-[1deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_28px_56px_-24px_rgba(14,31,82,.4)]">
                 <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Relatório</p>
                 <p className="mt-0.5 text-[12.5px] font-extrabold text-ink">
                   Beatriz L. <span className="font-normal text-lp-muted">· 64 anos</span>
@@ -430,7 +430,7 @@ function Landing() {
               </div>
 
               {/* Financeiro */}
-              <div className="absolute left-[52%] top-0 z-20 w-[42%] rotate-[7deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
+              <div className="absolute left-[68%] top-0 z-20 w-[32%] rotate-[7deg] rounded-2xl border border-line bg-paper p-3.5 shadow-[0_20px_40px_-20px_rgba(14,31,82,.35)]">
                 <p className="text-[9.5px] font-bold uppercase tracking-wide text-lp-accent">Financeiro</p>
                 <p className="mt-0.5 text-[14px] font-extrabold text-ink">Agosto</p>
                 <div className="mt-2.5 rounded-xl bg-canvas p-2.5">
