@@ -84,7 +84,7 @@ export const Route = createFileRoute("/api/public/cakto-webhook")({
           cakto_order_id: data.id ?? data.subscription?.id ?? null,
           email: email ?? null,
           matched_user_id: userId,
-          payload: payload as unknown as Record<string, unknown>,
+          payload: payload as never,
         });
 
         if (!userId) {
@@ -109,7 +109,7 @@ export const Route = createFileRoute("/api/public/cakto-webhook")({
           updates.current_period_end = data.subscription.next_payment_date;
         }
 
-        const { error } = await supabaseAdmin.from("subscriptions").update(updates).eq("user_id", userId);
+        const { error } = await supabaseAdmin.from("subscriptions").update(updates as never).eq("user_id", userId);
         if (error) {
           console.error("Erro ao atualizar subscriptions (cakto):", error.message);
           return new Response("error", { status: 500 });
