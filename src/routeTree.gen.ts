@@ -20,6 +20,7 @@ import { Route as AuthenticatedAssinaturaRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
+import { Route as ApiPublicCaktoWebhookRouteImport } from './routes/api/public/cakto-webhook'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
 import { Route as AuthenticatedConfirmarSessionIdRouteImport } from './routes/_authenticated/confirmar.$sessionId'
 
@@ -79,6 +80,11 @@ const AuthenticatedPacientesIndexRoute =
     path: '/pacientes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicCaktoWebhookRoute = ApiPublicCaktoWebhookRouteImport.update({
+  id: '/api/public/cakto-webhook',
+  path: '/api/public/cakto-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedPacientesIdRoute =
   AuthenticatedPacientesIdRouteImport.update({
     id: '/pacientes/$id',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
+  '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
+  '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
 }
 export interface FileRoutesById {
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
+  '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
+    | '/api/public/cakto-webhook'
     | '/pacientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
+    | '/api/public/cakto-webhook'
     | '/pacientes'
   id:
     | '__root__'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/confirmar/$sessionId'
     | '/_authenticated/pacientes/$id'
+    | '/api/public/cakto-webhook'
     | '/_authenticated/pacientes/'
   fileRoutesById: FileRoutesById
 }
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiPublicCaktoWebhookRoute: typeof ApiPublicCaktoWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -268,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPacientesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cakto-webhook': {
+      id: '/api/public/cakto-webhook'
+      path: '/api/public/cakto-webhook'
+      fullPath: '/api/public/cakto-webhook'
+      preLoaderRoute: typeof ApiPublicCaktoWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/pacientes/$id': {
       id: '/_authenticated/pacientes/$id'
       path: '/pacientes/$id'
@@ -317,6 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiPublicCaktoWebhookRoute: ApiPublicCaktoWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
