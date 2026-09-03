@@ -52,6 +52,36 @@ export type Database = {
           },
         ]
       }
+      cakto_webhook_events: {
+        Row: {
+          cakto_order_id: string | null
+          created_at: string
+          email: string | null
+          event: string
+          id: string
+          matched_user_id: string | null
+          payload: Json | null
+        }
+        Insert: {
+          cakto_order_id?: string | null
+          created_at?: string
+          email?: string | null
+          event: string
+          id?: string
+          matched_user_id?: string | null
+          payload?: Json | null
+        }
+        Update: {
+          cakto_order_id?: string | null
+          created_at?: string
+          email?: string | null
+          event?: string
+          id?: string
+          matched_user_id?: string | null
+          payload?: Json | null
+        }
+        Relationships: []
+      }
       patient_contacts: {
         Row: {
           created_at: string
@@ -327,33 +357,39 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cakto_subscription_id: string | null
           created_at: string
           current_period_end: string | null
           id: string
           mp_preapproval_id: string | null
           plano: string | null
+          provider: string | null
           status: string
           trial_ends_at: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          cakto_subscription_id?: string | null
           created_at?: string
           current_period_end?: string | null
           id?: string
           mp_preapproval_id?: string | null
           plano?: string | null
+          provider?: string | null
           status?: string
           trial_ends_at?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          cakto_subscription_id?: string | null
           created_at?: string
           current_period_end?: string | null
           id?: string
           mp_preapproval_id?: string | null
           plano?: string | null
+          provider?: string | null
           status?: string
           trial_ends_at?: string
           updated_at?: string
@@ -440,6 +476,7 @@ export type Database = {
     }
     Functions: {
       ensure_subscription: { Args: { _user_id: string }; Returns: undefined }
+      get_user_id_by_email: { Args: { p_email: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
