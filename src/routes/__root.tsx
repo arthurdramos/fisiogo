@@ -86,6 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
       { name: "author", content: "FisioGO" },
+      { name: "theme-color", content: "#0e1f52" },
+      { name: "apple-mobile-web-app-title", content: "FisioGO" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { property: "og:title", content: "FisioGO — Gestão simples para fisioterapeutas autônomos" },
       {
         property: "og:description",
@@ -102,6 +106,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
