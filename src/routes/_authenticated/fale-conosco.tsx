@@ -36,7 +36,7 @@ const sendContactMessage = createServerFn({ method: "POST" })
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "FisioGO <onboarding@resend.dev>",
+        from: "FisioGO <naoresponda@fisiogo.online>",
         to: [CONTACT_EMAIL],
         reply_to: fromEmail || undefined,
         subject: `[Fale conosco] ${data.subject}`,
