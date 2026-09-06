@@ -86,6 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
       { name: "author", content: "FisioGO" },
+      { name: "theme-color", content: "#0e1f52" },
+      { name: "apple-mobile-web-app-title", content: "FisioGO" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { property: "og:title", content: "FisioGO — Gestão simples para fisioterapeutas autônomos" },
       {
         property: "og:description",
