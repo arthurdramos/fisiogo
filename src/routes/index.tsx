@@ -692,54 +692,125 @@ function Landing() {
         </section>
 
         {/* Preços */}
-        {/* TODO: substituir por conteúdo real — valor abaixo é placeholder */}
+
         <section id="precos" className="border-b border-border/60 py-24">
+
           <div className="mx-auto max-w-6xl px-6">
+
             <div className="mx-auto max-w-2xl text-center">
+
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Preços</p>
+
               <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+
                 Um plano. Sem letra miúda.
+
               </h2>
+
               <p className="mt-4 text-muted-foreground">
+
                 Tudo incluso desde o primeiro dia — sem módulo extra, sem limite de paciente escondido em
+
                 contrato.
+
               </p>
+
             </div>
-            <div className="mx-auto mt-14 max-w-[460px] rounded-2xl bg-brand-900 px-11 py-11 text-center text-white">
-              <div className="font-mono text-[12.5px] font-semibold uppercase tracking-[0.12em] text-lp-accent">
-                Plano FisioGO
-              </div>
-              <div className="mt-3.5 font-serif text-[52px] leading-none">
-                R${" "}
-                <span className="underline decoration-dashed decoration-white/50 underline-offset-[6px]">
-                  [valor]
-                </span>
-                <span className="font-body text-base font-medium text-white/60"> /mês</span>
-              </div>
-              <ul className="mt-7 flex flex-col gap-3 text-left">
-                {[
-                  "Agenda e pacientes ilimitados",
-                  "Evolução clínica e plano de tratamento",
-                  "Financeiro, relatórios e cobrança",
-                  "Lembretes automáticos de sessão",
-                  "Suporte por chat",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-sm text-white/88">
-                    <Check className="h-4 w-4 shrink-0 text-lp-accent" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                size="lg"
-                className="mt-1.5 w-full bg-white text-brand-900 hover:bg-white/90"
-                onClick={goSignup}
-              >
-                Começar 7 dias grátis
-              </Button>
-              <div className="mt-3.5 text-xs text-white/55">Sem cartão de crédito · cancele quando quiser</div>
+
+            <div className="mx-auto mt-14 grid max-w-[760px] gap-6 sm:grid-cols-2">
+
+              {[
+
+                { plano: "Mensal", preco: "29,90", periodo: "/mês", destaque: null },
+
+                { plano: "Anual", preco: "299", periodo: "/ano", destaque: "2 meses grátis" },
+
+              ].map(({ plano, preco, periodo, destaque }) => (
+
+                <div
+
+                  key={plano}
+
+                  className="relative rounded-2xl bg-brand-900 px-9 py-11 text-center text-white"
+
+                >
+
+                  {destaque && (
+
+                    <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-lp-accent px-3.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-900">
+
+                      {destaque}
+
+                    </div>
+
+                  )}
+
+                  <div className="font-mono text-[12.5px] font-semibold uppercase tracking-[0.12em] text-lp-accent">
+
+                    Plano {plano}
+
+                  </div>
+
+                  <div className="mt-3.5 font-serif text-[44px] leading-none">
+
+                    R$ {preco}
+
+                    <span className="font-body text-base font-medium text-white/60">{periodo}</span>
+
+                  </div>
+
+                  <ul className="mt-7 flex flex-col gap-3 text-left">
+
+                    {[
+
+                      "Agenda e pacientes ilimitados",
+
+                      "Evolução clínica e plano de tratamento",
+
+                      "Financeiro, relatórios e cobrança",
+
+                      "Lembretes automáticos de sessão",
+
+                      "Suporte por chat",
+
+                    ].map((item) => (
+
+                      <li key={item} className="flex items-center gap-2.5 text-sm text-white/88">
+
+                        <Check className="h-4 w-4 shrink-0 text-lp-accent" />
+
+                        {item}
+
+                      </li>
+
+                    ))}
+
+                  </ul>
+
+                  <Button
+
+                    size="lg"
+
+                    className="mt-6 w-full bg-white text-brand-900 hover:bg-white/90"
+
+                    onClick={goSignup}
+
+                  >
+
+                    Começar 7 dias grátis
+
+                  </Button>
+
+                  <div className="mt-3.5 text-xs text-white/55">Sem cartão de crédito · cancele quando quiser</div>
+
+                </div>
+
+              ))}
+
             </div>
+
           </div>
+
         </section>
 
         {/* Instalar no celular */}
