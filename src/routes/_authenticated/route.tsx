@@ -87,6 +87,7 @@ const nav = [
   { to: "/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/assinatura", label: "Assinatura", icon: CreditCard },
   { to: "/perfil", label: "Perfil", icon: UserCog },
+  { to: "/fale-conosco", label: "Fale conosco", icon: Mail },
 ] as const;
 
 function AuthedLayout() {
