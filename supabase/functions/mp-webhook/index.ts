@@ -63,6 +63,7 @@ Deno.serve(async (req) => {
     .from("subscriptions")
     .update({
       status,
+      provider: "mercadopago",
       mp_preapproval_id: preapproval.id,
       current_period_end: preapproval.auto_recurring?.next_payment_date ?? null,
     })

@@ -71,21 +71,21 @@ function FaleConosco() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 md:px-8">
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Fale conosco</h1>
+    <div className="mx-auto max-w-2xl p-6 md:p-10">
+      <div className="mb-8">
+        <h1 className="font-serif text-3xl font-semibold">Fale conosco</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Dúvidas, sugestões ou problemas? Manda pra gente — respondemos por e-mail.
         </p>
-      </header>
+      </div>
 
       <form
+        className="space-y-5 rounded-xl border border-border bg-card p-5"
         onSubmit={(e) => {
           e.preventDefault();
           if (!subject.trim() || !message.trim()) return;
           send.mutate();
         }}
-        className="space-y-5"
       >
         <div className="space-y-2">
           <Label htmlFor="subject">Assunto</Label>
@@ -97,19 +97,17 @@ function FaleConosco() {
             required
           />
         </div>
-
         <div className="space-y-2">
           <Label htmlFor="message">Mensagem</Label>
           <Textarea
             id="message"
+            rows={6}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Descreva sua dúvida ou o que está acontecendo..."
             required
-            rows={6}
           />
         </div>
-
         <Button type="submit" disabled={send.isPending}>
           {send.isPending ? "Enviando..." : "Enviar"}
         </Button>

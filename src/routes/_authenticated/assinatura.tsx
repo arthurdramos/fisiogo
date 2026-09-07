@@ -11,6 +11,11 @@ export const Route = createFileRoute("/_authenticated/assinatura")({
   component: Assinatura,
 });
 
+const CAKTO_CHECKOUT_URL: Record<"mensal" | "anual", string> = {
+  mensal: "https://pay.cakto.com.br/xeorrto_1083700",
+  anual: "https://pay.cakto.com.br/34dxcki",
+};
+
 function Assinatura() {
   const [loadingPlan, setLoadingPlan] = useState<"mensal" | "anual" | null>(null);
 
@@ -29,7 +34,27 @@ function Assinatura() {
     },
   });
 
-  const subscribe = async (plano: "mensal" | "anual") => {
+  // Cakto: link de checkout fixo (não dá pra criar um dinâmico via API para
+  // cada usuário como fazemos no Mercado Pago) — a correlação com a conta é
+  // feita pré-preenchendo o e-mail na URL, confirmada depois pelo webhook.
+  const goToCakto = async (plano: "mensal" | "anual") => {
+    setLoadingPlan(plano);
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      const email = userRes.user?.email;
+      const url = new URL(CAKTO_CHECKOUT_URL[plano]);
+      if (email) {
+        url.searchParams.set("email", email);
+        url.searchParams.set("confirmEmail", email);
+      }
+      window.location.href = url.toString();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao abrir o checkout");
+      setLoadingPlan(null);
+    }
+  };
+
+  const subscribeMercadoPago = async (plano: "mensal" | "anual") => {
     setLoadingPlan(plano);
     try {
       const { data, error } = await supabase.functions.invoke("mp-create-preapproval", {
@@ -58,7 +83,9 @@ function Assinatura() {
         <h1 className="font-serif text-3xl font-semibold">Assinatura</h1>
         {isActive && (
           <p className="mt-2 text-sm text-emerald-600">
-            Sua assinatura está ativa ({sub.plano === "anual" ? "plano anual" : "plano mensal"}).
+            Sua assinatura está ativa ({sub.plano === "anual" ? "plano anual" : "plano mensal"}
+            {sub.provider === "mercadopago" ? " · via Mercado Pago" : sub.provider === "cakto" ? " · via Cakto" : ""}
+            ).
           </p>
         )}
         {cortesia && (
@@ -87,11 +114,19 @@ function Assinatura() {
           </p>
           <Button
             className="mt-6 w-full"
-            onClick={() => subscribe("mensal")}
+            onClick={() => goToCakto("mensal")}
             disabled={loadingPlan !== null || isActive || cortesia}
           >
             {loadingPlan === "mensal" ? "Redirecionando..." : "Assinar mensal"}
           </Button>
+          <button
+            type="button"
+            onClick={() => subscribeMercadoPago("mensal")}
+            disabled={loadingPlan !== null || isActive || cortesia}
+            className="mt-3 w-full text-center text-xs text-muted-foreground hover:underline disabled:pointer-events-none disabled:opacity-50"
+          >
+            Você também pode pagar com Mercado Pago
+          </button>
         </div>
         <div className="rounded-xl border border-primary bg-card p-6">
           <div className="flex items-center gap-2">
@@ -106,11 +141,19 @@ function Assinatura() {
           </p>
           <Button
             className="mt-6 w-full"
-            onClick={() => subscribe("anual")}
+            onClick={() => goToCakto("anual")}
             disabled={loadingPlan !== null || isActive || cortesia}
           >
             {loadingPlan === "anual" ? "Redirecionando..." : "Assinar anual"}
           </Button>
+          <button
+            type="button"
+            onClick={() => subscribeMercadoPago("anual")}
+            disabled={loadingPlan !== null || isActive || cortesia}
+            className="mt-3 w-full text-center text-xs text-muted-foreground hover:underline disabled:pointer-events-none disabled:opacity-50"
+          >
+            Você também pode pagar com Mercado Pago
+          </button>
         </div>
       </div>
     </div>
