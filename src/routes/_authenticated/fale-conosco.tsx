@@ -107,6 +107,9 @@ function FaleConosco() {
             placeholder="Descreva sua dúvida ou o que está acontecendo..."
             required
           />
+          <p className="text-xs text-muted-foreground">
+            As respostas levam até 48 horas úteis.
+          </p>
         </div>
         <Button type="submit" disabled={send.isPending}>
           {send.isPending ? "Enviando..." : "Enviar"}
