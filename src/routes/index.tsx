@@ -717,11 +717,11 @@ function Landing() {
 
               {[
 
-                { plano: "Mensal", preco: "29,90", periodo: "/mês", destaque: null },
+                { plano: "Mensal", precoDe: "59,90", preco: "29,90", periodo: "/mês", destaque: null },
 
-                { plano: "Anual", preco: "299", periodo: "/ano", destaque: "2 meses grátis" },
+                { plano: "Anual", precoDe: "599,00", preco: "299,00", periodo: "/ano", destaque: "2 meses grátis" },
 
-              ].map(({ plano, preco, periodo, destaque }) => (
+              ].map(({ plano, precoDe, preco, periodo, destaque }) => (
 
                 <div
 
@@ -747,12 +747,16 @@ function Landing() {
 
                   </div>
 
-                  <div className="mt-3.5 font-serif text-[44px] leading-none">
+                  <div className="mt-3.5 text-sm text-white/45">
+                    De <span className="line-through">R$ {precoDe}</span>
+                  </div>
 
-                    R$ {preco}
-
-                    <span className="font-body text-base font-medium text-white/60">{periodo}</span>
-
+                  <div className="mt-1 flex items-end justify-center gap-1.5">
+                    <span className="pb-2 text-xs font-semibold uppercase tracking-wide text-lp-accent">Por</span>
+                    <div className="font-serif text-[44px] leading-none">
+                      R$ {preco}
+                      <span className="font-body text-base font-medium text-white/60">{periodo}</span>
+                    </div>
                   </div>
 
                   <ul className="mt-7 flex flex-col gap-3 text-left">
