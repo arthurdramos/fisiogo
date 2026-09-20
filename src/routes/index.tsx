@@ -529,8 +529,7 @@ function Landing() {
         <section id="como-funciona" className="border-b border-border/60 py-24">
           <div className="mx-auto max-w-5xl px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-medium uppercase tracking-widest text-primary">Como funciona</p>
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Comece em poucos passos
               </h2>
               <p className="mt-4 text-muted-foreground">
@@ -572,8 +571,7 @@ function Landing() {
         <section id="funcionalidades" className="border-b border-border/60 py-24">
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-medium uppercase tracking-widest text-primary">Funcionalidades</p>
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Tudo o que a sua rotina precisa. Nada além disso.
               </h2>
               <p className="mt-4 text-muted-foreground">
@@ -626,8 +624,7 @@ function Landing() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-primary">Diferenciais</p>
-                <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+                <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                   Por que o FisioGO?
                 </h2>
                 <p className="mt-4 text-muted-foreground">
@@ -662,8 +659,7 @@ function Landing() {
         <section id="depoimentos" className="border-b border-border/60 bg-canvas py-24">
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-medium uppercase tracking-widest text-primary">Depoimentos</p>
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Fisioterapeutas que trocaram a planilha pelo FisioGO
               </h2>
             </div>
@@ -701,9 +697,7 @@ function Landing() {
 
             <div className="mx-auto max-w-2xl text-center">
 
-              <p className="text-xs font-medium uppercase tracking-widest text-primary">Preços</p>
-
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
 
                 Um plano. Sem letra miúda.
 
@@ -865,8 +859,7 @@ function Landing() {
         <section id="faq" className="border-b border-border/60 bg-secondary/40 py-24">
           <div className="mx-auto max-w-4xl px-6">
             <div className="text-center">
-              <p className="text-xs font-medium uppercase tracking-widest text-primary">Dúvidas frequentes</p>
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Antes de criar sua conta
               </h2>
             </div>
