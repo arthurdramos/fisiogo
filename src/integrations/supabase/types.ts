@@ -475,7 +475,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      ensure_subscription: { Args: { _user_id: string }; Returns: undefined }
+      ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
     }
     Enums: {
