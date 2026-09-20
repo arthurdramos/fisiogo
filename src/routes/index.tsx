@@ -462,12 +462,12 @@ function Landing() {
         </section>
 
         {/* Números rápidos */}
-        <div className="bg-brand-900 py-[52px]">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-6 px-6 sm:grid-cols-4">
+        <div className="bg-brand-900 py-14">
+          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-10 px-6 sm:grid-cols-4">
             {[
               {
-                num: "2 min",
-                lab: "para começar",
+                headline: "Pronto em 2 minutos.",
+                lab: "Comece a usar ainda hoje, sem curso nem manual.",
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.7}>
                     <circle cx="12" cy="12" r="9" />
@@ -476,8 +476,8 @@ function Landing() {
                 ),
               },
               {
-                num: "1 tela",
-                lab: "para a semana toda",
+                headline: "Toda a semana em 1 tela.",
+                lab: "Praticidade e eficiência.",
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.7}>
                     <rect x="3" y="4" width="18" height="13" rx="1.5" />
@@ -486,8 +486,8 @@ function Landing() {
                 ),
               },
               {
-                num: "0",
-                lab: "planilhas",
+                headline: "Zero planilhas.",
+                lab: "Agenda, evolução e financeiro: tudo organizado pra você.",
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.3}>
                     <rect x="3.5" y="4" width="17" height="16" rx="1.5" />
@@ -497,8 +497,8 @@ function Landing() {
                 ),
               },
               {
-                num: "100%",
-                lab: "no celular",
+                headline: "Mobile, desktop e tablet.",
+                lab: "Acesse onde quiser, de onde estiver.",
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth={1.7}>
                     <rect x="6.5" y="2.5" width="11" height="19" rx="2.5" />
@@ -508,7 +508,7 @@ function Landing() {
               },
             ].map((s, i) => (
               <div
-                key={s.lab}
+                key={s.headline}
                 className={
                   "px-3 text-center " +
                   (i === 0 || i === 2 ? "border-l-0 " : "border-l border-white/[.14] ") +
@@ -516,8 +516,10 @@ function Landing() {
                 }
               >
                 <div className="mx-auto mb-3.5 h-[26px] w-[26px]">{s.icon}</div>
-                <div className="font-mono text-3xl font-semibold text-white">{s.num}</div>
-                <div className="mt-1 text-[13px] text-white/65">{s.lab}</div>
+                <div className="mx-auto max-w-[190px] font-body text-base font-bold leading-snug text-white sm:text-lg">
+                  {s.headline}
+                </div>
+                <div className="mx-auto mt-2 max-w-[190px] text-[13px] leading-snug text-white/65">{s.lab}</div>
               </div>
             ))}
           </div>
