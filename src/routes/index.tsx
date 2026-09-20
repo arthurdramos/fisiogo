@@ -631,9 +631,9 @@ function Landing() {
                   Por que o FisioGO?
                 </h2>
                 <p className="mt-4 text-muted-foreground">
-                  Nem pesado demais, nem frágil demais. O FisioGO é a gestão que cabe
-                  no seu dia: leve o bastante pra usar entre um atendimento e outro,
-                  completo o bastante pra profissionalizar sua rotina.
+                  O FisioGO é a gestão que cabe no seu dia: rápido o bastante para usar
+                  entre um atendimento e outro, completo o bastante para profissionalizar
+                  o seu negócio e sua rotina.
                 </p>
                 <Button className="mt-8" onClick={goSignup}>
                   Experimentar grátis
