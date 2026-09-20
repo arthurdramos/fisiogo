@@ -579,7 +579,7 @@ function Landing() {
               </p>
             </div>
 
-            <div className="mt-14 grid grid-cols-1 gap-[18px] sm:grid-cols-2 sm:auto-rows-[150px] lg:grid-cols-4 lg:auto-rows-[170px]">
+            <div className="mt-14 grid grid-cols-1 gap-[18px] sm:grid-cols-2 sm:auto-rows-[minmax(150px,auto)] lg:grid-cols-4 lg:auto-rows-[minmax(170px,auto)]">
               {(() => {
                 const featured = features.find((f) => f.title === "Evolução clínica")!;
                 const rest = features.filter((f) => f.title !== "Evolução clínica");
