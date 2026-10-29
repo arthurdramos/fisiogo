@@ -44,7 +44,11 @@ Deno.serve(async (_req) => {
   for (const s of sessions ?? []) {
     const { data: subs } = await admin.from("push_subscriptions").select("*").eq("user_id", s.user_id);
 
-    const patientName = (s.patients as { nome: string } | null)?.nome ?? "Paciente";
+    // O join `patients(nome)` pode voltar como objeto (relação pra um) ou como
+    // lista, dependendo de como o tipo do banco resolve a FK — aceitamos os dois.
+    const patientRel = s.patients as { nome: string } | { nome: string }[] | null;
+    const patientName =
+      (Array.isArray(patientRel) ? patientRel[0]?.nome : patientRel?.nome) ?? "Paciente";
     const payload = JSON.stringify({
       title: "A sessão aconteceu?",
       body: `${patientName} — confirme se a sessão foi realizada.`,
