@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reminderWindow, tomorrowDigest } from "./timing";
+import { reminderWindow, tomorrowDigest } from "../../supabase/functions/send-session-reminders/timing";
 
 describe("hourly confirmation reminders", () => {
   it("waits one hour after the scheduled session", () => {
