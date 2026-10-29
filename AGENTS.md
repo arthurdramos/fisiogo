@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Session reminder cron calls the existing Edge Function hourly using a Vault-only key verified through a service-role-only RPC; public callers must never trigger notifications.
+- Confirmation reminders cover sessions scheduled one to two hours before execution; mark delivery only after a push provider accepts a notification.

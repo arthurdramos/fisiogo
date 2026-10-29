@@ -1,8 +1,7 @@
 // Edge Function: varre sessões agendadas cujo horário + 1h já passou e ainda
 // não foram confirmadas, e envia um lembrete push perguntando se aconteceram.
 //
-// Feita pra ser chamada periodicamente (a cada 5-10min) por um agendador
-// (Jobs do Lovable Cloud / pg_cron / cron externo — a definir).
+// Chamada a cada hora pelo pg_cron, com chave privada armazenada no Vault.
 //
 // Segredos necessários:
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY — gerados com `npx web-push generate-vapid-keys`
@@ -10,6 +9,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
+import { reminderWindow } from "./timing.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -19,20 +19,23 @@ const APP_URL = Deno.env.get("APP_URL") ?? "https://fisiogo.online";
 
 webpush.setVapidDetails("mailto:contato@fisiogo.online", VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
-Deno.serve(async (_req) => {
+Deno.serve(async (req) => {
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const token = req.headers.get("x-reminder-key");
+  if (!token) return new Response("Unauthorized", { status: 401 });
+  const { data: authorized, error: authError } = await admin.rpc("verify_session_reminder_key", { candidate: token });
+  if (authError || authorized !== true) return new Response("Unauthorized", { status: 401 });
 
-  const now = Date.now();
-  const windowStart = new Date(now - 70 * 60 * 1000); // 1h10 atrás
-  const windowEnd = new Date(now - 60 * 60 * 1000); // 1h atrás
+  const window = reminderWindow(Date.now());
 
   const { data: sessions, error } = await admin
     .from("sessions")
     .select("id, user_id, scheduled_at, patient_id, patients(nome)")
     .eq("status", "agendada")
     .eq("lembrete_enviado", false)
-    .gte("scheduled_at", windowStart.toISOString())
-    .lt("scheduled_at", windowEnd.toISOString());
+    .gte("scheduled_at", window.start)
+    .lt("scheduled_at", window.end);
 
   if (error) {
     console.error("Erro ao buscar sessões:", error.message);
@@ -42,6 +45,7 @@ Deno.serve(async (_req) => {
   let enviados = 0;
 
   for (const s of sessions ?? []) {
+    let delivered = false;
     const { data: subs } = await admin.from("push_subscriptions").select("*").eq("user_id", s.user_id);
 
     // O join `patients(nome)` pode voltar como objeto (relação pra um) ou como
@@ -62,16 +66,20 @@ Deno.serve(async (_req) => {
           payload,
         );
         enviados++;
+        delivered = true;
       } catch (err) {
         const statusCode = (err as { statusCode?: number }).statusCode;
-        console.error("Falha ao enviar push:", err);
+        console.error("Falha ao enviar push; status:", statusCode ?? "unknown");
         if (statusCode === 404 || statusCode === 410) {
           await admin.from("push_subscriptions").delete().eq("id", sub.id);
         }
       }
     }
 
-    await admin.from("sessions").update({ lembrete_enviado: true }).eq("id", s.id);
+    if (delivered) {
+      const { error: updateError } = await admin.from("sessions").update({ lembrete_enviado: true }).eq("id", s.id);
+      if (updateError) return new Response(JSON.stringify({ error: "Failed to record reminder delivery" }), { status: 500 });
+    }
   }
 
   return new Response(JSON.stringify({ sessoes: sessions?.length ?? 0, notificacoes_enviadas: enviados }), {
