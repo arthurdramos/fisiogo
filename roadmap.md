@@ -1,0 +1,3 @@
+- [ ] Configurar lembretes por hora com chamada protegida e janela compatível.
+- [ ] Verificar horário de envio e testes automatizados.
+- [ ] Criar sessão de teste para Arthur (aguarda paciente e dispositivo com notificações).
