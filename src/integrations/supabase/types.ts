@@ -158,6 +158,24 @@ export type Database = {
           },
         ]
       }
+      patient_reminder_digests: {
+        Row: {
+          created_at: string
+          dia: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dia: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dia?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       patients: {
         Row: {
           ap_historico: string | null
@@ -310,12 +328,16 @@ export type Database = {
       }
       sessions: {
         Row: {
+          confirm_token: string
           created_at: string
           custo_registrado: number | null
           duration_min: number
           id: string
           lembrete_enviado: boolean
+          lembrete_paciente_em: string | null
           notes_evolucao: string | null
+          paciente_respondeu_em: string | null
+          paciente_resposta: string | null
           pago: boolean
           pago_em: string | null
           pago_via: string | null
@@ -327,12 +349,16 @@ export type Database = {
           valor_cobrado: number | null
         }
         Insert: {
+          confirm_token?: string
           created_at?: string
           custo_registrado?: number | null
           duration_min?: number
           id?: string
           lembrete_enviado?: boolean
+          lembrete_paciente_em?: string | null
           notes_evolucao?: string | null
+          paciente_respondeu_em?: string | null
+          paciente_resposta?: string | null
           pago?: boolean
           pago_em?: string | null
           pago_via?: string | null
@@ -344,12 +370,16 @@ export type Database = {
           valor_cobrado?: number | null
         }
         Update: {
+          confirm_token?: string
           created_at?: string
           custo_registrado?: number | null
           duration_min?: number
           id?: string
           lembrete_enviado?: boolean
+          lembrete_paciente_em?: string | null
           notes_evolucao?: string | null
+          paciente_respondeu_em?: string | null
+          paciente_resposta?: string | null
           pago?: boolean
           pago_em?: string | null
           pago_via?: string | null
@@ -491,7 +521,22 @@ export type Database = {
     }
     Functions: {
       ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
+      get_session_by_confirm_token: {
+        Args: { p_token: string }
+        Returns: {
+          duration_min: number
+          paciente_primeiro_nome: string
+          paciente_resposta: string
+          profissional_nome: string
+          scheduled_at: string
+          status: string
+        }[]
+      }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      respond_session_by_confirm_token: {
+        Args: { p_resposta: string; p_token: string }
+        Returns: boolean
+      }
       verify_session_reminder_key: {
         Args: { candidate: string }
         Returns: boolean

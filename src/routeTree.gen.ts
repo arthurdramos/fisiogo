@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as CTokenRouteImport } from './routes/c.$token'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAssinaturaRouteImport } from './routes/_authenticated/assinatura'
@@ -21,6 +20,7 @@ import { Route as AuthenticatedCompletarPerfilRouteImport } from './routes/_auth
 import { Route as AuthenticatedFaleConoscoRouteImport } from './routes/_authenticated/fale-conosco'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as CTokenRouteImport } from './routes/c.$token'
 import { Route as AuthenticatedConfirmarSessionIdRouteImport } from './routes/_authenticated/confirmar.$sessionId'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
@@ -43,11 +43,6 @@ const AuthRoute = AuthRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CTokenRoute = CTokenRouteImport.update({
-  id: '/c/$token',
-  path: '/c/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
@@ -87,6 +82,11 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const CTokenRoute = CTokenRouteImport.update({
+  id: '/c/$token',
+  path: '/c/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedConfirmarSessionIdRoute =
   AuthenticatedConfirmarSessionIdRouteImport.update({
     id: '/confirmar/$sessionId',
@@ -115,7 +115,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/c/$token': typeof CTokenRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
   '/assinatura': typeof AuthenticatedAssinaturaRoute
@@ -123,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/c/$token': typeof CTokenRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
@@ -132,7 +132,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/c/$token': typeof CTokenRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
   '/assinatura': typeof AuthenticatedAssinaturaRoute
@@ -140,6 +139,7 @@ export interface FileRoutesByTo {
   '/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/c/$token': typeof CTokenRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
@@ -151,7 +151,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/c/$token': typeof CTokenRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/assinatura': typeof AuthenticatedAssinaturaRoute
@@ -159,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/c/$token': typeof CTokenRoute
   '/_authenticated/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
@@ -170,7 +170,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
-    | '/c/$token'
     | '/agenda'
     | '/app'
     | '/assinatura'
@@ -178,6 +177,7 @@ export interface FileRouteTypes {
     | '/fale-conosco'
     | '/financeiro'
     | '/perfil'
+    | '/c/$token'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
     | '/api/public/cakto-webhook'
@@ -187,7 +187,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
-    | '/c/$token'
     | '/agenda'
     | '/app'
     | '/assinatura'
@@ -195,6 +194,7 @@ export interface FileRouteTypes {
     | '/fale-conosco'
     | '/financeiro'
     | '/perfil'
+    | '/c/$token'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
     | '/api/public/cakto-webhook'
@@ -205,7 +205,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/sitemap.xml'
-    | '/c/$token'
     | '/_authenticated/agenda'
     | '/_authenticated/app'
     | '/_authenticated/assinatura'
@@ -213,6 +212,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fale-conosco'
     | '/_authenticated/financeiro'
     | '/_authenticated/perfil'
+    | '/c/$token'
     | '/_authenticated/confirmar/$sessionId'
     | '/_authenticated/pacientes/$id'
     | '/api/public/cakto-webhook'
@@ -256,13 +256,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/$token': {
-      id: '/c/$token'
-      path: '/c/$token'
-      fullPath: '/c/$token'
-      preLoaderRoute: typeof CTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/agenda': {
@@ -313,6 +306,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/c/$token': {
+      id: '/c/$token'
+      path: '/c/$token'
+      fullPath: '/c/$token'
+      preLoaderRoute: typeof CTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/confirmar/$sessionId': {
       id: '/_authenticated/confirmar/$sessionId'
