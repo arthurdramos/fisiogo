@@ -14,27 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      calendar_feeds: {
-        Row: {
-          created_at: string
-          so_iniciais: boolean
-          token: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          so_iniciais?: boolean
-          token?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          so_iniciais?: boolean
-          token?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       billing_reports: {
         Row: {
           created_at: string
@@ -100,6 +79,27 @@ export type Database = {
           id?: string
           matched_user_id?: string | null
           payload?: Json | null
+        }
+        Relationships: []
+      }
+      calendar_feeds: {
+        Row: {
+          created_at: string
+          so_iniciais: boolean
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          so_iniciais?: boolean
+          token?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          so_iniciais?: boolean
+          token?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -547,7 +547,7 @@ export type Database = {
         Returns: {
           duration_min: number
           paciente_nome: string
-          paciente_resposta: string | null
+          paciente_resposta: string
           scheduled_at: string
           session_id: string
           so_iniciais: boolean

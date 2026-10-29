@@ -15,6 +15,13 @@
       "when": 1793292492439,
       "tag": "0001_add_patient_session_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793294812313,
+      "tag": "0002_add_calendar_feeds",
+      "breakpoints": true
     }
   ]
 }
