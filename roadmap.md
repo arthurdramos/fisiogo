@@ -1,5 +1,5 @@
 - [x] Configurar lembretes por hora com chamada protegida e janela compatível.
 - [x] Verificar horário de envio e testes automatizados.
-- [ ] Aplicar migração de calendário e verificar o link gerado no Perfil sem login.
+- [x] Aplicar migração de calendário e verificar o link gerado no Perfil sem login.
 - [x] Criar sessão de teste na conta de Felipe, identificada nas notas.
 - [ ] Confirmar chegada no aparelho (bloqueado: nenhuma das contas solicitadas tem notificações ativadas; Arthur não tem pacientes).
