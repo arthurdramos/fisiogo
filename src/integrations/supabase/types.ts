@@ -293,6 +293,21 @@ export type Database = {
         }
         Relationships: []
       }
+      session_reminder_scheduler_credentials: {
+        Row: {
+          id: boolean
+          token: string
+        }
+        Insert: {
+          id?: boolean
+          token: string
+        }
+        Update: {
+          id?: boolean
+          token?: string
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           created_at: string
@@ -477,6 +492,10 @@ export type Database = {
     Functions: {
       ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      verify_session_reminder_key: {
+        Args: { candidate: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
