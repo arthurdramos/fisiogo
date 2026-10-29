@@ -22,6 +22,13 @@
       "when": 1793294812313,
       "tag": "0002_add_calendar_feeds",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793299781853,
+      "tag": "0003_add_online_booking",
+      "breakpoints": true
     }
   ]
 }

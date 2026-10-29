@@ -52,36 +52,6 @@ export type Database = {
           },
         ]
       }
-      cakto_webhook_events: {
-        Row: {
-          cakto_order_id: string | null
-          created_at: string
-          email: string | null
-          event: string
-          id: string
-          matched_user_id: string | null
-          payload: Json | null
-        }
-        Insert: {
-          cakto_order_id?: string | null
-          created_at?: string
-          email?: string | null
-          event: string
-          id?: string
-          matched_user_id?: string | null
-          payload?: Json | null
-        }
-        Update: {
-          cakto_order_id?: string | null
-          created_at?: string
-          email?: string | null
-          event?: string
-          id?: string
-          matched_user_id?: string | null
-          payload?: Json | null
-        }
-        Relationships: []
-      }
       booking_hours: {
         Row: {
           fim: string
@@ -149,7 +119,15 @@ export type Database = {
           telefone?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "booking_requests_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       booking_settings: {
         Row: {
@@ -181,6 +159,36 @@ export type Database = {
           slug?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      cakto_webhook_events: {
+        Row: {
+          cakto_order_id: string | null
+          created_at: string
+          email: string | null
+          event: string
+          id: string
+          matched_user_id: string | null
+          payload: Json | null
+        }
+        Insert: {
+          cakto_order_id?: string | null
+          created_at?: string
+          email?: string | null
+          event: string
+          id?: string
+          matched_user_id?: string | null
+          payload?: Json | null
+        }
+        Update: {
+          cakto_order_id?: string | null
+          created_at?: string
+          email?: string | null
+          event?: string
+          id?: string
+          matched_user_id?: string | null
+          payload?: Json | null
         }
         Relationships: []
       }
@@ -643,8 +651,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
       accept_booking_request: { Args: { p_id: string }; Returns: Json }
+      ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
+      get_booking_page: { Args: { p_slug: string }; Returns: Json }
       get_calendar_feed: {
         Args: { p_token: string }
         Returns: {
@@ -658,7 +667,6 @@ export type Database = {
           updated_at: string
         }[]
       }
-      get_booking_page: { Args: { p_slug: string }; Returns: Json }
       get_session_by_confirm_token: {
         Args: { p_token: string }
         Returns: {
@@ -673,7 +681,12 @@ export type Database = {
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
       phone_key: { Args: { p: string }; Returns: string }
       request_booking: {
-        Args: { p_inicio: string; p_nome: string; p_slug: string; p_telefone: string }
+        Args: {
+          p_inicio: string
+          p_nome: string
+          p_slug: string
+          p_telefone: string
+        }
         Returns: string
       }
       respond_session_by_confirm_token: {
