@@ -2,6 +2,8 @@
 // não foram confirmadas, e envia um lembrete push perguntando se aconteceram.
 // Na execução das 18h (Brasília) também avisa o profissional das sessões do
 // dia seguinte, pra ele lembrar os pacientes pelo WhatsApp a partir da agenda.
+// E reenvia o aviso de pedidos de agendamento que a página do paciente não
+// conseguiu notificar na hora.
 //
 // Chamada a cada hora pelo pg_cron, com chave privada em tabela restrita.
 //
@@ -9,45 +11,13 @@
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY — gerados com `npx web-push generate-vapid-keys`
 //   APP_URL — opcional, URL pública do app (usada no link da notificação)
 
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import webpush from "npm:web-push@3.6.7";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { notifyBookingRequest, sendToUser } from "../_shared/push.ts";
 import { reminderWindow, tomorrowDigest } from "./timing.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY")!;
-const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
 const APP_URL = Deno.env.get("APP_URL") ?? "https://fisiogo.online";
-
-webpush.setVapidDetails("mailto:contato@fisiogo.online", VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-
-// Sem os tipos gerados do banco aqui, então o schema fica como `any` — igual
-// ao cliente que `createClient(url, key)` devolve.
-// deno-lint-ignore no-explicit-any
-type Admin = SupabaseClient<any, "public", any>;
-
-// Envia o payload pra todos os aparelhos do profissional e devolve quantos
-// aceitaram. Inscrições que o provedor diz que não existem mais são apagadas.
-async function sendToUser(admin: Admin, userId: string, payload: string): Promise<number> {
-  const { data: subs } = await admin.from("push_subscriptions").select("*").eq("user_id", userId);
-  let delivered = 0;
-  for (const sub of subs ?? []) {
-    try {
-      await webpush.sendNotification(
-        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        payload,
-      );
-      delivered++;
-    } catch (err) {
-      const statusCode = (err as { statusCode?: number }).statusCode;
-      console.error("Falha ao enviar push; status:", statusCode ?? "unknown");
-      if (statusCode === 404 || statusCode === 410) {
-        await admin.from("push_subscriptions").delete().eq("id", sub.id);
-      }
-    }
-  }
-  return delivered;
-}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -136,8 +106,26 @@ Deno.serve(async (req) => {
     }
   }
 
+  // ========== pedidos de agendamento sem aviso ==========
+  // Normalmente a página do paciente já avisou na hora; aqui fica a rede de
+  // segurança pra quando aquela chamada falhou.
+  let avisosPedidos = 0;
+  const { data: pedidos, error: pedidosError } = await admin
+    .from("booking_requests")
+    .select("id, user_id, nome, scheduled_at")
+    .eq("status", "pendente")
+    .is("notificado_em", null)
+    .lt("created_at", new Date(Date.now() - 5 * 60 * 1000).toISOString());
+  if (pedidosError) console.error("Erro ao buscar pedidos de agendamento:", pedidosError.message);
+  for (const pedido of pedidos ?? []) avisosPedidos += await notifyBookingRequest(admin, pedido, APP_URL);
+
   return new Response(
-    JSON.stringify({ sessoes: sessions?.length ?? 0, notificacoes_enviadas: enviados, avisos_vespera: avisosVespera }),
+    JSON.stringify({
+      sessoes: sessions?.length ?? 0,
+      notificacoes_enviadas: enviados,
+      avisos_vespera: avisosVespera,
+      avisos_pedidos: avisosPedidos,
+    }),
     { headers: { "Content-Type": "application/json" } },
   );
 });

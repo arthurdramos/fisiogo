@@ -20,6 +20,7 @@ import { Route as AuthenticatedCompletarPerfilRouteImport } from './routes/_auth
 import { Route as AuthenticatedFaleConoscoRouteImport } from './routes/_authenticated/fale-conosco'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
 import { Route as CTokenRouteImport } from './routes/c.$token'
 import { Route as AuthenticatedConfirmarSessionIdRouteImport } from './routes/_authenticated/confirmar.$sessionId'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
@@ -84,6 +85,11 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AgendarSlugRoute = AgendarSlugRouteImport.update({
+  id: '/agendar/$slug',
+  path: '/agendar/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CTokenRoute = CTokenRouteImport.update({
   id: '/c/$token',
   path: '/c/$token',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/c/$token': typeof CTokenRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/c/$token': typeof CTokenRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/_authenticated/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/c/$token': typeof CTokenRoute
   '/_authenticated/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/fale-conosco'
     | '/financeiro'
     | '/perfil'
+    | '/agendar/$slug'
     | '/c/$token'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/fale-conosco'
     | '/financeiro'
     | '/perfil'
+    | '/agendar/$slug'
     | '/c/$token'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fale-conosco'
     | '/_authenticated/financeiro'
     | '/_authenticated/perfil'
+    | '/agendar/$slug'
     | '/c/$token'
     | '/_authenticated/confirmar/$sessionId'
     | '/_authenticated/pacientes/$id'
@@ -248,6 +260,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  AgendarSlugRoute: typeof AgendarSlugRoute
   CTokenRoute: typeof CTokenRoute
   ApiPublicCaktoWebhookRoute: typeof ApiPublicCaktoWebhookRoute
   ApiPublicCalendarTokenRoute: typeof ApiPublicCalendarTokenRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/agendar/$slug': {
+      id: '/agendar/$slug'
+      path: '/agendar/$slug'
+      fullPath: '/agendar/$slug'
+      preLoaderRoute: typeof AgendarSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/c/$token': {
       id: '/c/$token'
@@ -419,6 +439,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  AgendarSlugRoute: AgendarSlugRoute,
   CTokenRoute: CTokenRoute,
   ApiPublicCaktoWebhookRoute: ApiPublicCaktoWebhookRoute,
   ApiPublicCalendarTokenRoute: ApiPublicCalendarTokenRoute,

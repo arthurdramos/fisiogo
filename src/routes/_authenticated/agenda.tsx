@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { addDays, addMonths, formatDateTime, formatMonthLabel, formatTime, startOfDay, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { BookingRequests } from "@/components/booking-requests";
 import { sessionBlockClass, sessionColorClass, sessionDotClass, sessionStatusLabel } from "@/lib/session-status";
 import { buildReminderMessage, confirmUrlFor, normalizeBrazilPhone, whatsappUrl } from "@/lib/whatsapp";
 import { CalendarClock, Check, ChevronLeft, ChevronRight, MessageCircle, Plus } from "lucide-react";
@@ -258,6 +259,8 @@ function Agenda() {
           </Dialog>
         </div>
       </div>
+
+      <BookingRequests profissionalNome={profissionalNome.data ?? null} />
 
       {view === "dia" && (
         <div className="rounded-xl border border-border bg-card">

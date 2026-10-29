@@ -52,3 +52,45 @@ export function confirmUrlFor(token: string, origin = window.location.origin): s
 export function whatsappUrl(phone: string, text: string): string {
   return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 }
+
+// Resposta a um pedido de agendamento online. No aceite vai o link de
+// confirmação da sessão criada (o mesmo dos lembretes); na recusa, o link da
+// página de agendamento pra escolher outro horário.
+export function buildBookingAcceptedMessage(v: {
+  pacienteNome: string;
+  profissionalNome: string | null;
+  scheduledAt: string;
+  confirmUrl: string;
+  now?: Date;
+}): string {
+  const primeiroNome = v.pacienteNome.trim().split(/\s+/)[0] || "tudo bem";
+  // "para amanhã", "para quinta-feira, 30/10" (sem o "na" de sessionDayPhrase).
+  const quando = sessionDayPhrase(v.scheduledAt, v.now).replace(/^na /, "");
+  const lines = [
+    `Olá, ${primeiroNome}! Sua sessão de fisioterapia está confirmada para ${quando} às ${formatTime(v.scheduledAt)}.`,
+    "",
+    `Os detalhes ficam aqui, e por esse link você também avisa se precisar remarcar: ${v.confirmUrl}`,
+  ];
+  if (v.profissionalNome) lines.push("", v.profissionalNome);
+  return lines.join("\n");
+}
+
+export function buildBookingDeclinedMessage(v: {
+  pacienteNome: string;
+  profissionalNome: string | null;
+  scheduledAt: string;
+  bookingUrl: string | null;
+  now?: Date;
+}): string {
+  const primeiroNome = v.pacienteNome.trim().split(/\s+/)[0] || "tudo bem";
+  const quando = sessionDayPhrase(v.scheduledAt, v.now);
+  const lines = [
+    `Olá, ${primeiroNome}! Infelizmente não consigo atender ${quando} às ${formatTime(v.scheduledAt)}.`,
+    "",
+    v.bookingUrl
+      ? `Você pode escolher outro horário por aqui: ${v.bookingUrl}`
+      : "Podemos combinar outro horário por aqui?",
+  ];
+  if (v.profissionalNome) lines.push("", v.profissionalNome);
+  return lines.join("\n");
+}
