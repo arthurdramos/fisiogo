@@ -24,20 +24,20 @@ Como acessar no celular
 Sem loja de aplicativos — leva 20 segundos e é grátis. Basta adicionar o FisioGO à tela inicial:
 
 No iPhone (precisa ser pelo Safari):
-1. Abra app.fisiogo.com.br pelo Safari
+1. Abra fisiogo.online pelo Safari
 2. Toque em Compartilhar (o ícone de quadrado com seta pra cima, na barra de baixo)
 3. Role a lista e toque em "Adicionar à Tela de Início"
 4. Toque em Adicionar — pronto, o FisioGO já aparece como um app na sua tela inicial
 
 No Android (pelo Chrome, Edge ou Samsung Internet):
-1. Abra app.fisiogo.com.br pelo navegador
+1. Abra fisiogo.online pelo navegador
 2. Toque no menu (os três pontinhos no canto superior direito)
 3. Toque em "Adicionar à tela inicial"
 4. Confirme em "Adicionar" — o atalho aparece na sua tela inicial
 
 Como acessar no computador
 
-É ainda mais simples: acesse app.fisiogo.com.br pelo navegador e faça login com os mesmos dados — não precisa instalar nada.
+É ainda mais simples: acesse fisiogo.online pelo navegador e faça login com os mesmos dados — não precisa instalar nada.
 
 Qualquer dúvida, é só responder este e-mail. Estamos por aqui.
 
@@ -57,7 +57,7 @@ Equipe FisioGO`;
 
   <p style="margin-bottom:4px"><strong>No iPhone</strong> (precisa ser pelo Safari):</p>
   <ol style="margin-top:4px;padding-left:20px">
-    <li>Abra app.fisiogo.com.br pelo Safari</li>
+    <li>Abra fisiogo.online pelo Safari</li>
     <li>Toque em Compartilhar (o ícone de quadrado com seta pra cima, na barra de baixo)</li>
     <li>Role a lista e toque em "Adicionar à Tela de Início"</li>
     <li>Toque em Adicionar — pronto, o FisioGO já aparece como um app na sua tela inicial</li>
@@ -65,14 +65,14 @@ Equipe FisioGO`;
 
   <p style="margin-bottom:4px"><strong>No Android</strong> (pelo Chrome, Edge ou Samsung Internet):</p>
   <ol style="margin-top:4px;padding-left:20px">
-    <li>Abra app.fisiogo.com.br pelo navegador</li>
+    <li>Abra fisiogo.online pelo navegador</li>
     <li>Toque no menu (os três pontinhos no canto superior direito)</li>
     <li>Toque em "Adicionar à tela inicial"</li>
     <li>Confirme em "Adicionar" — o atalho aparece na sua tela inicial</li>
   </ol>
 
   <h2 style="font-size:15px;margin:28px 0 8px">Como acessar no computador</h2>
-  <p>É ainda mais simples: acesse app.fisiogo.com.br pelo navegador e faça login com os mesmos dados — não precisa instalar nada.</p>
+  <p>É ainda mais simples: acesse fisiogo.online pelo navegador e faça login com os mesmos dados — não precisa instalar nada.</p>
 
   <p style="margin-top:28px">Qualquer dúvida, é só responder este e-mail. Estamos por aqui.</p>
 

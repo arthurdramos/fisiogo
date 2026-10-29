@@ -189,7 +189,7 @@ const installSteps = [
       {
         icon: Compass,
         title: "Abra no Safari",
-        desc: "Acesse app.fisiogo.com.br pelo Safari (só ele instala no iPhone).",
+        desc: "Acesse fisiogo.online pelo Safari (só ele instala no iPhone).",
       },
       {
         icon: Share2,
@@ -216,7 +216,7 @@ const installSteps = [
       {
         icon: Globe,
         title: "Abra no Chrome",
-        desc: "Acesse app.fisiogo.com.br pelo navegador.",
+        desc: "Acesse fisiogo.online pelo navegador.",
       },
       {
         icon: MoreVertical,
