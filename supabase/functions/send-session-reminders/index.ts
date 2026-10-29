@@ -9,7 +9,7 @@
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY — gerados com `npx web-push generate-vapid-keys`
 //   APP_URL — opcional, URL pública do app (usada no link da notificação)
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 import { reminderWindow, tomorrowDigest } from "./timing.ts";
 
@@ -21,7 +21,10 @@ const APP_URL = Deno.env.get("APP_URL") ?? "https://fisiogo.online";
 
 webpush.setVapidDetails("mailto:contato@fisiogo.online", VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
-type Admin = ReturnType<typeof createClient>;
+// Sem os tipos gerados do banco aqui, então o schema fica como `any` — igual
+// ao cliente que `createClient(url, key)` devolve.
+// deno-lint-ignore no-explicit-any
+type Admin = SupabaseClient<any, "public", any>;
 
 // Envia o payload pra todos os aparelhos do profissional e devolve quantos
 // aceitaram. Inscrições que o provedor diz que não existem mais são apagadas.
