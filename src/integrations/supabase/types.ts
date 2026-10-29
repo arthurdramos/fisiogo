@@ -52,6 +52,116 @@ export type Database = {
           },
         ]
       }
+      booking_hours: {
+        Row: {
+          fim: string
+          id: string
+          inicio: string
+          user_id: string
+          weekday: number
+        }
+        Insert: {
+          fim: string
+          id?: string
+          inicio: string
+          user_id: string
+          weekday: number
+        }
+        Update: {
+          fim?: string
+          id?: string
+          inicio?: string
+          user_id?: string
+          weekday?: number
+        }
+        Relationships: []
+      }
+      booking_requests: {
+        Row: {
+          created_at: string
+          duration_min: number
+          id: string
+          nome: string
+          notificado_em: string | null
+          public_token: string
+          respondido_em: string | null
+          scheduled_at: string
+          session_id: string | null
+          status: string
+          telefone: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_min: number
+          id?: string
+          nome: string
+          notificado_em?: string | null
+          public_token?: string
+          respondido_em?: string | null
+          scheduled_at: string
+          session_id?: string | null
+          status?: string
+          telefone: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_min?: number
+          id?: string
+          nome?: string
+          notificado_em?: string | null
+          public_token?: string
+          respondido_em?: string | null
+          scheduled_at?: string
+          session_id?: string | null
+          status?: string
+          telefone?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_requests_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_settings: {
+        Row: {
+          antecedencia_horas: number
+          ativo: boolean
+          created_at: string
+          duracao_min: number
+          janela_dias: number
+          slug: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          antecedencia_horas?: number
+          ativo?: boolean
+          created_at?: string
+          duracao_min?: number
+          janela_dias?: number
+          slug: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          antecedencia_horas?: number
+          ativo?: boolean
+          created_at?: string
+          duracao_min?: number
+          janela_dias?: number
+          slug?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       cakto_webhook_events: {
         Row: {
           cakto_order_id: string | null
@@ -541,7 +651,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_booking_request: { Args: { p_id: string }; Returns: Json }
       ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
+      get_booking_page: { Args: { p_slug: string }; Returns: Json }
       get_calendar_feed: {
         Args: { p_token: string }
         Returns: {
@@ -567,6 +679,16 @@ export type Database = {
         }[]
       }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      phone_key: { Args: { p: string }; Returns: string }
+      request_booking: {
+        Args: {
+          p_inicio: string
+          p_nome: string
+          p_slug: string
+          p_telefone: string
+        }
+        Returns: string
+      }
       respond_session_by_confirm_token: {
         Args: { p_resposta: string; p_token: string }
         Returns: boolean
