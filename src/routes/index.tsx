@@ -78,7 +78,7 @@ const features = [
   {
     icon: BellRing,
     title: "Lembretes de sessão",
-    desc: "Avisos automáticos das próximas sessões para reduzir faltas na agenda.",
+    desc: "Na véspera, o app te avisa das sessões de amanhã. Um toque e o lembrete vai pelo seu WhatsApp, com link para o paciente confirmar.",
   },
 ];
 
@@ -168,7 +168,7 @@ const faqs = [
   },
   {
     q: "Meus pacientes precisam instalar algo?",
-    a: "Não. Eles recebem apenas um link de confirmação de sessão quando você quiser.",
+    a: "Não. Eles recebem o lembrete no seu WhatsApp, com um link para confirmar a presença ou pedir para remarcar. Sem cadastro e sem instalar nada.",
   },
   {
     q: "Consigo exportar meus dados?",

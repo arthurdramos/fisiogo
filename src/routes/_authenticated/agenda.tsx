@@ -22,12 +22,17 @@ import {
 } from "@/components/ui/select";
 import { addDays, addMonths, formatMonthLabel, formatTime, startOfDay, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { sessionBlockClass, sessionColorClass, sessionDotClass } from "@/lib/session-status";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { buildReminderMessage, confirmUrlFor, normalizeBrazilPhone, whatsappUrl } from "@/lib/whatsapp";
+import { ChevronLeft, ChevronRight, MessageCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { extractErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
   head: () => ({ meta: [{ title: "Agenda — FisioGO" }] }),
+  // ?dia=AAAA-MM-DD abre direto a visão do dia — é pra onde aponta o aviso
+  // da véspera ("você tem N sessões amanhã").
+  validateSearch: (search: Record<string, unknown>): { dia?: string } =>
+    typeof search.dia === "string" && /^\d{4}-\d{2}-\d{2}$/.test(search.dia) ? { dia: search.dia } : {},
   component: Agenda,
 });
 
@@ -43,9 +48,15 @@ function weekStartOf(d: Date) {
   return start;
 }
 
+function parseDia(dia: string) {
+  const [y, m, d] = dia.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
 function Agenda() {
-  const [view, setView] = useState<ViewMode>("semana");
-  const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
+  const { dia } = Route.useSearch();
+  const [view, setView] = useState<ViewMode>(dia ? "dia" : "semana");
+  const [anchor, setAnchor] = useState(() => (dia ? parseDia(dia) : startOfDay(new Date())));
   const [open, setOpen] = useState(false);
 
   const qc = useQueryClient();
@@ -81,6 +92,43 @@ function Agenda() {
       if (error) throw error;
       return data ?? [];
     },
+  });
+
+  // Dados do lembrete pro paciente ficam numa consulta à parte: se a migração
+  // que cria essas colunas ainda não rodou, a agenda continua funcionando,
+  // só sem o botão de WhatsApp.
+  const reminders = useQuery({
+    queryKey: ["agenda-reminders", rangeStart.toISOString()],
+    enabled: view === "dia",
+    retry: false,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sessions")
+        .select("id, confirm_token, lembrete_paciente_em, paciente_resposta, patients(nome, telefone)")
+        .gte("scheduled_at", rangeStart.toISOString())
+        .lt("scheduled_at", rangeEnd.toISOString());
+      if (error) throw error;
+      return new Map((data ?? []).map((r) => [r.id, r]));
+    },
+  });
+
+  const profissionalNome = useQuery({
+    queryKey: ["professional-name"],
+    queryFn: async () => {
+      const { data } = await supabase.from("professional_profile").select("nome").maybeSingle();
+      return data?.nome ?? null;
+    },
+  });
+
+  const markReminded = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("sessions")
+        .update({ lembrete_paciente_em: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agenda-reminders"] }),
   });
 
   const patients = useQuery({
@@ -137,6 +185,9 @@ function Agenda() {
   }, [sessions.data]);
 
   const dayList = byDay.get(anchor.toDateString()) ?? [];
+  const canRemind = (s: { status: string; scheduled_at: string }) =>
+    s.status === "agendada" && new Date(s.scheduled_at).getTime() > Date.now();
+  const showReminderHint = !!reminders.data && dayList.some(canRemind);
 
   // Faixa de horas exibida na grade da semana — cobre 07h-21h por padrão e se
   // estica automaticamente se alguma sessão do período começar ou terminar
@@ -208,27 +259,37 @@ function Agenda() {
 
       {view === "dia" && (
         <div className="rounded-xl border border-border bg-card">
+          {showReminderHint && (
+            <p className="border-b border-border px-5 py-3 text-xs text-muted-foreground">
+              Toque em <span className="font-medium text-foreground">WhatsApp</span> para lembrar o paciente. A
+              mensagem já abre pronta, com um link para ele confirmar ou pedir para remarcar.
+            </p>
+          )}
           <ul className="divide-y divide-border">
             {dayList.length === 0 && (
               <li className="p-8 text-center text-sm text-muted-foreground">Nenhuma sessão neste dia.</li>
             )}
             {dayList.map((s) => {
               const patient = s.patients as { nome: string } | null;
+              const reminder = reminders.data?.get(s.id);
               return (
-                <li key={s.id}>
-                  <Link
-                    to="/pacientes/$id"
-                    params={{ id: s.patient_id }}
-                    className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent/40"
-                  >
-                    <div>
-                      <p className="font-medium">{patient?.nome ?? "Paciente"}</p>
-                      <p className="text-xs text-muted-foreground">{s.duration_min} min · {s.status}</p>
-                    </div>
-                    <span className={"rounded-md px-2 py-1 text-xs " + sessionColorClass(s)}>
-                      {formatTime(s.scheduled_at)}
-                    </span>
+                <li key={s.id} className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-accent/40">
+                  <Link to="/pacientes/$id" params={{ id: s.patient_id }} className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{patient?.nome ?? "Paciente"}</p>
+                    <p className="text-xs text-muted-foreground">{s.duration_min} min · {s.status}</p>
                   </Link>
+                  {reminder && (
+                    <PatientReminder
+                      session={s}
+                      reminder={reminder}
+                      canRemind={canRemind(s)}
+                      profissionalNome={profissionalNome.data ?? null}
+                      onSent={() => markReminded.mutate(s.id)}
+                    />
+                  )}
+                  <span className={"shrink-0 rounded-md px-2 py-1 text-xs " + sessionColorClass(s)}>
+                    {formatTime(s.scheduled_at)}
+                  </span>
                 </li>
               );
             })}
@@ -354,6 +415,76 @@ function Agenda() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Resposta do paciente (se já respondeu) + botão que abre o WhatsApp do
+// profissional com o lembrete pronto pra esse paciente.
+function PatientReminder({
+  session,
+  reminder,
+  canRemind,
+  profissionalNome,
+  onSent,
+}: {
+  session: { patient_id: string; scheduled_at: string };
+  reminder: {
+    confirm_token: string;
+    lembrete_paciente_em: string | null;
+    paciente_resposta: string | null;
+    patients: { nome: string; telefone: string | null } | { nome: string; telefone: string | null }[] | null;
+  };
+  canRemind: boolean;
+  profissionalNome: string | null;
+  onSent: () => void;
+}) {
+  const patient = Array.isArray(reminder.patients) ? reminder.patients[0] : reminder.patients;
+  const phone = normalizeBrazilPhone(patient?.telefone);
+
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      {reminder.paciente_resposta === "confirmada" && (
+        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
+          Confirmou
+        </span>
+      )}
+      {reminder.paciente_resposta === "remarcar" && (
+        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+          Pediu para remarcar
+        </span>
+      )}
+      {canRemind && !reminder.paciente_resposta &&
+        (phone ? (
+          <a
+            href={whatsappUrl(
+              phone,
+              buildReminderMessage({
+                pacienteNome: patient?.nome ?? "",
+                profissionalNome,
+                scheduledAt: session.scheduled_at,
+                confirmUrl: confirmUrlFor(reminder.confirm_token),
+              }),
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onSent}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
+            title={reminder.lembrete_paciente_em ? "Lembrete já enviado. Toque para enviar de novo." : "Lembrar pelo WhatsApp"}
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
+            {reminder.lembrete_paciente_em ? "Enviado" : "WhatsApp"}
+          </a>
+        ) : (
+          <Link
+            to="/pacientes/$id"
+            params={{ id: session.patient_id }}
+            className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            title="Cadastre o telefone do paciente para lembrar pelo WhatsApp"
+          >
+            Sem telefone
+          </Link>
+        ))}
     </div>
   );
 }

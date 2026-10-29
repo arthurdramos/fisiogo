@@ -11,3 +11,4 @@
 
 - Session reminder cron calls the existing Edge Function hourly using a key in an RLS-locked scheduler credential table verified through a service-role-only RPC; public callers must never trigger notifications.
 - Confirmation reminders cover sessions scheduled one to two hours before execution; mark delivery only after a push provider accepts a notification.
+- Patient session reminders are sent by the professional from their own WhatsApp (wa.me links on the Agenda day view); patients answer at the public /c/$token page through token-scoped SECURITY DEFINER RPCs. The 18h (Brasília) run of send-session-reminders also pushes a day-before digest to the professional, deduplicated by patient_reminder_digests.
