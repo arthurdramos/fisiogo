@@ -1,7 +1,7 @@
 // Edge Function: varre sessões agendadas cujo horário + 1h já passou e ainda
 // não foram confirmadas, e envia um lembrete push perguntando se aconteceram.
 //
-// Chamada a cada hora pelo pg_cron, com chave privada armazenada no Vault.
+// Chamada a cada hora pelo pg_cron, com chave privada em tabela restrita.
 //
 // Segredos necessários:
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY — gerados com `npx web-push generate-vapid-keys`
