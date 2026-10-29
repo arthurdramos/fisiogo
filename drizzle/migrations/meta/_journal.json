@@ -8,6 +8,13 @@
       "when": 1793291537515,
       "tag": "0000_secure_hourly_reminder_scheduler",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793292492439,
+      "tag": "0001_add_patient_session_reminders",
+      "breakpoints": true
     }
   ]
 }
