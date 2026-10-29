@@ -25,6 +25,8 @@ import { Route as AuthenticatedConfirmarSessionIdRouteImport } from './routes/_a
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
 import { Route as ApiPublicCaktoWebhookRouteImport } from './routes/api/public/cakto-webhook'
+import { Route as ApiPublicCalendarTokenRouteImport } from './routes/api/public/calendar.$token'
+import { Route as ApiPublicSessionTokenRouteImport } from './routes/api/public/session.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -110,6 +112,16 @@ const ApiPublicCaktoWebhookRoute = ApiPublicCaktoWebhookRouteImport.update({
   path: '/api/public/cakto-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCalendarTokenRoute = ApiPublicCalendarTokenRouteImport.update({
+  id: '/api/public/calendar/$token',
+  path: '/api/public/calendar/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSessionTokenRoute = ApiPublicSessionTokenRouteImport.update({
+  id: '/api/public/session/$token',
+  path: '/api/public/session/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -127,6 +139,8 @@ export interface FileRoutesByFullPath {
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/api/public/calendar/$token': typeof ApiPublicCalendarTokenRoute
+  '/api/public/session/$token': typeof ApiPublicSessionTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -144,6 +158,8 @@ export interface FileRoutesByTo {
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
+  '/api/public/calendar/$token': typeof ApiPublicCalendarTokenRoute
+  '/api/public/session/$token': typeof ApiPublicSessionTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -163,6 +179,8 @@ export interface FileRoutesById {
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/api/public/calendar/$token': typeof ApiPublicCalendarTokenRoute
+  '/api/public/session/$token': typeof ApiPublicSessionTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -182,6 +200,8 @@ export interface FileRouteTypes {
     | '/pacientes/$id'
     | '/api/public/cakto-webhook'
     | '/pacientes/'
+    | '/api/public/calendar/$token'
+    | '/api/public/session/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +219,8 @@ export interface FileRouteTypes {
     | '/pacientes/$id'
     | '/api/public/cakto-webhook'
     | '/pacientes'
+    | '/api/public/calendar/$token'
+    | '/api/public/session/$token'
   id:
     | '__root__'
     | '/'
@@ -217,6 +239,8 @@ export interface FileRouteTypes {
     | '/_authenticated/pacientes/$id'
     | '/api/public/cakto-webhook'
     | '/_authenticated/pacientes/'
+    | '/api/public/calendar/$token'
+    | '/api/public/session/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -226,6 +250,8 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CTokenRoute: typeof CTokenRoute
   ApiPublicCaktoWebhookRoute: typeof ApiPublicCaktoWebhookRoute
+  ApiPublicCalendarTokenRoute: typeof ApiPublicCalendarTokenRoute
+  ApiPublicSessionTokenRoute: typeof ApiPublicSessionTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -342,6 +368,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCaktoWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/calendar/$token': {
+      id: '/api/public/calendar/$token'
+      path: '/api/public/calendar/$token'
+      fullPath: '/api/public/calendar/$token'
+      preLoaderRoute: typeof ApiPublicCalendarTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/session/$token': {
+      id: '/api/public/session/$token'
+      path: '/api/public/session/$token'
+      fullPath: '/api/public/session/$token'
+      preLoaderRoute: typeof ApiPublicSessionTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -381,6 +421,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CTokenRoute: CTokenRoute,
   ApiPublicCaktoWebhookRoute: ApiPublicCaktoWebhookRoute,
+  ApiPublicCalendarTokenRoute: ApiPublicCalendarTokenRoute,
+  ApiPublicSessionTokenRoute: ApiPublicSessionTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

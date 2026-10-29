@@ -4,7 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { extractErrorMessage } from "@/lib/utils";
-import { CalendarCheck, CalendarClock } from "lucide-react";
+import { googleCalendarUrl, outlookCalendarUrl, sessionEnd } from "@/lib/ical";
+import { CalendarCheck, CalendarClock, CalendarPlus } from "lucide-react";
 import { toast } from "sonner";
 
 // Página pública que o paciente abre pelo link do lembrete no WhatsApp. Não
@@ -89,7 +90,15 @@ function ConfirmarPresenca() {
             onChange={() => respond.mutate("remarcar")}
             changeLabel="Na verdade, preciso remarcar"
             loading={respond.isPending}
-          />
+          >
+            <AddToCalendar
+              token={token}
+              title={`Fisioterapia com ${profissional}`}
+              start={when}
+              end={sessionEnd(s.scheduled_at, s.duration_min)}
+              details={`Sessão de ${s.duration_min} min. Para remarcar, fale com ${profissional}.`}
+            />
+          </Answered>
         ) : s.paciente_resposta === "remarcar" ? (
           <Answered
             icon={<CalendarClock className="h-5 w-5" />}
@@ -128,6 +137,7 @@ function Answered({
   onChange,
   changeLabel,
   loading,
+  children,
 }: {
   icon: ReactNode;
   title: string;
@@ -135,6 +145,7 @@ function Answered({
   onChange: () => void;
   changeLabel: string;
   loading: boolean;
+  children?: ReactNode;
 }) {
   return (
     <div className="mt-6">
@@ -143,6 +154,7 @@ function Answered({
         {title}
       </div>
       <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+      {children}
       <button
         type="button"
         onClick={onChange}
@@ -151,6 +163,48 @@ function Answered({
       >
         {changeLabel}
       </button>
+    </div>
+  );
+}
+
+// Depois de confirmar, o paciente salva a sessão no próprio calendário. Não é
+// um convite: se a sessão for remarcada, o evento salvo não muda sozinho.
+function AddToCalendar({
+  token,
+  title,
+  start,
+  end,
+  details,
+}: {
+  token: string;
+  title: string;
+  start: Date;
+  end: Date;
+  details: string;
+}) {
+  const ev = { title, start, end, details };
+  const linkClass =
+    "inline-flex items-center justify-center rounded-md border border-border bg-card px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent";
+  return (
+    <div className="mt-6 rounded-xl border border-border bg-card/60 p-4">
+      <p className="flex items-center justify-center gap-2 text-sm font-medium">
+        <CalendarPlus className="h-4 w-4" />
+        Adicionar à minha agenda
+      </p>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        <a className={linkClass} href={googleCalendarUrl(ev)} target="_blank" rel="noopener noreferrer">
+          Google
+        </a>
+        <a className={linkClass} href={outlookCalendarUrl(ev)} target="_blank" rel="noopener noreferrer">
+          Outlook
+        </a>
+        <a className={linkClass} href={`/api/public/session/${token}`}>
+          iPhone
+        </a>
+      </div>
+      <p className="mt-2 text-[11px] text-muted-foreground">
+        &quot;iPhone&quot; também funciona em outros calendários: baixa um arquivo da sessão.
+      </p>
     </div>
   );
 }

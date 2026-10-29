@@ -5,7 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { getPushPermissionState, subscribeToPush } from "@/lib/push";
+import { subscribeUrls } from "@/lib/ical";
 import { formatCPF } from "@/lib/format";
 import { extractErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
@@ -158,6 +171,10 @@ function Perfil() {
       <div className="mt-6 rounded-xl border border-border bg-card p-5">
         <NotificacoesSection />
       </div>
+
+      <div className="mt-6 rounded-xl border border-border bg-card p-5">
+        <CalendarioSection />
+      </div>
     </div>
   );
 }
@@ -187,7 +204,8 @@ function NotificacoesSection() {
     <div>
       <h2 className="mb-1 font-serif font-semibold">Notificações</h2>
       <p className="mb-4 text-sm text-muted-foreground">
-        Receba um lembrete 1h após o horário de cada sessão perguntando se ela aconteceu.
+        Receba às 18h um aviso das sessões do dia seguinte, para lembrar os pacientes pelo WhatsApp, e um lembrete 1h
+        após cada sessão perguntando se ela aconteceu.
       </p>
       {status === "unsupported" && (
         <p className="text-sm text-muted-foreground">Este navegador não suporta notificações push.</p>
@@ -202,6 +220,146 @@ function NotificacoesSection() {
         <p className="mt-2 text-xs text-muted-foreground">
           Permissão negada anteriormente — habilite notificações para este site nas configurações do navegador.
         </p>
+      )}
+    </div>
+  );
+}
+
+// Link de calendário pra assinar no Google Agenda, Outlook ou iPhone. As
+// sessões vão do FisioGO pro calendário externo, só nesse sentido.
+function CalendarioSection() {
+  const qc = useQueryClient();
+
+  const feed = useQuery({
+    queryKey: ["calendar-feed"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("calendar_feeds").select("token, so_iniciais").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const onSaved = () => qc.invalidateQueries({ queryKey: ["calendar-feed"] });
+  const onError = (e: unknown) => toast.error(extractErrorMessage(e) ?? "Erro ao salvar");
+
+  const criar = useMutation({
+    mutationFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("Sem sessão");
+      const { error } = await supabase.from("calendar_feeds").insert({ user_id: userRes.user.id });
+      if (error) throw error;
+    },
+    onSuccess: onSaved,
+    onError,
+  });
+
+  const atualizar = useMutation({
+    mutationFn: async (patch: { so_iniciais?: boolean; token?: string }) => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("Sem sessão");
+      const { error } = await supabase.from("calendar_feeds").update(patch).eq("user_id", userRes.user.id);
+      if (error) throw error;
+    },
+    onSuccess: (_data, patch) => {
+      if (patch.token) toast.success("Novo link gerado. Assine o calendário de novo com ele.");
+      onSaved();
+    },
+    onError,
+  });
+
+  const feedUrl = feed.data ? `${window.location.origin}/api/public/calendar/${feed.data.token}` : "";
+  const links = feedUrl ? subscribeUrls(feedUrl) : null;
+
+  const copiar = async () => {
+    try {
+      await navigator.clipboard.writeText(feedUrl);
+      toast.success("Link copiado");
+    } catch {
+      toast.error("Não foi possível copiar. Selecione o link e copie manualmente.");
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="mb-1 font-serif font-semibold">Calendário</h2>
+      <p className="mb-4 text-sm text-muted-foreground">
+        Veja suas sessões no Google Agenda, no Outlook ou no calendário do iPhone, junto com seus outros compromissos.
+      </p>
+
+      {feed.isLoading ? null : !feed.data ? (
+        <Button type="button" onClick={() => criar.mutate()} disabled={criar.isPending}>
+          {criar.isPending ? "Gerando..." : "Conectar ao meu calendário"}
+        </Button>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid gap-2 sm:grid-cols-3">
+            <Button asChild variant="outline">
+              <a href={links!.google} target="_blank" rel="noopener noreferrer">Google Agenda</a>
+            </Button>
+            <Button asChild variant="outline">
+              <a href={links!.outlook} target="_blank" rel="noopener noreferrer">Outlook</a>
+            </Button>
+            <Button asChild variant="outline">
+              <a href={links!.apple}>iPhone / Mac</a>
+            </Button>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="calendar-feed-url">Ou copie o link e cole no seu calendário</Label>
+            <div className="flex gap-2">
+              <Input id="calendar-feed-url" readOnly value={feedUrl} onFocus={(e) => e.currentTarget.select()} />
+              <Button type="button" variant="outline" onClick={copiar}>
+                Copiar
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <Label htmlFor="calendar-so-iniciais" className="font-normal">
+              Mostrar só as iniciais dos pacientes nos eventos
+            </Label>
+            <Switch
+              id="calendar-so-iniciais"
+              checked={feed.data.so_iniciais}
+              disabled={atualizar.isPending}
+              onCheckedChange={(v) => atualizar.mutate({ so_iniciais: v })}
+            />
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            As sessões vão do FisioGO para o calendário, só nesse sentido. O Google pode levar algumas horas para mostrar
+            mudanças; Outlook e iPhone costumam ser mais rápidos. Quem tiver este link vê sua agenda, então não o
+            compartilhe.
+          </p>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+              >
+                Gerar um novo link
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Gerar um novo link?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  O link atual para de funcionar e os calendários que o assinaram deixam de receber as sessões. Você
+                  vai precisar assinar de novo com o link novo.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => atualizar.mutate({ token: crypto.randomUUID().replace(/-/g, "") })}
+                >
+                  Gerar novo link
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       )}
     </div>
   );

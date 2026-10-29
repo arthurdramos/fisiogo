@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_feeds: {
+        Row: {
+          created_at: string
+          so_iniciais: boolean
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          so_iniciais?: boolean
+          token?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          so_iniciais?: boolean
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       billing_reports: {
         Row: {
           created_at: string
@@ -521,6 +542,19 @@ export type Database = {
     }
     Functions: {
       ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
+      get_calendar_feed: {
+        Args: { p_token: string }
+        Returns: {
+          duration_min: number
+          paciente_nome: string
+          paciente_resposta: string | null
+          scheduled_at: string
+          session_id: string
+          so_iniciais: boolean
+          status: string
+          updated_at: string
+        }[]
+      }
       get_session_by_confirm_token: {
         Args: { p_token: string }
         Returns: {
