@@ -39,7 +39,7 @@ Como acessar no computador
 
 É ainda mais simples: acesse fisiogo.online pelo navegador e faça login com os mesmos dados — não precisa instalar nada.
 
-Qualquer dúvida, é só responder este e-mail. Estamos por aqui.
+Qualquer dúvida, entre em contato conosco através da plataforma.
 
 Um abraço,
 Equipe FisioGO`;
@@ -74,7 +74,7 @@ Equipe FisioGO`;
   <h2 style="font-size:15px;margin:28px 0 8px">Como acessar no computador</h2>
   <p>É ainda mais simples: acesse fisiogo.online pelo navegador e faça login com os mesmos dados — não precisa instalar nada.</p>
 
-  <p style="margin-top:28px">Qualquer dúvida, é só responder este e-mail. Estamos por aqui.</p>
+  <p style="margin-top:28px">Qualquer dúvida, entre em contato conosco através da plataforma.</p>
 
   <p>Um abraço,<br>Equipe FisioGO</p>
 </div>`;
