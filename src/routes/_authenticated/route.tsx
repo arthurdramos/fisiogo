@@ -93,7 +93,7 @@ const nav = [
   { to: "/agenda", label: "Agenda", icon: Calendar },
   { to: "/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/assinatura", label: "Assinatura", icon: CreditCard },
-  { to: "/perfil", label: "Perfil", icon: UserCog },
+  { to: "/perfil", label: "Perfil e Conta", icon: UserCog },
   { to: "/fale-conosco", label: "Fale conosco", icon: Mail },
 ] as const;
 
