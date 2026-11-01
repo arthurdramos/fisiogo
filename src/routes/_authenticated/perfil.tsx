@@ -27,7 +27,7 @@ import { extractErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
-  head: () => ({ meta: [{ title: "Perfil — FisioGO" }] }),
+  head: () => ({ meta: [{ title: "Perfil e Conta — FisioGO" }] }),
   component: Perfil,
 });
 
@@ -104,7 +104,7 @@ function Perfil() {
   return (
     <div className="mx-auto max-w-2xl p-6 md:p-10">
       <div className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold">Perfil</h1>
+        <h1 className="font-serif text-3xl font-semibold">Perfil e Conta</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Esses dados aparecem automaticamente nos relatórios de cobrança gerados para seus pacientes.
         </p>
@@ -182,6 +182,102 @@ function Perfil() {
       <div className="mt-6 rounded-xl border border-border bg-card p-5">
         <AgendamentoSection />
       </div>
+
+      <div className="mt-6 rounded-xl border border-border bg-card p-5">
+        <ContaSection />
+      </div>
+    </div>
+  );
+}
+
+// Dados da conta (e-mail, plano, provedor de pagamento) e o cancelamento da
+// assinatura — fica por último na página de propósito, longe dos campos que
+// as pessoas editam no dia a dia.
+function ContaSection() {
+  const qc = useQueryClient();
+
+  const conta = useQuery({
+    queryKey: ["conta-assinatura"],
+    queryFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("Sem sessão");
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("status, plano, provider")
+        .eq("user_id", userRes.user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return { email: userRes.user.email ?? "", sub: data };
+    },
+  });
+
+  const cancelar = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.functions.invoke("cancel-subscription");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Assinatura cancelada.");
+      qc.invalidateQueries({ queryKey: ["conta-assinatura"] });
+      qc.invalidateQueries({ queryKey: ["subscription"] });
+    },
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro ao cancelar assinatura"),
+  });
+
+  if (conta.isLoading) return null;
+
+  const sub = conta.data?.sub;
+  const planoLabel = sub?.plano === "anual" ? "Anual" : sub?.plano === "mensal" ? "Mensal" : null;
+  const provedorLabel = sub?.provider === "cakto" ? "Cakto" : sub?.provider === "mercadopago" ? "Mercado Pago" : null;
+  const assinaturaAtiva = sub?.status === "ativo";
+
+  return (
+    <div>
+      <h2 className="mb-4 font-serif font-semibold">Conta</h2>
+      <dl className="space-y-3 text-sm">
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">E-mail de cadastro</dt>
+          <dd>{conta.data?.email}</dd>
+        </div>
+        {assinaturaAtiva && (
+          <>
+            <div className="flex items-center justify-between gap-4">
+              <dt className="text-muted-foreground">Plano</dt>
+              <dd>{planoLabel ?? "—"}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt className="text-muted-foreground">Método de pagamento</dt>
+              <dd>{provedorLabel ?? "—"}</dd>
+            </div>
+          </>
+        )}
+      </dl>
+
+      {assinaturaAtiva && (
+        <div className="mt-6 border-t border-border pt-5">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="outline" size="sm" disabled={cancelar.isPending}>
+                {cancelar.isPending ? "Cancelando..." : "Cancelar assinatura"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancelar sua assinatura?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Sua assinatura {planoLabel ? `${planoLabel.toLowerCase()} ` : ""}será cancelada junto ao{" "}
+                  {provedorLabel ?? "provedor de pagamento"} e você perde o acesso ao FisioGO quando o período já pago
+                  terminar. Essa ação não pode ser desfeita por aqui.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Voltar</AlertDialogCancel>
+                <AlertDialogAction onClick={() => cancelar.mutate()}>Cancelar assinatura</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )}
     </div>
   );
 }
