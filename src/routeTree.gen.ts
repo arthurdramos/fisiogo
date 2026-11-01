@@ -22,6 +22,7 @@ import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
 import { Route as CTokenRouteImport } from './routes/c.$token'
+import { Route as AuthenticatedAssinaturaConfirmadoRouteImport } from './routes/_authenticated/assinatura.confirmado'
 import { Route as AuthenticatedConfirmarSessionIdRouteImport } from './routes/_authenticated/confirmar.$sessionId'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
@@ -95,6 +96,12 @@ const CTokenRoute = CTokenRouteImport.update({
   path: '/c/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAssinaturaConfirmadoRoute =
+  AuthenticatedAssinaturaConfirmadoRouteImport.update({
+    id: '/confirmado',
+    path: '/confirmado',
+    getParentRoute: () => AuthenticatedAssinaturaRoute,
+  } as any)
 const AuthenticatedConfirmarSessionIdRoute =
   AuthenticatedConfirmarSessionIdRouteImport.update({
     id: '/confirmar/$sessionId',
@@ -135,13 +142,14 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
-  '/assinatura': typeof AuthenticatedAssinaturaRoute
+  '/assinatura': typeof AuthenticatedAssinaturaRouteWithChildren
   '/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
@@ -155,13 +163,14 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
-  '/assinatura': typeof AuthenticatedAssinaturaRoute
+  '/assinatura': typeof AuthenticatedAssinaturaRouteWithChildren
   '/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
@@ -177,13 +186,14 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
-  '/_authenticated/assinatura': typeof AuthenticatedAssinaturaRoute
+  '/_authenticated/assinatura': typeof AuthenticatedAssinaturaRouteWithChildren
   '/_authenticated/completar-perfil': typeof AuthenticatedCompletarPerfilRoute
   '/_authenticated/fale-conosco': typeof AuthenticatedFaleConoscoRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/_authenticated/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/_authenticated/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/api/public/cakto-webhook': typeof ApiPublicCaktoWebhookRoute
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/agendar/$slug'
     | '/c/$token'
+    | '/assinatura/confirmado'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
     | '/api/public/cakto-webhook'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/agendar/$slug'
     | '/c/$token'
+    | '/assinatura/confirmado'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
     | '/api/public/cakto-webhook'
@@ -247,6 +259,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/agendar/$slug'
     | '/c/$token'
+    | '/_authenticated/assinatura/confirmado'
     | '/_authenticated/confirmar/$sessionId'
     | '/_authenticated/pacientes/$id'
     | '/api/public/cakto-webhook'
@@ -360,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/assinatura/confirmado': {
+      id: '/_authenticated/assinatura/confirmado'
+      path: '/confirmado'
+      fullPath: '/assinatura/confirmado'
+      preLoaderRoute: typeof AuthenticatedAssinaturaConfirmadoRouteImport
+      parentRoute: typeof AuthenticatedAssinaturaRoute
+    }
     '/_authenticated/confirmar/$sessionId': {
       id: '/_authenticated/confirmar/$sessionId'
       path: '/confirmar/$sessionId'
@@ -405,10 +425,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAssinaturaRouteChildren {
+  AuthenticatedAssinaturaConfirmadoRoute: typeof AuthenticatedAssinaturaConfirmadoRoute
+}
+
+const AuthenticatedAssinaturaRouteChildren: AuthenticatedAssinaturaRouteChildren =
+  {
+    AuthenticatedAssinaturaConfirmadoRoute:
+      AuthenticatedAssinaturaConfirmadoRoute,
+  }
+
+const AuthenticatedAssinaturaRouteWithChildren =
+  AuthenticatedAssinaturaRoute._addFileChildren(
+    AuthenticatedAssinaturaRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
-  AuthenticatedAssinaturaRoute: typeof AuthenticatedAssinaturaRoute
+  AuthenticatedAssinaturaRoute: typeof AuthenticatedAssinaturaRouteWithChildren
   AuthenticatedCompletarPerfilRoute: typeof AuthenticatedCompletarPerfilRoute
   AuthenticatedFaleConoscoRoute: typeof AuthenticatedFaleConoscoRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
@@ -421,7 +456,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAppRoute: AuthenticatedAppRoute,
-  AuthenticatedAssinaturaRoute: AuthenticatedAssinaturaRoute,
+  AuthenticatedAssinaturaRoute: AuthenticatedAssinaturaRouteWithChildren,
   AuthenticatedCompletarPerfilRoute: AuthenticatedCompletarPerfilRoute,
   AuthenticatedFaleConoscoRoute: AuthenticatedFaleConoscoRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,

@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
       reason: plan.reason,
       external_reference: userRes.user.id,
       payer_email: userRes.user.email,
-      back_url: `${origin}/assinatura`,
+      back_url: `${origin}/assinatura/confirmado`,
       auto_recurring: {
         frequency: plan.frequency,
         frequency_type: "months",

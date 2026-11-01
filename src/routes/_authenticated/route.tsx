@@ -66,7 +66,14 @@ export const Route = createFileRoute("/_authenticated")({
     // Evita loop de redirecionamento: nem a tela de assinatura exige assinatura ativa, nem a de
     // completar cadastro exige assinatura ativa (senão alguém com perfil incompleto E assinatura
     // inativa fica preso indo de um lado pro outro — foi exatamente esse o bug reportado).
-    if (location.pathname === "/assinatura" || location.pathname === "/completar-perfil") {
+    // /assinatura/confirmado também é isenta: é pra onde a Cakto/Mercado Pago redirecionam
+    // assim que o pagamento é aprovado, e o webhook que ativa a assinatura é assíncrono — pode
+    // não ter processado ainda no instante em que o navegador chega aqui.
+    if (
+      location.pathname === "/assinatura" ||
+      location.pathname === "/assinatura/confirmado" ||
+      location.pathname === "/completar-perfil"
+    ) {
       return { user: data.user, profileComplete };
     }
 
