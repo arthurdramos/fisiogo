@@ -126,11 +126,52 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// Meta Pixel (Facebook/Instagram Ads) — carrega em todo o site quando o ID
+// está configurado. Pega o ID no Gerenciador de Eventos do Meta Business
+// Suite e cadastra como VITE_META_PIXEL_ID (precisa do prefixo VITE_ pra
+// ficar disponível no navegador, igual as variáveis do Supabase). Não é
+// segredo — o ID do pixel já fica visível no HTML/requisições de qualquer
+// site que o usa, por isso não tem problema em manter no .env versionado.
+const META_PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID as string | undefined;
+
+// Script + noscript ficam juntos, dentro do <head> — é exatamente o que o
+// próprio Gerenciador de Eventos da Meta instrui a colar (ver print do
+// "Exemplo de código" deles), mesmo não sendo o posicionamento mais comum
+// de se ver por aí (normalmente o <noscript> vai no início do <body>).
+function MetaPixel() {
+  if (!META_PIXEL_ID) return null;
+  const script = `!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');`;
+  return (
+    <>
+      <script dangerouslySetInnerHTML={{ __html: script }} />
+      <noscript>
+        <img
+          height="1"
+          width="1"
+          style={{ display: "none" }}
+          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          alt=""
+        />
+      </noscript>
+    </>
+  );
+}
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        <MetaPixel />
       </head>
       <body>
         {children}
