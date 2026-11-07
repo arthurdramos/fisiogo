@@ -3,3 +3,5 @@
 - [x] Aplicar migração de calendário e verificar o link gerado no Perfil sem login.
 - [x] Criar sessão de teste na conta de Felipe, identificada nas notas.
 - [ ] Confirmar chegada no aparelho (bloqueado: nenhuma das contas solicitadas tem notificações ativadas; Arthur não tem pacientes).
+- [ ] Publicar admin-send-email (bloqueado: arquivo ainda não chegou ao repositório disponível).
+- [ ] Enviar e-mail avulso solicitado para cilenenramos@yahoo.com.br (bloqueado: autorização do Resend não concluída; aguardando função admin-send-email).
