@@ -5,6 +5,7 @@ import { LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut, 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useQueryClient } from "@tanstack/react-query";
+import { trackMetaEvent } from "@/lib/meta-pixel";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -31,7 +32,16 @@ export const Route = createFileRoute("/_authenticated")({
       // Primeira vez que vemos esse usuário: garante a linha de trial via Edge Function
       // (a função no banco é SECURITY DEFINER restrita a service_role, o cliente não
       // pode chamá-la diretamente). Só paga esse custo uma vez por usuário.
-      await supabase.functions.invoke("ensure-subscription");
+      //
+      // O eventId é gerado aqui e mandado junto pra Edge Function usar no
+      // mesmo evento StartTrial que ela manda pro lado do servidor (Meta
+      // Conversions API) — mesmo ID dos dois lados é o que permite a Meta
+      // deduplicar e não contar o início de trial em dobro.
+      const eventId = crypto.randomUUID();
+      const { data: ensureRes } = await supabase.functions.invoke("ensure-subscription", {
+        body: { eventId },
+      });
+      if (ensureRes?.created) trackMetaEvent("StartTrial", eventId);
       sub = await fetchSub();
     }
 

@@ -17,6 +17,16 @@
 // aqui pois Edge Functions leem secrets do Supabase/Lovable Cloud, não do
 // ambiente Node). Se não estiver configurada, a assinatura ainda é criada
 // normalmente — só o e-mail não sai.
+//
+// Segredos pro Meta Conversions API (CAPI): META_PIXEL_ID e
+// META_CAPI_ACCESS_TOKEN (Gerenciador de Eventos → Configurações →
+// Conversions API → Gerar token de acesso). Manda o evento padrão
+// StartTrial no mesmo instante em que o trial de 7 dias é criado — não a
+// compra em si, porque ela normalmente acontece dias depois do clique no
+// anúncio (às vezes fora da janela de atribuição da campanha), enquanto o
+// início do trial é a ação mais próxima e confiável do clique. O frontend
+// manda o mesmo eventId que ele próprio usa no fbq('track', ...) do
+// navegador (ver _authenticated/route.tsx), pra Meta deduplicar os dois.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
@@ -26,6 +36,59 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const META_PIXEL_ID = Deno.env.get("META_PIXEL_ID");
+const META_CAPI_ACCESS_TOKEN = Deno.env.get("META_CAPI_ACCESS_TOKEN");
+
+async function sha256Hex(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function sendStartTrialCapiEvent(
+  req: Request,
+  email: string,
+  eventId: string | null,
+) {
+  if (!META_PIXEL_ID || !META_CAPI_ACCESS_TOKEN) {
+    console.warn("META_PIXEL_ID/META_CAPI_ACCESS_TOKEN ausentes — pulando evento StartTrial (CAPI).");
+    return;
+  }
+  try {
+    const emHash = await sha256Hex(email.trim().toLowerCase());
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    const res = await fetch(
+      `https://graph.facebook.com/v21.0/${META_PIXEL_ID}/events?access_token=${META_CAPI_ACCESS_TOKEN}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: [
+            {
+              event_name: "StartTrial",
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: eventId ?? crypto.randomUUID(),
+              action_source: "website",
+              event_source_url: req.headers.get("referer") ?? "https://fisiogo.online/",
+              user_data: {
+                em: [emHash],
+                client_ip_address: clientIp,
+                client_user_agent: req.headers.get("user-agent") ?? undefined,
+              },
+            },
+          ],
+        }),
+      },
+    );
+    if (!res.ok) {
+      console.error("Erro ao enviar evento StartTrial pra Meta CAPI:", await res.text());
+    }
+  } catch (err) {
+    console.error("Erro ao enviar evento StartTrial pra Meta CAPI:", err);
+  }
+}
 
 async function sendWelcomeEmail(email: string, nome: string | null) {
   if (!RESEND_API_KEY) {
@@ -69,6 +132,13 @@ Deno.serve(async (req) => {
     });
   }
 
+  let body: { eventId?: string } = {};
+  try {
+    body = await req.json();
+  } catch {
+    // Chamada antiga/sem corpo — segue sem eventId (CAPI gera um próprio).
+  }
+
   const authHeader = req.headers.get("Authorization") ?? "";
   const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
@@ -103,9 +173,10 @@ Deno.serve(async (req) => {
       (typeof meta.name === "string" && meta.name.trim()) ||
       null;
     await sendWelcomeEmail(userRes.user.email, nome || null);
+    await sendStartTrialCapiEvent(req, userRes.user.email, body.eventId ?? null);
   }
 
-  return new Response(JSON.stringify({ ok: true }), {
+  return new Response(JSON.stringify({ ok: true, created: created === true }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
