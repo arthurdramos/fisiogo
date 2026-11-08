@@ -652,6 +652,16 @@ export type Database = {
     }
     Functions: {
       accept_booking_request: { Args: { p_id: string }; Returns: Json }
+      ensure_professional_profile: {
+        Args: {
+          _crefito: string
+          _lgpd_aceite: boolean
+          _nome: string
+          _telefone: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
       get_booking_page: { Args: { p_slug: string }; Returns: Json }
       get_calendar_feed: {
