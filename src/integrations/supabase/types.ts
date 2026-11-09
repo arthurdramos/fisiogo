@@ -531,6 +531,48 @@ export type Database = {
           },
         ]
       }
+      signup_attribution: {
+        Row: {
+          created_at: string
+          first_seen_at: string | null
+          landing_path: string | null
+          provider: string | null
+          referrer: string | null
+          user_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          created_at?: string
+          first_seen_at?: string | null
+          landing_path?: string | null
+          provider?: string | null
+          referrer?: string | null
+          user_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          created_at?: string
+          first_seen_at?: string | null
+          landing_path?: string | null
+          provider?: string | null
+          referrer?: string | null
+          user_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cakto_subscription_id: string | null
