@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { captureAttribution } from "../lib/attribution";
 
 function NotFoundComponent() {
   return (
@@ -186,6 +187,11 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  // Guarda UTMs/site de origem da chegada, pra gravar a origem do cadastro.
+  useEffect(() => {
+    captureAttribution();
+  }, []);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
