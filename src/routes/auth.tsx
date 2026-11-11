@@ -9,6 +9,7 @@ import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { getAttribution } from "@/lib/attribution";
 import { installSteps } from "@/lib/pwa-install-steps";
+import { PwaHomeScreenMockup } from "@/components/pwa-home-screen-mockup";
 
 export const Route = createFileRoute("/auth")({
   // Os botões "Criar conta grátis"/"Começar grátis" da landing page navegam
@@ -275,6 +276,10 @@ function AuthPage() {
                     </li>
                   ))}
               </ol>
+
+              <div className="mt-4">
+                <PwaHomeScreenMockup platform={installPlatform === "No iPhone" ? "iphone" : "android"} />
+              </div>
             </div>
           )}
 
