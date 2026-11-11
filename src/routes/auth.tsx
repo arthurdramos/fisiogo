@@ -9,6 +9,14 @@ import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  // Os botões "Criar conta grátis"/"Começar grátis" da landing page navegam
+  // pra /auth?mode=signup — sem validar esse search, o TanStack Router
+  // rejeita a navegação com esse param e o componente nunca lê a intenção
+  // de quem clicou, sempre abrindo a tela de login ("Bem-vindo de volta")
+  // mesmo pra quem veio querendo se cadastrar.
+  validateSearch: (search: Record<string, unknown>): { mode?: "signin" | "signup" } => ({
+    mode: search.mode === "signup" ? "signup" : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Entrar — FisioGO" },
@@ -38,7 +46,8 @@ function translateAuthError(message: string): string {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const { mode: modeParam } = Route.useSearch();
+  const [mode, setMode] = useState<"signin" | "signup">(modeParam === "signup" ? "signup" : "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");

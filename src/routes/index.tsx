@@ -281,7 +281,7 @@ function Landing() {
     };
   }, [navigate]);
 
-  const goSignup = () => navigate({ to: "/auth", search: { mode: "signup" } as never });
+  const goSignup = () => navigate({ to: "/auth", search: { mode: "signup" } });
 
   if (checkingOAuthReturn) {
     return (
