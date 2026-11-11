@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { getAttribution } from "@/lib/attribution";
+import { installSteps } from "@/lib/pwa-install-steps";
 
 export const Route = createFileRoute("/auth")({
   // Os botões "Criar conta grátis"/"Começar grátis" da landing page navegam
@@ -56,6 +57,7 @@ function AuthPage() {
   const [telefone, setTelefone] = useState("");
   const [lgpdAceite, setLgpdAceite] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [installPlatform, setInstallPlatform] = useState(installSteps[0].platform);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -230,6 +232,51 @@ function AuthPage() {
               {loading ? "Aguarde..." : mode === "signin" ? "Entrar" : "Criar conta"}
             </Button>
           </form>
+
+          {mode === "signup" && (
+            <div className="mt-6 rounded-xl border border-border bg-muted/40 p-4">
+              <p className="text-sm font-semibold">Tenha o FisioGO na tela inicial do celular</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Sem loja de aplicativos. Adicione à tela de início e abra em um toque — leva 20 segundos.
+              </p>
+
+              <div className="mt-3 flex gap-2">
+                {installSteps.map(({ platform, badge }) => (
+                  <button
+                    key={platform}
+                    type="button"
+                    onClick={() => setInstallPlatform(platform)}
+                    className={
+                      "rounded-full px-3 py-1 text-xs font-medium transition-colors " +
+                      (installPlatform === platform
+                        ? "bg-app-blue-600 text-white"
+                        : "bg-background text-muted-foreground hover:text-foreground")
+                    }
+                  >
+                    {platform} · {badge}
+                  </button>
+                ))}
+              </div>
+
+              <ol className="mt-4 divide-y divide-border">
+                {installSteps
+                  .find((p) => p.platform === installPlatform)
+                  ?.steps.map(({ icon: Icon, title, desc }, i) => (
+                    <li key={title} className="flex gap-3 py-2.5 first:pt-0 last:pb-0">
+                      <div className="grid h-7 w-7 shrink-0 place-items-center rounded-[8px] bg-background text-app-blue-600">
+                        <Icon className="h-3.5 w-3.5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold">
+                          {i + 1} · {title}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
+                      </div>
+                    </li>
+                  ))}
+              </ol>
+            </div>
+          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {mode === "signin" ? "Novo por aqui?" : "Já tem conta?"}{" "}
