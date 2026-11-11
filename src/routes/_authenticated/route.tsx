@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useQueryClient } from "@tanstack/react-query";
 import { trackMetaEvent } from "@/lib/meta-pixel";
+import { getAttribution } from "@/lib/attribution";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -61,7 +62,10 @@ export const Route = createFileRoute("/_authenticated")({
       // email/senha (vêm de user_metadata). Quem entra via Google nunca
       // passou por esse formulário, então a linha fica com os campos vazios
       // — daí a checagem de perfil incompleto logo abaixo.
-      await supabase.functions.invoke("ensure-professional-profile");
+      // Também grava de onde veio o cadastro (src/lib/attribution.ts).
+      await supabase.functions.invoke("ensure-professional-profile", {
+        body: { attribution: getAttribution() },
+      });
       profile = await fetchProfile();
     }
 

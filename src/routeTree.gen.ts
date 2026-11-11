@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as InstaRouteImport } from './routes/insta'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -42,6 +43,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstaRoute = InstaRouteImport.update({
+  id: '/insta',
+  path: '/insta',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -139,6 +145,7 @@ const ApiPublicSessionTokenRoute = ApiPublicSessionTokenRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/insta': typeof InstaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/insta': typeof InstaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/insta': typeof InstaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/insta'
     | '/sitemap.xml'
     | '/agenda'
     | '/app'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/insta'
     | '/sitemap.xml'
     | '/agenda'
     | '/app'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/insta'
     | '/sitemap.xml'
     | '/_authenticated/agenda'
     | '/_authenticated/app'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  InstaRoute: typeof InstaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
   CTokenRoute: typeof CTokenRoute
@@ -301,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insta': {
+      id: '/insta'
+      path: '/insta'
+      fullPath: '/insta'
+      preLoaderRoute: typeof InstaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -473,6 +493,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  InstaRoute: InstaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AgendarSlugRoute: AgendarSlugRoute,
   CTokenRoute: CTokenRoute,

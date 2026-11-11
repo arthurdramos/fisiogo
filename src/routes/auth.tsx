@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
+import { getAttribution } from "@/lib/attribution";
 
 export const Route = createFileRoute("/auth")({
   // Os botões "Criar conta grátis"/"Começar grátis" da landing page navegam
@@ -82,6 +83,8 @@ function AuthPage() {
               crefito,
               telefone,
               lgpd_aceite: true,
+              // Cópia da origem caso o email seja confirmado em outro aparelho.
+              attribution: getAttribution(),
             },
           },
         });

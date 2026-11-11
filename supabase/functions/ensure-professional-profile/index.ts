@@ -56,7 +56,44 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Origem do cadastro (src/lib/attribution.ts). Vem no corpo da chamada;
+  // se o email foi confirmado em outro aparelho, usa a cópia guardada no
+  // user_metadata pelo signUp. Melhor esforço: nunca impede o perfil.
+  const body = await req.json().catch(() => ({}));
+  const attr = sanitizeAttribution(body?.attribution) ?? sanitizeAttribution(meta.attribution);
+  const { error: attrErr } = await adminClient
+    .from("signup_attribution")
+    .upsert(
+      { user_id: userRes.user.id, ...(attr ?? {}), provider: userRes.user.app_metadata?.provider ?? null },
+      { onConflict: "user_id", ignoreDuplicates: true },
+    );
+  if (attrErr) console.error("Erro ao gravar signup_attribution:", attrErr.message);
+
   return new Response(JSON.stringify({ ok: true }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
+
+const ATTR_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "referrer",
+  "landing_path",
+] as const;
+
+// Só aceita as chaves conhecidas, como texto curto: o valor vem do navegador.
+function sanitizeAttribution(raw: unknown): Record<string, string> | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const k of ATTR_KEYS) {
+    if (typeof r[k] === "string" && r[k]) out[k] = (r[k] as string).slice(0, 200);
+  }
+  if (typeof r.first_seen_at === "string" && !Number.isNaN(Date.parse(r.first_seen_at))) {
+    out.first_seen_at = new Date(r.first_seen_at).toISOString();
+  }
+  return Object.keys(out).length ? out : null;
+}

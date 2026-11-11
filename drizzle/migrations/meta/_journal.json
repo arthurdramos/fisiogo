@@ -29,6 +29,20 @@
       "when": 1793299781853,
       "tag": "0003_add_online_booking",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794115366651,
+      "tag": "0004_add_ensure_professional_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794184843142,
+      "tag": "0005_add_signup_attribution",
+      "breakpoints": true
     }
   ]
 }
