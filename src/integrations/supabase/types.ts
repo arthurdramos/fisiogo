@@ -582,6 +582,7 @@ export type Database = {
           mp_preapproval_id: string | null
           plano: string | null
           provider: string | null
+          reengagement_email_sent_at: string | null
           status: string
           trial_ends_at: string
           updated_at: string
@@ -595,6 +596,7 @@ export type Database = {
           mp_preapproval_id?: string | null
           plano?: string | null
           provider?: string | null
+          reengagement_email_sent_at?: string | null
           status?: string
           trial_ends_at?: string
           updated_at?: string
@@ -608,6 +610,7 @@ export type Database = {
           mp_preapproval_id?: string | null
           plano?: string | null
           provider?: string | null
+          reengagement_email_sent_at?: string | null
           status?: string
           trial_ends_at?: string
           updated_at?: string
