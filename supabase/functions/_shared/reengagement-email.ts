@@ -2,7 +2,7 @@
 // mas interagiu pouco com a plataforma (gatilho/condição ainda a definir
 // em cima deste template).
 
-export const REENGAGEMENT_EMAIL_SUBJECT = "Sua conta no FisioGO está pronta para você";
+export const REENGAGEMENT_EMAIL_SUBJECT = "Seu FisioGO está pronto para você";
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
