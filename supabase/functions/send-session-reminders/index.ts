@@ -15,7 +15,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { notifyBookingRequest, sendToUser } from "../_shared/push.ts";
-import { reminderWindow, tomorrowDigest } from "./timing.ts";
+import { isReengagementHour, reminderWindow, tomorrowDigest } from "./timing.ts";
 import { buildReengagementEmail, REENGAGEMENT_EMAIL_SUBJECT } from "../_shared/reengagement-email.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -153,50 +153,54 @@ Deno.serve(async (req) => {
   for (const pedido of pedidos ?? []) avisosPedidos += await notifyBookingRequest(admin, pedido, APP_URL);
 
   // ========== e-mail de reengajamento (48h sem nenhum paciente cadastrado) ==========
-  // Janela de 48h a 30 dias: o limite superior evita reprocessar pra sempre
-  // contas antigas que nunca vão se encaixar (já engajaram ou já sumiram).
+  // Só dispara na execução das 20h de Brasília (uma vez por dia, não a cada
+  // hora). Janela de 48h a 30 dias: o limite superior evita reprocessar pra
+  // sempre contas antigas que nunca vão se encaixar (já engajaram ou já
+  // sumiram).
   let reengajamentosEnviados = 0;
-  const { data: candidatos, error: candidatosError } = await admin
-    .from("subscriptions")
-    .select("user_id, created_at")
-    .is("reengagement_email_sent_at", null)
-    .lt("created_at", new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
-    .gt("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-  if (candidatosError) console.error("Erro ao buscar candidatos a reengajamento:", candidatosError.message);
+  if (isReengagementHour(Date.now())) {
+    const { data: candidatos, error: candidatosError } = await admin
+      .from("subscriptions")
+      .select("user_id, created_at")
+      .is("reengagement_email_sent_at", null)
+      .lt("created_at", new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
+      .gt("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+    if (candidatosError) console.error("Erro ao buscar candidatos a reengajamento:", candidatosError.message);
 
-  for (const sub of candidatos ?? []) {
-    const { count, error: countError } = await admin
-      .from("patients")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", sub.user_id);
-    if (countError) {
-      console.error("Erro ao contar pacientes do usuário", sub.user_id, countError.message);
-      continue;
-    }
-    if ((count ?? 0) > 0) continue; // já cadastrou paciente: não é "pouco uso"
-
-    const { data: userRes } = await admin.auth.admin.getUserById(sub.user_id);
-    const email = userRes?.user?.email;
-    if (!email) continue;
-
-    const { data: profile } = await admin
-      .from("professional_profile")
-      .select("nome")
-      .eq("user_id", sub.user_id)
-      .maybeSingle();
-    const primeiroNome = profile?.nome?.trim().split(/\s+/)[0] ?? null;
-
-    const enviado = await sendReengagementEmail(email, primeiroNome);
-    if (enviado) {
-      const { error: updateError } = await admin
-        .from("subscriptions")
-        .update({ reengagement_email_sent_at: new Date().toISOString() })
+    for (const sub of candidatos ?? []) {
+      const { count, error: countError } = await admin
+        .from("patients")
+        .select("id", { count: "exact", head: true })
         .eq("user_id", sub.user_id);
-      if (updateError) {
-        console.error("Erro ao marcar reengajamento enviado:", sub.user_id, updateError.message);
+      if (countError) {
+        console.error("Erro ao contar pacientes do usuário", sub.user_id, countError.message);
         continue;
       }
-      reengajamentosEnviados++;
+      if ((count ?? 0) > 0) continue; // já cadastrou paciente: não é "pouco uso"
+
+      const { data: userRes } = await admin.auth.admin.getUserById(sub.user_id);
+      const email = userRes?.user?.email;
+      if (!email) continue;
+
+      const { data: profile } = await admin
+        .from("professional_profile")
+        .select("nome")
+        .eq("user_id", sub.user_id)
+        .maybeSingle();
+      const primeiroNome = profile?.nome?.trim().split(/\s+/)[0] ?? null;
+
+      const enviado = await sendReengagementEmail(email, primeiroNome);
+      if (enviado) {
+        const { error: updateError } = await admin
+          .from("subscriptions")
+          .update({ reengagement_email_sent_at: new Date().toISOString() })
+          .eq("user_id", sub.user_id);
+        if (updateError) {
+          console.error("Erro ao marcar reengajamento enviado:", sub.user_id, updateError.message);
+          continue;
+        }
+        reengajamentosEnviados++;
+      }
     }
   }
 

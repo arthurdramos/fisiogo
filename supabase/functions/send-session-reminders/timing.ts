@@ -8,6 +8,14 @@ export function reminderWindow(now: number) {
 // Sem horário de verão desde 2019: Brasília é UTC-3 o ano todo.
 const BRT_OFFSET_MS = -3 * 60 * 60 * 1000;
 export const DIGEST_HOUR_BRT = 18;
+export const REENGAGEMENT_HOUR_BRT = 20;
+
+// E-mail de reengajamento: só dispara na execução das 20h de Brasília,
+// pra não cair em qualquer hora do dia.
+export function isReengagementHour(now: number): boolean {
+  const brt = new Date(now + BRT_OFFSET_MS);
+  return brt.getUTCHours() === REENGAGEMENT_HOUR_BRT;
+}
 
 // Aviso da véspera pro profissional ("N sessões amanhã"): só na execução das
 // 18h de Brasília, cobrindo o dia seguinte inteiro (00h–24h de Brasília).
