@@ -3,21 +3,54 @@
 // Na execução das 18h (Brasília) também avisa o profissional das sessões do
 // dia seguinte, pra ele lembrar os pacientes pelo WhatsApp a partir da agenda.
 // E reenvia o aviso de pedidos de agendamento que a página do paciente não
-// conseguiu notificar na hora.
+// conseguiu notificar na hora. Por fim, manda um e-mail de reengajamento pra
+// quem se cadastrou há 48h+ e ainda não cadastrou nenhum paciente.
 //
 // Chamada a cada hora pelo pg_cron, com chave privada em tabela restrita.
 //
 // Segredos necessários:
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY — gerados com `npx web-push generate-vapid-keys`
 //   APP_URL — opcional, URL pública do app (usada no link da notificação)
+//   RESEND_API_KEY — pro e-mail de reengajamento (opcional: sem ela, só esse envio é pulado)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { notifyBookingRequest, sendToUser } from "../_shared/push.ts";
 import { reminderWindow, tomorrowDigest } from "./timing.ts";
+import { buildReengagementEmail, REENGAGEMENT_EMAIL_SUBJECT } from "../_shared/reengagement-email.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const APP_URL = Deno.env.get("APP_URL") ?? "https://fisiogo.online";
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+
+async function sendReengagementEmail(email: string, nome: string | null): Promise<boolean> {
+  if (!RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY ausente — pulando e-mail de reengajamento.");
+    return false;
+  }
+  const { text, html } = buildReengagementEmail(nome);
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: "FisioGO <naoresponda@fisiogo.online>",
+        to: [email],
+        subject: REENGAGEMENT_EMAIL_SUBJECT,
+        text,
+        html,
+      }),
+    });
+    if (!res.ok) {
+      console.error("Erro ao enviar e-mail de reengajamento:", await res.text());
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Erro ao enviar e-mail de reengajamento:", err);
+    return false;
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -119,12 +152,61 @@ Deno.serve(async (req) => {
   if (pedidosError) console.error("Erro ao buscar pedidos de agendamento:", pedidosError.message);
   for (const pedido of pedidos ?? []) avisosPedidos += await notifyBookingRequest(admin, pedido, APP_URL);
 
+  // ========== e-mail de reengajamento (48h sem nenhum paciente cadastrado) ==========
+  // Janela de 48h a 30 dias: o limite superior evita reprocessar pra sempre
+  // contas antigas que nunca vão se encaixar (já engajaram ou já sumiram).
+  let reengajamentosEnviados = 0;
+  const { data: candidatos, error: candidatosError } = await admin
+    .from("subscriptions")
+    .select("user_id, created_at")
+    .is("reengagement_email_sent_at", null)
+    .lt("created_at", new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
+    .gt("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+  if (candidatosError) console.error("Erro ao buscar candidatos a reengajamento:", candidatosError.message);
+
+  for (const sub of candidatos ?? []) {
+    const { count, error: countError } = await admin
+      .from("patients")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", sub.user_id);
+    if (countError) {
+      console.error("Erro ao contar pacientes do usuário", sub.user_id, countError.message);
+      continue;
+    }
+    if ((count ?? 0) > 0) continue; // já cadastrou paciente: não é "pouco uso"
+
+    const { data: userRes } = await admin.auth.admin.getUserById(sub.user_id);
+    const email = userRes?.user?.email;
+    if (!email) continue;
+
+    const { data: profile } = await admin
+      .from("professional_profile")
+      .select("nome")
+      .eq("user_id", sub.user_id)
+      .maybeSingle();
+    const primeiroNome = profile?.nome?.trim().split(/\s+/)[0] ?? null;
+
+    const enviado = await sendReengagementEmail(email, primeiroNome);
+    if (enviado) {
+      const { error: updateError } = await admin
+        .from("subscriptions")
+        .update({ reengagement_email_sent_at: new Date().toISOString() })
+        .eq("user_id", sub.user_id);
+      if (updateError) {
+        console.error("Erro ao marcar reengajamento enviado:", sub.user_id, updateError.message);
+        continue;
+      }
+      reengajamentosEnviados++;
+    }
+  }
+
   return new Response(
     JSON.stringify({
       sessoes: sessions?.length ?? 0,
       notificacoes_enviadas: enviados,
       avisos_vespera: avisosVespera,
       avisos_pedidos: avisosPedidos,
+      reengajamentos_enviados: reengajamentosEnviados,
     }),
     { headers: { "Content-Type": "application/json" } },
   );
