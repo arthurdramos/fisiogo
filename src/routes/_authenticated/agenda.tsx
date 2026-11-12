@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,19 +13,14 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { addDays, addMonths, formatDateTime, formatMonthLabel, formatTime, startOfDay, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { BookingRequests } from "@/components/booking-requests";
 import { sessionBlockClass, sessionColorClass, sessionDotClass, sessionStatusLabel } from "@/lib/session-status";
 import { buildReminderMessage, confirmUrlFor, normalizeBrazilPhone, whatsappUrl } from "@/lib/whatsapp";
-import { CalendarClock, Check, ChevronLeft, ChevronRight, MessageCircle, Plus } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { layoutDay } from "@/lib/agenda-layout";
+import { CalendarClock, Check, ChevronLeft, ChevronRight, MessageCircle, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { extractErrorMessage } from "@/lib/utils";
 
@@ -143,19 +138,21 @@ function Agenda() {
   });
 
   const create = useMutation({
-    mutationFn: async (v: { patient_id: string; scheduled_at: string; duration_min: number }) => {
+    // Um paciente = sessão individual; vários = aula em grupo, com uma sessão
+    // por paciente no mesmo horário (presença, pagamento e lembrete continuam
+    // individuais). Um insert só, então ou entram todas ou nenhuma.
+    mutationFn: async (v: NewSessionValues) => {
       const { data: userRes } = await supabase.auth.getUser();
       const user_id = userRes.user!.id;
-      const { error } = await supabase.from("sessions").insert({
-        user_id,
-        patient_id: v.patient_id,
-        scheduled_at: new Date(v.scheduled_at).toISOString(),
-        duration_min: v.duration_min,
-      });
+      const scheduled_at = new Date(v.scheduled_at).toISOString();
+      const { error } = await supabase.from("sessions").insert(
+        v.patient_ids.map((patient_id) => ({ user_id, patient_id, scheduled_at, duration_min: v.duration_min })),
+      );
       if (error) throw error;
+      return v.patient_ids.length;
     },
-    onSuccess: () => {
-      toast.success("Sessão agendada");
+    onSuccess: (count) => {
+      toast.success(count === 1 ? "Sessão agendada" : `Aula em grupo agendada: ${count} pacientes`);
       qc.invalidateQueries({ queryKey: ["agenda-sessions"] });
       qc.invalidateQueries({ queryKey: ["upcoming-sessions"] });
       qc.invalidateQueries({ queryKey: ["financeiro-a-receber"] });
@@ -355,23 +352,44 @@ function Agenda() {
                     {hours.map((_, i) => (
                       <div key={i} style={{ height: HOUR_PX }} className="border-b border-dashed border-border" />
                     ))}
-                    {list.map((s) => {
+                    {layoutDay(list).map((block) => {
+                      const top = ((block.startMin - hourBounds.start * 60) / 60) * HOUR_PX;
+                      const height = Math.max(((block.endMin - block.startMin) / 60) * HOUR_PX, 22);
+                      // Blocos que se sobrepõem sem coincidir dividem a coluna lado a lado.
+                      const position = {
+                        top,
+                        height,
+                        left: `calc(${(block.col * 100) / block.cols}% + 3px)`,
+                        width: `calc(${100 / block.cols}% - 6px)`,
+                      };
+
+                      if (block.sessions.length > 1) {
+                        return (
+                          <GroupBlock
+                            key={block.key}
+                            sessions={block.sessions}
+                            style={position}
+                            reminders={reminders.data}
+                            canRemind={canRemind}
+                            profissionalNome={profissionalNome.data ?? null}
+                            onSent={(id) => markReminded.mutate(id)}
+                          />
+                        );
+                      }
+
+                      const s = block.sessions[0];
                       const patient = s.patients as { nome: string } | null;
-                      const start = new Date(s.scheduled_at);
-                      const minutesFromStart = (start.getHours() - hourBounds.start) * 60 + start.getMinutes();
-                      const top = (minutesFromStart / 60) * HOUR_PX;
-                      const height = Math.max((s.duration_min / 60) * HOUR_PX, 22);
                       const reminder = reminders.data?.get(s.id);
                       // Tocar na sessão abre um cartão com os detalhes, o lembrete
                       // pelo WhatsApp e o atalho pra ficha — em vez de ir direto
                       // pra ficha, que agora é um toque a mais.
                       return (
-                        <Popover key={s.id}>
+                        <Popover key={block.key}>
                           <PopoverTrigger asChild>
                             <button
                               type="button"
-                              className={"absolute left-[3px] right-[3px] overflow-hidden rounded-md px-2 py-1 text-left text-[11px] leading-tight shadow " + sessionBlockClass(s)}
-                              style={{ top, height }}
+                              className={"absolute overflow-hidden rounded-md px-2 py-1 text-left text-[11px] leading-tight shadow " + sessionBlockClass(s)}
+                              style={position}
                             >
                               <span className="block font-mono font-semibold opacity-90">{formatTime(s.scheduled_at)}</span>
                               <span className={"block truncate font-medium" + (reminder ? " pr-4" : "")}>
@@ -563,6 +581,117 @@ function SessionDetails({
   );
 }
 
+type AgendaSession = {
+  id: string;
+  patient_id: string;
+  scheduled_at: string;
+  duration_min: number;
+  status: string;
+  pago: boolean;
+  patients: unknown;
+};
+
+const patientNameOf = (s: AgendaSession) => (s.patients as { nome: string } | null)?.nome ?? "Paciente";
+
+// Cor do bloco do grupo: a mesma das sessões se todas as ativas estão no mesmo
+// estado (todas pagas, por exemplo); misturado, fica com a cor de agendada.
+function groupBlockClass(sessions: AgendaSession[]) {
+  const active = sessions.filter((s) => s.status !== "cancelada");
+  const classes = new Set((active.length ? active : sessions).map(sessionBlockClass));
+  return classes.size === 1 ? [...classes][0] : "bg-primary text-primary-foreground";
+}
+
+// Várias sessões no mesmo horário e com a mesma duração (aula em grupo) viram
+// um bloco só na semana; tocar nele lista os pacientes, cada um com o próprio
+// status e o próprio lembrete pelo WhatsApp.
+function GroupBlock({
+  sessions,
+  style,
+  reminders,
+  canRemind,
+  profissionalNome,
+  onSent,
+}: {
+  sessions: AgendaSession[];
+  style: CSSProperties;
+  reminders: { get(id: string): ReminderRow | undefined } | undefined;
+  canRemind: (s: AgendaSession) => boolean;
+  profissionalNome: string | null;
+  onSent: (sessionId: string) => void;
+}) {
+  const first = sessions[0];
+  const when = new Date(first.scheduled_at);
+  const sorted = [...sessions].sort((a, b) => patientNameOf(a).localeCompare(patientNameOf(b), "pt-BR"));
+  const active = sorted.filter((s) => s.status !== "cancelada");
+  const canceladas = sorted.length - active.length;
+  const pacientesLabel = `${active.length} ${active.length === 1 ? "paciente" : "pacientes"}`;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={"absolute overflow-hidden rounded-md px-2 py-1 text-left text-[11px] leading-tight shadow " + groupBlockClass(sessions)}
+          style={style}
+        >
+          <span className="flex items-center gap-1 font-mono font-semibold opacity-90">
+            {formatTime(first.scheduled_at)}
+            <Users className="h-3 w-3" aria-hidden />
+            {active.length}
+          </span>
+          <span className="block truncate font-medium">{pacientesLabel}</span>
+          <span className="block truncate opacity-80">
+            {active.map((s) => patientNameOf(s).split(" ")[0]).join(", ")}
+          </span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-80">
+        <div className="space-y-3">
+          <div>
+            <p className="font-medium">Aula em grupo</p>
+            <p className="text-xs capitalize text-muted-foreground">
+              {when.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" })} ·{" "}
+              {formatTime(first.scheduled_at)} · {first.duration_min} min
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {pacientesLabel}
+              {canceladas > 0 && ` · ${canceladas} ${canceladas === 1 ? "cancelada" : "canceladas"}`}
+            </p>
+          </div>
+          <ul className="-mx-1 max-h-72 divide-y divide-border overflow-y-auto">
+            {sorted.map((s) => {
+              const reminder = reminders?.get(s.id);
+              return (
+                <li key={s.id} className="flex items-center gap-2 px-1 py-2">
+                  <Link
+                    to="/pacientes/$id"
+                    params={{ id: s.patient_id }}
+                    className="min-w-0 flex-1 truncate text-sm font-medium hover:underline"
+                  >
+                    {patientNameOf(s)}
+                  </Link>
+                  {reminder && (
+                    <PatientReminder
+                      session={s}
+                      reminder={reminder}
+                      canRemind={canRemind(s)}
+                      profissionalNome={profissionalNome}
+                      onSent={() => onSent(s.id)}
+                    />
+                  )}
+                  <span className={"shrink-0 rounded-md px-2 py-0.5 text-[11px] " + sessionColorClass(s)}>
+                    {sessionStatusLabel(s)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 // Resposta do paciente (se já respondeu) + botão que abre o WhatsApp do
 // profissional com o lembrete pronto pra esse paciente.
 function PatientReminder({
@@ -619,16 +748,19 @@ function PatientReminder({
   );
 }
 
+type NewSessionValues = { patient_ids: string[]; scheduled_at: string; duration_min: number };
+
 function NewSessionDialog({
   patients,
   onSubmit,
   loading,
 }: {
   patients: Array<{ id: string; nome: string }>;
-  onSubmit: (v: { patient_id: string; scheduled_at: string; duration_min: number }) => void;
+  onSubmit: (v: NewSessionValues) => void;
   loading: boolean;
 }) {
-  const [patient_id, setPatientId] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [busca, setBusca] = useState("");
   const [scheduled_at, setWhen] = useState(() => {
     const d = new Date();
     d.setMinutes(0, 0, 0);
@@ -636,6 +768,11 @@ function NewSessionDialog({
     return toDatetimeLocalValue(d);
   });
   const [duration_min, setDuration] = useState(50);
+
+  const toggle = (id: string, checked: boolean) =>
+    setSelected((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+  const termo = busca.trim().toLocaleLowerCase("pt-BR");
+  const visiveis = termo ? patients.filter((p) => p.nome.toLocaleLowerCase("pt-BR").includes(termo)) : patients;
 
   return (
     <DialogContent>
@@ -649,20 +786,41 @@ function NewSessionDialog({
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!patient_id) return;
-            onSubmit({ patient_id, scheduled_at, duration_min });
+            if (selected.length === 0) return;
+            onSubmit({ patient_ids: selected, scheduled_at, duration_min });
           }}
         >
           <div className="space-y-2">
-            <Label>Paciente *</Label>
-            <Select value={patient_id} onValueChange={setPatientId}>
-              <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-              <SelectContent>
-                {patients.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-baseline justify-between gap-2">
+              <Label>Pacientes *</Label>
+              {selected.length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {selected.length} {selected.length === 1 ? "selecionado" : "selecionados"}
+                </span>
+              )}
+            </div>
+            {patients.length > 8 && (
+              <Input placeholder="Buscar paciente..." value={busca} onChange={(e) => setBusca(e.target.value)} />
+            )}
+            <ul className="max-h-56 divide-y divide-border overflow-y-auto rounded-md border border-border">
+              {visiveis.length === 0 && (
+                <li className="px-3 py-3 text-sm text-muted-foreground">Nenhum paciente encontrado.</li>
+              )}
+              {visiveis.map((p) => {
+                const checked = selected.includes(p.id);
+                return (
+                  <li key={p.id}>
+                    <label className="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm hover:bg-accent/40">
+                      <Checkbox checked={checked} onCheckedChange={(v) => toggle(p.id, v === true)} />
+                      <span className="truncate">{p.nome}</span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Marque mais de um para uma aula em grupo: cada paciente fica com a própria sessão no mesmo horário.
+            </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -675,7 +833,9 @@ function NewSessionDialog({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading || !patient_id}>Agendar</Button>
+            <Button type="submit" disabled={loading || selected.length === 0}>
+              {selected.length > 1 ? `Agendar aula para ${selected.length}` : "Agendar"}
+            </Button>
           </DialogFooter>
         </form>
       )}
