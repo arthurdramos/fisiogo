@@ -20,7 +20,7 @@ import { sessionBlockClass, sessionColorClass, sessionDotClass, sessionStatusLab
 import { buildReminderMessage, confirmUrlFor, normalizeBrazilPhone, whatsappUrl } from "@/lib/whatsapp";
 import { Checkbox } from "@/components/ui/checkbox";
 import { layoutDay } from "@/lib/agenda-layout";
-import { CalendarClock, Check, ChevronLeft, ChevronRight, MessageCircle, Plus, Users } from "lucide-react";
+import { CalendarClock, Check, ChevronLeft, ChevronRight, MessageCircle, Plus, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { extractErrorMessage } from "@/lib/utils";
 
@@ -759,6 +759,7 @@ function NewSessionDialog({
   onSubmit: (v: NewSessionValues) => void;
   loading: boolean;
 }) {
+  const qc = useQueryClient();
   const [selected, setSelected] = useState<string[]>([]);
   const [busca, setBusca] = useState("");
   const [scheduled_at, setWhen] = useState(() => {
@@ -768,77 +769,160 @@ function NewSessionDialog({
     return toDatetimeLocalValue(d);
   });
   const [duration_min, setDuration] = useState(50);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [quickNome, setQuickNome] = useState("");
+  const [quickTelefone, setQuickTelefone] = useState("");
 
   const toggle = (id: string, checked: boolean) =>
     setSelected((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
   const termo = busca.trim().toLocaleLowerCase("pt-BR");
   const visiveis = termo ? patients.filter((p) => p.nome.toLocaleLowerCase("pt-BR").includes(termo)) : patients;
 
+  // Cadastro rápido pra não sair do fluxo de agendamento: só nome e telefone
+  // agora, o resto da ficha (CPF, valores, histórico) fica pra depois na tela
+  // de Pacientes. Ao salvar, o novo paciente já entra selecionado.
+  const addPatient = useMutation({
+    mutationFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user!.id;
+      const { data, error } = await supabase
+        .from("patients")
+        .insert({ user_id, nome: quickNome.trim(), telefone: quickTelefone.trim() || null })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
+    },
+    onSuccess: (id) => {
+      qc.invalidateQueries({ queryKey: ["patients-select"] });
+      qc.invalidateQueries({ queryKey: ["patients"] });
+      qc.invalidateQueries({ queryKey: ["patient-count"] });
+      setSelected((prev) => [...prev, id]);
+      setQuickNome("");
+      setQuickTelefone("");
+      setQuickAddOpen(false);
+      toast.success("Paciente cadastrado e selecionado");
+    },
+    onError: (e) => toast.error(extractErrorMessage(e) ?? "Erro"),
+  });
+
   return (
     <DialogContent>
       <DialogHeader><DialogTitle>Nova sessão</DialogTitle></DialogHeader>
-      {patients.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Cadastre um paciente antes de agendar sessões.
-        </p>
-      ) : (
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (selected.length === 0) return;
-            onSubmit({ patient_ids: selected, scheduled_at, duration_min });
-          }}
-        >
-          <div className="space-y-2">
-            <div className="flex items-baseline justify-between gap-2">
-              <Label>Pacientes *</Label>
-              {selected.length > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  {selected.length} {selected.length === 1 ? "selecionado" : "selecionados"}
-                </span>
-              )}
-            </div>
-            {patients.length > 8 && (
-              <Input placeholder="Buscar paciente..." value={busca} onChange={(e) => setBusca(e.target.value)} />
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (selected.length === 0) return;
+          onSubmit({ patient_ids: selected, scheduled_at, duration_min });
+        }}
+      >
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between gap-2">
+            <Label>Pacientes *</Label>
+            {selected.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {selected.length} {selected.length === 1 ? "selecionado" : "selecionados"}
+              </span>
             )}
-            <ul className="max-h-56 divide-y divide-border overflow-y-auto rounded-md border border-border">
-              {visiveis.length === 0 && (
-                <li className="px-3 py-3 text-sm text-muted-foreground">Nenhum paciente encontrado.</li>
+          </div>
+          {patients.length === 0 ? (
+            !quickAddOpen && (
+              <p className="text-sm text-muted-foreground">Nenhum paciente cadastrado ainda.</p>
+            )
+          ) : (
+            <>
+              {patients.length > 8 && (
+                <Input placeholder="Buscar paciente..." value={busca} onChange={(e) => setBusca(e.target.value)} />
               )}
-              {visiveis.map((p) => {
-                const checked = selected.includes(p.id);
-                return (
-                  <li key={p.id}>
-                    <label className="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm hover:bg-accent/40">
-                      <Checkbox checked={checked} onCheckedChange={(v) => toggle(p.id, v === true)} />
-                      <span className="truncate">{p.nome}</span>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="text-xs text-muted-foreground">
-              Marque mais de um para uma aula em grupo: cada paciente fica com a própria sessão no mesmo horário.
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Data e hora *</Label>
-              <Input type="datetime-local" value={scheduled_at} onChange={(e) => setWhen(e.target.value)} required />
+              <ul className="max-h-56 divide-y divide-border overflow-y-auto rounded-md border border-border">
+                {visiveis.length === 0 && (
+                  <li className="px-3 py-3 text-sm text-muted-foreground">Nenhum paciente encontrado.</li>
+                )}
+                {visiveis.map((p) => {
+                  const checked = selected.includes(p.id);
+                  return (
+                    <li key={p.id}>
+                      <label className="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm hover:bg-accent/40">
+                        <Checkbox checked={checked} onCheckedChange={(v) => toggle(p.id, v === true)} />
+                        <span className="truncate">{p.nome}</span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="text-xs text-muted-foreground">
+                Marque mais de um para uma aula em grupo: cada paciente fica com a própria sessão no mesmo horário.
+              </p>
+            </>
+          )}
+
+          {quickAddOpen ? (
+            <div className="space-y-2 rounded-md border border-dashed border-border p-3">
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Input
+                  placeholder="Nome completo"
+                  value={quickNome}
+                  autoFocus
+                  onChange={(e) => setQuickNome(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.preventDefault();
+                  }}
+                />
+                <Input
+                  placeholder="Telefone"
+                  value={quickTelefone}
+                  onChange={(e) => setQuickTelefone(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.preventDefault();
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setQuickAddOpen(false);
+                    setQuickNome("");
+                    setQuickTelefone("");
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!quickNome.trim() || addPatient.isPending}
+                  onClick={() => addPatient.mutate()}
+                >
+                  {addPatient.isPending ? "Salvando..." : "Salvar paciente"}
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Duração (min)</Label>
-              <Input type="number" min={10} step={5} value={duration_min} onChange={(e) => setDuration(Number(e.target.value))} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={loading || selected.length === 0}>
-              {selected.length > 1 ? `Agendar aula para ${selected.length}` : "Agendar"}
+          ) : (
+            <Button type="button" variant="outline" size="sm" onClick={() => setQuickAddOpen(true)}>
+              <UserPlus className="mr-1 h-4 w-4" /> Novo paciente
             </Button>
-          </DialogFooter>
-        </form>
-      )}
+          )}
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Data e hora *</Label>
+            <Input type="datetime-local" value={scheduled_at} onChange={(e) => setWhen(e.target.value)} required />
+          </div>
+          <div className="space-y-2">
+            <Label>Duração (min)</Label>
+            <Input type="number" min={10} step={5} value={duration_min} onChange={(e) => setDuration(Number(e.target.value))} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="submit" disabled={loading || selected.length === 0}>
+            {selected.length > 1 ? `Agendar aula para ${selected.length}` : "Agendar"}
+          </Button>
+        </DialogFooter>
+      </form>
     </DialogContent>
   );
 }
