@@ -902,7 +902,7 @@ function NewSessionDialog({
               </div>
             </div>
           ) : (
-            <Button type="button" variant="outline" size="sm" onClick={() => setQuickAddOpen(true)}>
+            <Button type="button" size="sm" onClick={() => setQuickAddOpen(true)}>
               <UserPlus className="mr-1 h-4 w-4" /> Novo paciente
             </Button>
           )}
