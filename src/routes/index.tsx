@@ -465,7 +465,21 @@ function Landing() {
         {/* Linha do tempo */}
         <section id="como-funciona" className="border-b border-border/60 py-24">
           <div className="mx-auto max-w-5xl px-6">
-            <div className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-line shadow-[0_20px_40px_-20px_rgba(14,31,82,.3)]">
+              <div className="relative aspect-video w-full bg-brand-900">
+                <iframe
+                  className="absolute inset-0 h-full w-full"
+                  src="https://www.youtube-nocookie.com/embed/kspZH3i5bG8"
+                  title="Como usar o FisioGO"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+
+            <div className="mx-auto mt-16 max-w-2xl text-center">
               <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
                 Comece em poucos passos
               </h2>
