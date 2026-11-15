@@ -5,7 +5,7 @@ import { LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut, 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useQueryClient } from "@tanstack/react-query";
-import { trackMetaEvent } from "@/lib/meta-pixel";
+import { getMetaCookies, trackMetaEvent } from "@/lib/meta-pixel";
 import { getAttribution } from "@/lib/attribution";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated")({
       // deduplicar e não contar o início de trial em dobro.
       const eventId = crypto.randomUUID();
       const { data: ensureRes } = await supabase.functions.invoke("ensure-subscription", {
-        body: { eventId },
+        body: { eventId, ...getMetaCookies() },
       });
       if (ensureRes?.created) trackMetaEvent("StartTrial", eventId);
       sub = await fetchSub();

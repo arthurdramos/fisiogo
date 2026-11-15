@@ -51,6 +51,8 @@ async function sendStartTrialCapiEvent(
   req: Request,
   email: string,
   eventId: string | null,
+  fbp?: string,
+  fbc?: string,
 ) {
   if (!META_PIXEL_ID || !META_CAPI_ACCESS_TOKEN) {
     console.warn("META_PIXEL_ID/META_CAPI_ACCESS_TOKEN ausentes — pulando evento StartTrial (CAPI).");
@@ -76,6 +78,13 @@ async function sendStartTrialCapiEvent(
                 em: [emHash],
                 client_ip_address: clientIp,
                 client_user_agent: req.headers.get("user-agent") ?? undefined,
+                // _fbp/_fbc vêm dos cookies do próprio Pixel, mandados do
+                // navegador — não são hasheados (a Meta espera o valor cru
+                // do cookie, diferente do e-mail acima). É o que permite
+                // casar esse evento do servidor com o clique real no
+                // anúncio, mesmo quando o navegador bloqueia o pixel.
+                fbp: fbp || undefined,
+                fbc: fbc || undefined,
               },
             },
           ],
@@ -132,7 +141,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  let body: { eventId?: string } = {};
+  let body: { eventId?: string; fbp?: string; fbc?: string } = {};
   try {
     body = await req.json();
   } catch {
@@ -173,7 +182,7 @@ Deno.serve(async (req) => {
       (typeof meta.name === "string" && meta.name.trim()) ||
       null;
     await sendWelcomeEmail(userRes.user.email, nome || null);
-    await sendStartTrialCapiEvent(req, userRes.user.email, body.eventId ?? null);
+    await sendStartTrialCapiEvent(req, userRes.user.email, body.eventId ?? null, body.fbp, body.fbc);
   }
 
   return new Response(JSON.stringify({ ok: true, created: created === true }), {
