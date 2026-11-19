@@ -363,15 +363,43 @@ export function generateBillingReportPdf(data: BillingReportData): Blob {
   // ---- Dados para pagamento: box claro, grid de valores em mono (Etapa 4) ----
   if (data.profissional) {
     const p = data.profissional;
-    const campos = [
-      ["Banco", p.banco],
-      ["Agência", p.agencia],
-      ["Conta", p.conta],
-      ["Chave PIX", p.chave_pix],
+    const bancarios = [
+      ["Banco", p.banco?.trim()],
+      ["Agência", p.agencia?.trim()],
+      ["Conta", p.conta?.trim()],
     ].filter((c): c is [string, string] => !!c[1]);
+    const pix = p.chave_pix?.trim();
 
-    if (campos.length > 0) {
-      const boxH = 24;
+    if (bancarios.length > 0 || pix) {
+      // Banco/Agência/Conta lado a lado; a chave PIX numa linha própria com a
+      // largura toda, porque e-mail ou chave aleatória não cabe numa coluna e
+      // vazava pra fora do quadro. Qualquer valor longo quebra em mais linhas
+      // e o quadro cresce junto.
+      const padX = 9;
+      const innerW = MAX_WIDTH - padX * 2;
+      const lineH = 4.2;
+      doc.setFont(FONT_MONO, "normal");
+      doc.setFontSize(9.5);
+      const colW = innerW / Math.max(bancarios.length, 1);
+      const bancLinhas = bancarios.map(([, v]) => doc.splitTextToSize(v, colW - 4) as string[]);
+      const pixLinhas = pix ? (doc.splitTextToSize(pix, innerW) as string[]) : [];
+
+      // Linhas de base, relativas ao topo do quadro: título, depois cada seção
+      // (rótulo + valores).
+      const tituloY = 10;
+      let cursor = tituloY;
+      let bancRotuloY = 0;
+      if (bancarios.length > 0) {
+        bancRotuloY = cursor + 7;
+        cursor = bancRotuloY + 4.5 + (Math.max(...bancLinhas.map((l) => l.length)) - 1) * lineH;
+      }
+      let pixRotuloY = 0;
+      if (pix) {
+        pixRotuloY = cursor + 7;
+        cursor = pixRotuloY + 4.5 + (pixLinhas.length - 1) * lineH;
+      }
+      const boxH = cursor + 3.5;
+
       ensureSpace(boxH + 8);
       doc.setFillColor(SURFACE[0], SURFACE[1], SURFACE[2]);
       doc.setDrawColor(LINE[0], LINE[1], LINE[2]);
@@ -380,20 +408,21 @@ export function generateBillingReportPdf(data: BillingReportData): Blob {
       doc.setFont(FONT_SANS, "bold");
       doc.setFontSize(9.5);
       setColor(NAVY);
-      doc.text("Dados para pagamento", MARGIN_X + 9, y + 10);
+      doc.text("Dados para pagamento", MARGIN_X + padX, y + tituloY);
 
-      const colW = MAX_WIDTH / campos.length;
-      campos.forEach(([label, value], i) => {
-        const cellX = MARGIN_X + 9 + colW * i;
+      const campo = (label: string, linhas: string[], x: number, rotuloY: number) => {
         doc.setFont(FONT_SANS, "normal");
         doc.setFontSize(7.5);
         setColor(MUTED);
-        doc.text(label, cellX, y + 17);
+        doc.text(label, x, y + rotuloY);
         doc.setFont(FONT_MONO, "normal");
         doc.setFontSize(9.5);
         setColor(INK);
-        doc.text(value, cellX, y + 21.5);
-      });
+        linhas.forEach((linha, i) => doc.text(linha, x, y + rotuloY + 4.5 + i * lineH));
+      };
+
+      bancarios.forEach(([label], i) => campo(label, bancLinhas[i], MARGIN_X + padX + colW * i, bancRotuloY));
+      if (pix) campo("Chave PIX", pixLinhas, MARGIN_X + padX, pixRotuloY);
       y += boxH + 10;
     }
   }
