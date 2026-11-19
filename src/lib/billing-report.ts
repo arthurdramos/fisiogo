@@ -77,8 +77,15 @@ function monthNameOnly(d: Date) {
   return d.toLocaleDateString("pt-BR", { month: "long" });
 }
 
+const mesmoDia = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+
+// Plural simples: "1 dia" / "3 dias".
+const plural = (n: number, singular: string, pluralForm: string) => `${n} ${n === 1 ? singular : pluralForm}`;
+
 function formatPeriodRange(start: Date, end: Date) {
   const dd = (d: Date) => String(d.getDate()).padStart(2, "0");
+  // Uma sessão só (ou todas no mesmo dia): "19 de novembro de 2026", não "19–19 de ...".
+  if (mesmoDia(start, end)) return `${dd(start)} de ${monthYear(start)}`;
   if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
     return `${dd(start)}–${dd(end)} de ${monthYear(end)}`;
   }
@@ -93,6 +100,7 @@ function formatPeriodRange(start: Date, end: Date) {
 function formatPeriodRangeShort(start: Date, end: Date) {
   const dd = (d: Date) => String(d.getDate()).padStart(2, "0");
   const mon = (d: Date) => d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "");
+  if (mesmoDia(start, end)) return `${dd(start)} ${mon(start)}`;
   if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
     return `${dd(start)}–${dd(end)} ${mon(end)}`;
   }
@@ -129,7 +137,7 @@ export function generateBillingReportPdf(data: BillingReportData): Blob {
     doc.setFont(FONT_SANS, "normal");
     doc.setFontSize(10);
     setColor(MUTED);
-    doc.text(`${data.patientAge} anos`, MARGIN_X, y);
+    doc.text(plural(data.patientAge, "ano", "anos"), MARGIN_X, y);
     y += 6;
   }
   y += 6;
@@ -147,7 +155,7 @@ export function generateBillingReportPdf(data: BillingReportData): Blob {
     const stats: [string, string][] = [
       [String(data.sessions.length).padStart(2, "0"), "Sessões no período"],
       [formatPeriodRangeShort(first, last), "Período"],
-      [`${cicloDias} dias`, "Duração do ciclo"],
+      [plural(cicloDias, "dia", "dias"), "Duração do ciclo"],
     ];
 
     const stripH = 20;
