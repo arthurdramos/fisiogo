@@ -708,6 +708,10 @@ export type Database = {
         Returns: undefined
       }
       ensure_subscription: { Args: { _user_id: string }; Returns: boolean }
+      get_auth_email_recipient_name: {
+        Args: { _email: string }
+        Returns: string
+      }
       get_booking_page: { Args: { p_slug: string }; Returns: Json }
       get_calendar_feed: {
         Args: { p_token: string }

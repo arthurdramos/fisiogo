@@ -43,6 +43,13 @@
       "when": 1794184843142,
       "tag": "0005_add_signup_attribution",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795117567169,
+      "tag": "0006_auth_email_recipient_name",
+      "breakpoints": true
     }
   ]
 }
