@@ -3,6 +3,11 @@ title: Como reduzir faltas de pacientes na fisioterapia: 7 práticas que funcion
 description: Faltas sem aviso custam horário, dinheiro e resultado do tratamento. Veja 7 práticas simples para o fisioterapeuta autônomo diminuir as ausências no consultório.
 date: 2026-11-19
 author: Equipe FisioGO
+image: /blog/fisioterapeuta-recebe-paciente-de-muletas.jpg
+image_alt: Fisioterapeuta recebe paciente de muletas e imobilizador no joelho na porta do consultório com um aperto de mão
+image_width: 1280
+image_height: 1920
+image_social: /blog/fisioterapeuta-recebe-paciente-de-muletas-og.jpg
 ---
 
 Todo fisioterapeuta autônomo conhece a cena: o horário está reservado, você se preparou, e o paciente simplesmente não aparece. Uma falta sem aviso é um horário que não volta. Você não atende outra pessoa nem fatura a sessão, e o tratamento perde continuidade, o que muitas vezes significa um resultado pior para o próprio paciente.

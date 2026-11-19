@@ -15,6 +15,20 @@ export type PostMeta = {
   date: string;
   updated?: string;
   author: string;
+  image?: PostImage;
+};
+
+// Imagem de capa (opcional). No cabeçalho do post:
+//   image: /blog/arquivo.jpg            (em public/blog)
+//   image_alt: descrição da cena        (obrigatória com image: é o que o Google lê)
+//   image_width: 1280 / image_height: 1920
+//   image_social: /blog/arquivo-og.jpg  (opcional, recorte 1200x630 para WhatsApp/Facebook/Google)
+export type PostImage = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  social?: string;
 };
 
 const escapeHtml = (s: string) =>
@@ -155,6 +169,28 @@ export function parsePost(raw: string): { meta: PostMeta; body: string } {
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(campos.date))
     throw new Error(`Data inválida no post: ${campos.date}`);
+
+  let image: PostImage | undefined;
+  if (campos.image) {
+    const width = Number(campos.image_width);
+    const height = Number(campos.image_height);
+    if (!campos.image_alt) throw new Error("Post com image precisa de image_alt");
+    if (!(width > 0 && height > 0))
+      throw new Error("Post com image precisa de image_width e image_height");
+    const caminho = (v: string) => {
+      if (!v.startsWith("/"))
+        throw new Error(`Imagem deve ser um caminho do site (/blog/...): ${v}`);
+      return v;
+    };
+    image = {
+      src: caminho(campos.image),
+      alt: campos.image_alt,
+      width,
+      height,
+      social: campos.image_social ? caminho(campos.image_social) : undefined,
+    };
+  }
+
   return {
     meta: {
       title: campos.title,
@@ -162,6 +198,7 @@ export function parsePost(raw: string): { meta: PostMeta; body: string } {
       date: campos.date,
       updated: campos.updated || undefined,
       author: campos.author || "Equipe FisioGO",
+      image,
     },
     body: m[2],
   };

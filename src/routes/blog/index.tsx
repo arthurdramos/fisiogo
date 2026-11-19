@@ -15,6 +15,9 @@ export const Route = createFileRoute("/blog/")({
       { name: "description", content: DESCRIPTION },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
+      // Sem estes, valeriam os da landing, definidos em __root.tsx.
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: URL },
     ],
@@ -42,6 +45,19 @@ function BlogIndex() {
           {posts.map((p) => (
             <li key={p.slug}>
               <Link to="/blog/$slug" params={{ slug: p.slug }} className="group block py-8">
+                {p.image && (
+                  // Na lista usa o recorte paisagem (se houver), que encaixa melhor na largura.
+                  <img
+                    src={p.image.social ?? p.image.src}
+                    alt={p.image.alt}
+                    width={p.image.social ? 1200 : p.image.width}
+                    height={p.image.social ? 630 : p.image.height}
+                    loading="lazy"
+                    decoding="async"
+                    className="mb-5 aspect-[1200/630] w-full rounded-xl object-cover transition-opacity group-hover:opacity-90"
+                    style={{ objectPosition: "50% 38%" }}
+                  />
+                )}
                 <p className="text-xs text-muted-foreground">
                   <time dateTime={p.date}>{p.dateLabel}</time> · {p.readingMinutes} min de leitura
                 </p>

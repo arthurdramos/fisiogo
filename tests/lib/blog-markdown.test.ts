@@ -79,6 +79,31 @@ describe("parsePost", () => {
     );
   });
 
+  it("reads an optional cover image and validates its fields", () => {
+    const comImagem = (extra: string) =>
+      `---\ntitle: X\ndescription: Y\ndate: 2026-11-19\nimage: /blog/capa.jpg\n${extra}---\n`;
+    expect(
+      parsePost(
+        comImagem(
+          "image_alt: Uma cena\nimage_width: 1280\nimage_height: 1920\nimage_social: /blog/capa-og.jpg\n",
+        ),
+      ).meta.image,
+    ).toEqual({
+      src: "/blog/capa.jpg",
+      alt: "Uma cena",
+      width: 1280,
+      height: 1920,
+      social: "/blog/capa-og.jpg",
+    });
+    expect(() => parsePost(comImagem("image_width: 1\nimage_height: 1\n"))).toThrow(/image_alt/);
+    expect(() => parsePost(comImagem("image_alt: A\n"))).toThrow(/image_width/);
+    expect(() =>
+      parsePost(
+        comImagem("image_alt: A\nimage_width: 1\nimage_height: 1\nimage_social: capa.jpg\n"),
+      ),
+    ).toThrow(/caminho/);
+  });
+
   it("accepts Windows line endings", () => {
     expect(parsePost(raw.replace(/\n/g, "\r\n")).meta.title).toBe("Um post");
   });
