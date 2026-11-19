@@ -5,5 +5,9 @@ import { getLegalDoc } from "@/lib/legal";
 export const Route = createFileRoute("/termos")({
   loader: () => getLegalDoc("termos"),
   head: ({ loaderData }) => (loaderData ? legalHead(loaderData, "/termos") : {}),
-  component: () => <LegalPage doc={Route.useLoaderData()} />,
+  component: Termos,
 });
+
+function Termos() {
+  return <LegalPage doc={Route.useLoaderData()} />;
+}
