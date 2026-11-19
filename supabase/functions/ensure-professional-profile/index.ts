@@ -66,13 +66,20 @@ Deno.serve(async (req) => {
   const doCadastro = sanitizeAttribution(meta.attribution);
   const desteAcesso = sanitizeAttribution(body?.attribution);
   const attr = [doCadastro, desteAcesso].find(temOrigem) ?? doCadastro ?? desteAcesso;
-  const { error: attrErr } = await adminClient
-    .from("signup_attribution")
-    .upsert(
-      { user_id: userRes.user.id, ...(attr ?? {}), provider: userRes.user.app_metadata?.provider ?? null },
-      { onConflict: "user_id", ignoreDuplicates: true },
-    );
-  if (attrErr) console.error("Erro ao gravar signup_attribution:", attrErr.message);
+  // Só conta criada nos últimos 30 dias (mesma validade da origem guardada no
+  // navegador). Conta antiga voltando a acessar não tem linha aqui — sem isso,
+  // gravaria a origem deste login como se fosse a do cadastro de meses atrás.
+  const criadaEm = Date.parse(userRes.user.created_at ?? "");
+  const contaNova = Number.isFinite(criadaEm) && Date.now() - criadaEm < 30 * 24 * 60 * 60 * 1000;
+  if (contaNova) {
+    const { error: attrErr } = await adminClient
+      .from("signup_attribution")
+      .upsert(
+        { user_id: userRes.user.id, ...(attr ?? {}), provider: userRes.user.app_metadata?.provider ?? null },
+        { onConflict: "user_id", ignoreDuplicates: true },
+      );
+    if (attrErr) console.error("Erro ao gravar signup_attribution:", attrErr.message);
+  }
 
   return new Response(JSON.stringify({ ok: true }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
