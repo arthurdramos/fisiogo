@@ -56,11 +56,16 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Origem do cadastro (src/lib/attribution.ts). Vem no corpo da chamada;
-  // se o email foi confirmado em outro aparelho, usa a cópia guardada no
-  // user_metadata pelo signUp. Melhor esforço: nunca impede o perfil.
+  // Origem do cadastro (src/lib/attribution.ts). Duas fontes: a cópia
+  // guardada no user_metadata na hora do signUp (e-mail/senha) e a que vem
+  // no corpo, do navegador deste acesso. A do signUp vence quando tem
+  // origem: no cadastro por e-mail, este acesso costuma ser o clique no link
+  // de confirmação, que não diz nada sobre de onde a pessoa veio. Melhor
+  // esforço: nunca impede o perfil.
   const body = await req.json().catch(() => ({}));
-  const attr = sanitizeAttribution(body?.attribution) ?? sanitizeAttribution(meta.attribution);
+  const doCadastro = sanitizeAttribution(meta.attribution);
+  const desteAcesso = sanitizeAttribution(body?.attribution);
+  const attr = [doCadastro, desteAcesso].find(temOrigem) ?? doCadastro ?? desteAcesso;
   const { error: attrErr } = await adminClient
     .from("signup_attribution")
     .upsert(
@@ -84,6 +89,12 @@ const ATTR_KEYS = [
   "landing_path",
 ] as const;
 
+// Volta do login com Google, não origem (mesma lista de src/lib/attribution.ts).
+// Navegadores que guardaram isso antes da correção ainda podem mandar.
+const REFERRERS_DE_LOGIN = ["https://oauth.lovable.app", "https://accounts.google.com"];
+
+const temOrigem = (a: Record<string, string> | null) => !!a && (!!a.utm_source || !!a.referrer);
+
 // Só aceita as chaves conhecidas, como texto curto: o valor vem do navegador.
 function sanitizeAttribution(raw: unknown): Record<string, string> | null {
   if (!raw || typeof raw !== "object") return null;
@@ -92,6 +103,7 @@ function sanitizeAttribution(raw: unknown): Record<string, string> | null {
   for (const k of ATTR_KEYS) {
     if (typeof r[k] === "string" && r[k]) out[k] = (r[k] as string).slice(0, 200);
   }
+  if (out.referrer && REFERRERS_DE_LOGIN.includes(out.referrer)) delete out.referrer;
   if (typeof r.first_seen_at === "string" && !Number.isNaN(Date.parse(r.first_seen_at))) {
     out.first_seen_at = new Date(r.first_seen_at).toISOString();
   }
