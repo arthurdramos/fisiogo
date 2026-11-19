@@ -22,6 +22,8 @@ import { Route as AuthenticatedFaleConoscoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
+import { Route as BlogIndexRouteImport } from './routes/blog/index'
+import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as CTokenRouteImport } from './routes/c.$token'
 import { Route as AuthenticatedAssinaturaConfirmadoRouteImport } from './routes/_authenticated/assinatura.confirmado'
 import { Route as AuthenticatedConfirmarSessionIdRouteImport } from './routes/_authenticated/confirmar.$sessionId'
@@ -97,6 +99,16 @@ const AgendarSlugRoute = AgendarSlugRouteImport.update({
   path: '/agendar/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CTokenRoute = CTokenRouteImport.update({
   id: '/c/$token',
   path: '/c/$token',
@@ -155,7 +167,9 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/blog/': typeof BlogIndexRoute
   '/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -177,7 +191,9 @@ export interface FileRoutesByTo {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/blog': typeof BlogIndexRoute
   '/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -201,7 +217,9 @@ export interface FileRoutesById {
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/blog/': typeof BlogIndexRoute
   '/_authenticated/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/_authenticated/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -225,7 +243,9 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/perfil'
     | '/agendar/$slug'
+    | '/blog/$slug'
     | '/c/$token'
+    | '/blog/'
     | '/assinatura/confirmado'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
@@ -247,7 +267,9 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/perfil'
     | '/agendar/$slug'
+    | '/blog/$slug'
     | '/c/$token'
+    | '/blog'
     | '/assinatura/confirmado'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
@@ -270,7 +292,9 @@ export interface FileRouteTypes {
     | '/_authenticated/financeiro'
     | '/_authenticated/perfil'
     | '/agendar/$slug'
+    | '/blog/$slug'
     | '/c/$token'
+    | '/blog/'
     | '/_authenticated/assinatura/confirmado'
     | '/_authenticated/confirmar/$sessionId'
     | '/_authenticated/pacientes/$id'
@@ -287,7 +311,9 @@ export interface RootRouteChildren {
   InstaRoute: typeof InstaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CTokenRoute: typeof CTokenRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicCaktoWebhookRoute: typeof ApiPublicCaktoWebhookRoute
   ApiPublicCalendarTokenRoute: typeof ApiPublicCalendarTokenRoute
   ApiPublicSessionTokenRoute: typeof ApiPublicSessionTokenRoute
@@ -384,6 +410,20 @@ declare module '@tanstack/react-router' {
       path: '/agendar/$slug'
       fullPath: '/agendar/$slug'
       preLoaderRoute: typeof AgendarSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/c/$token': {
@@ -496,7 +536,9 @@ const rootRouteChildren: RootRouteChildren = {
   InstaRoute: InstaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AgendarSlugRoute: AgendarSlugRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CTokenRoute: CTokenRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ApiPublicCaktoWebhookRoute: ApiPublicCaktoWebhookRoute,
   ApiPublicCalendarTokenRoute: ApiPublicCalendarTokenRoute,
   ApiPublicSessionTokenRoute: ApiPublicSessionTokenRoute,

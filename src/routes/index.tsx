@@ -243,6 +243,7 @@ function Landing() {
             <a href="#depoimentos" className="transition-colors hover:text-foreground">Depoimentos</a>
             <a href="#precos" className="transition-colors hover:text-foreground">Preços</a>
             <a href="#faq" className="transition-colors hover:text-foreground">Dúvidas</a>
+            <Link to="/blog" className="transition-colors hover:text-foreground">Blog</Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -870,7 +871,10 @@ function Landing() {
           <span className="text-xs text-muted-foreground/80">
             Desenvolvido por Flowvia — FLOWVIA DESENVOLVIMENTO DE SOFTWARE CUSTOMIZAVEL LTDA · CNPJ 68.558.820/0001-37
           </span>
-          <span>© {new Date().getFullYear()} FisioGO</span>
+          <span className="flex items-center gap-4">
+            <Link to="/blog" className="transition-colors hover:text-foreground">Blog</Link>
+            <span>© {new Date().getFullYear()} FisioGO</span>
+          </span>
         </div>
       </footer>
     </div>
