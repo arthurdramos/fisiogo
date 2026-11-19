@@ -864,8 +864,10 @@ function Landing() {
           <span className="text-xs text-muted-foreground/80">
             Desenvolvido por Flowvia — FLOWVIA DESENVOLVIMENTO DE SOFTWARE CUSTOMIZAVEL LTDA · CNPJ 68.558.820/0001-37
           </span>
-          <span className="flex items-center gap-4">
+          <span className="flex flex-wrap items-center gap-4">
             <Link to="/blog" className="transition-colors hover:text-foreground">Blog</Link>
+            <Link to="/termos" className="transition-colors hover:text-foreground">Termos de uso</Link>
+            <Link to="/privacidade" className="transition-colors hover:text-foreground">Privacidade</Link>
             <span>© {new Date().getFullYear()} FisioGO</span>
           </span>
         </div>
