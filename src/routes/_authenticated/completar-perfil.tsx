@@ -86,8 +86,8 @@ function CompletarPerfil() {
         className="space-y-5 rounded-xl border border-border bg-card p-5"
         onSubmit={(e) => {
           e.preventDefault();
-          if (!form.nome.trim() || !form.crefito.trim() || !form.telefone.trim()) {
-            toast.error("Preencha nome, CREFITO e telefone.");
+          if (!form.nome.trim()) {
+            toast.error("Preencha seu nome.");
             return;
           }
           if (!lgpdAceite) {
@@ -114,27 +114,6 @@ function CompletarPerfil() {
             placeholder="000.000.000-00"
             inputMode="numeric"
             onChange={(e) => setForm({ ...form, cpf: formatCPF(e.target.value) })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="crefito">CREFITO</Label>
-          <Input
-            id="crefito"
-            value={form.crefito}
-            onChange={(e) => setForm({ ...form, crefito: e.target.value })}
-            placeholder="Ex: 123456-F"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="telefone">Telefone</Label>
-          <Input
-            id="telefone"
-            type="tel"
-            value={form.telefone}
-            onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-            placeholder="(11) 91234-5678"
-            required
           />
         </div>
         <div className="flex items-start gap-2">
