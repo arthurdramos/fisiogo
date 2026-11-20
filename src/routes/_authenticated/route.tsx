@@ -42,7 +42,9 @@ export const Route = createFileRoute("/_authenticated")({
       const { data: ensureRes } = await supabase.functions.invoke("ensure-subscription", {
         body: { eventId, ...getMetaCookies() },
       });
-      if (ensureRes?.created) trackMetaEvent("StartTrial", eventId);
+      // value/currency = preço do plano mensal (assinatura.tsx) — a Meta pede
+      // isso em eventos StartTrial pra estimar ROAS, mesmo sem cobrança ainda.
+      if (ensureRes?.created) trackMetaEvent("StartTrial", eventId, { value: 29.9, currency: "BRL" });
       sub = await fetchSub();
     }
 

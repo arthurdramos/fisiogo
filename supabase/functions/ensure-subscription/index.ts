@@ -86,6 +86,9 @@ async function sendStartTrialCapiEvent(
                 fbp: fbp || undefined,
                 fbc: fbc || undefined,
               },
+              // Preço do plano mensal (assinatura.tsx) — a Meta pede value/moeda
+              // em eventos StartTrial pra estimar ROAS, mesmo sem cobrança ainda.
+              custom_data: { value: 29.9, currency: "BRL" },
             },
           ],
         }),
