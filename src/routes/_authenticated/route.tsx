@@ -72,7 +72,7 @@ export const Route = createFileRoute("/_authenticated")({
     }
 
     const profileComplete =
-      !!profile?.nome && !!profile?.crefito && !!profile?.telefone && !!profile?.lgpd_aceite_em;
+      !!profile?.nome && !!profile?.lgpd_aceite_em;
 
     // Evita loop de redirecionamento: a própria tela de completar cadastro não exige perfil completo.
     if (!profileComplete && location.pathname !== "/completar-perfil") {

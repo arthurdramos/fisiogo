@@ -54,8 +54,6 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
-  const [crefito, setCrefito] = useState("");
-  const [telefone, setTelefone] = useState("");
   const [lgpdAceite, setLgpdAceite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [installPlatform, setInstallPlatform] = useState(installSteps[0].platform);
@@ -83,8 +81,6 @@ function AuthPage() {
             emailRedirectTo: window.location.origin + "/app",
             data: {
               nome,
-              crefito,
-              telefone,
               lgpd_aceite: true,
               // Cópia da origem caso o email seja confirmado em outro aparelho.
               attribution: getAttribution(),
@@ -190,28 +186,6 @@ function AuthPage() {
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Seu nome completo"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="crefito">CREFITO</Label>
-                  <Input
-                    id="crefito"
-                    type="text"
-                    required
-                    value={crefito}
-                    onChange={(e) => setCrefito(e.target.value)}
-                    placeholder="Ex: 123456-F"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefone">Telefone</Label>
-                  <Input
-                    id="telefone"
-                    type="tel"
-                    required
-                    value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
-                    placeholder="(11) 91234-5678"
                   />
                 </div>
                 <div className="flex items-start gap-2">
