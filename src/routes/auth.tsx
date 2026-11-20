@@ -222,8 +222,15 @@ function AuthPage() {
                     className="mt-0.5"
                   />
                   <Label htmlFor="lgpd" className="text-sm font-normal leading-snug text-muted-foreground">
-                    Li e aceito os termos de uso e a política de privacidade, e concordo com o tratamento
-                    dos meus dados conforme a LGPD.
+                    Li e aceito os{" "}
+                    <a href="/termos" target="_blank" rel="noopener" className="text-primary underline underline-offset-2">
+                      termos de uso
+                    </a>{" "}
+                    e a{" "}
+                    <a href="/privacidade" target="_blank" rel="noopener" className="text-primary underline underline-offset-2">
+                      política de privacidade
+                    </a>
+                    , e concordo com o tratamento dos meus dados conforme a LGPD.
                   </Label>
                 </div>
               </>

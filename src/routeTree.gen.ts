@@ -13,7 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as InstaRouteImport } from './routes/insta'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAssinaturaRouteImport } from './routes/_authenticated/assinatura'
@@ -22,6 +24,8 @@ import { Route as AuthenticatedFaleConoscoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
+import { Route as BlogIndexRouteImport } from './routes/blog/index'
+import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as CTokenRouteImport } from './routes/c.$token'
 import { Route as AuthenticatedAssinaturaConfirmadoRouteImport } from './routes/_authenticated/assinatura.confirmado'
 import { Route as AuthenticatedConfirmarSessionIdRouteImport } from './routes/_authenticated/confirmar.$sessionId'
@@ -30,6 +34,8 @@ import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenti
 import { Route as ApiPublicCaktoWebhookRouteImport } from './routes/api/public/cakto-webhook'
 import { Route as ApiPublicCalendarTokenRouteImport } from './routes/api/public/calendar.$token'
 import { Route as ApiPublicSessionTokenRouteImport } from './routes/api/public/session.$token'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -50,9 +56,19 @@ const InstaRoute = InstaRouteImport.update({
   path: '/insta',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
@@ -95,6 +111,16 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
 const AgendarSlugRoute = AgendarSlugRouteImport.update({
   id: '/agendar/$slug',
   path: '/agendar/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CTokenRoute = CTokenRouteImport.update({
@@ -141,12 +167,24 @@ const ApiPublicSessionTokenRoute = ApiPublicSessionTokenRouteImport.update({
   path: '/api/public/session/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/insta': typeof InstaRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
   '/assinatura': typeof AuthenticatedAssinaturaRouteWithChildren
@@ -155,7 +193,9 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/blog/': typeof BlogIndexRoute
   '/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -163,12 +203,16 @@ export interface FileRoutesByFullPath {
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/api/public/calendar/$token': typeof ApiPublicCalendarTokenRoute
   '/api/public/session/$token': typeof ApiPublicSessionTokenRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/insta': typeof InstaRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/app': typeof AuthenticatedAppRoute
   '/assinatura': typeof AuthenticatedAssinaturaRouteWithChildren
@@ -177,7 +221,9 @@ export interface FileRoutesByTo {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/blog': typeof BlogIndexRoute
   '/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -185,6 +231,8 @@ export interface FileRoutesByTo {
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/api/public/calendar/$token': typeof ApiPublicCalendarTokenRoute
   '/api/public/session/$token': typeof ApiPublicSessionTokenRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -192,7 +240,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/insta': typeof InstaRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/assinatura': typeof AuthenticatedAssinaturaRouteWithChildren
@@ -201,7 +251,9 @@ export interface FileRoutesById {
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/agendar/$slug': typeof AgendarSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/c/$token': typeof CTokenRoute
+  '/blog/': typeof BlogIndexRoute
   '/_authenticated/assinatura/confirmado': typeof AuthenticatedAssinaturaConfirmadoRoute
   '/_authenticated/confirmar/$sessionId': typeof AuthenticatedConfirmarSessionIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -209,6 +261,8 @@ export interface FileRoutesById {
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/api/public/calendar/$token': typeof ApiPublicCalendarTokenRoute
   '/api/public/session/$token': typeof ApiPublicSessionTokenRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -216,7 +270,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/insta'
+    | '/privacidade'
     | '/sitemap.xml'
+    | '/termos'
     | '/agenda'
     | '/app'
     | '/assinatura'
@@ -225,7 +281,9 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/perfil'
     | '/agendar/$slug'
+    | '/blog/$slug'
     | '/c/$token'
+    | '/blog/'
     | '/assinatura/confirmado'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
@@ -233,12 +291,16 @@ export interface FileRouteTypes {
     | '/pacientes/'
     | '/api/public/calendar/$token'
     | '/api/public/session/$token'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/insta'
+    | '/privacidade'
     | '/sitemap.xml'
+    | '/termos'
     | '/agenda'
     | '/app'
     | '/assinatura'
@@ -247,7 +309,9 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/perfil'
     | '/agendar/$slug'
+    | '/blog/$slug'
     | '/c/$token'
+    | '/blog'
     | '/assinatura/confirmado'
     | '/confirmar/$sessionId'
     | '/pacientes/$id'
@@ -255,13 +319,17 @@ export interface FileRouteTypes {
     | '/pacientes'
     | '/api/public/calendar/$token'
     | '/api/public/session/$token'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/insta'
+    | '/privacidade'
     | '/sitemap.xml'
+    | '/termos'
     | '/_authenticated/agenda'
     | '/_authenticated/app'
     | '/_authenticated/assinatura'
@@ -270,7 +338,9 @@ export interface FileRouteTypes {
     | '/_authenticated/financeiro'
     | '/_authenticated/perfil'
     | '/agendar/$slug'
+    | '/blog/$slug'
     | '/c/$token'
+    | '/blog/'
     | '/_authenticated/assinatura/confirmado'
     | '/_authenticated/confirmar/$sessionId'
     | '/_authenticated/pacientes/$id'
@@ -278,6 +348,8 @@ export interface FileRouteTypes {
     | '/_authenticated/pacientes/'
     | '/api/public/calendar/$token'
     | '/api/public/session/$token'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -285,12 +357,18 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   InstaRoute: typeof InstaRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermosRoute: typeof TermosRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CTokenRoute: typeof CTokenRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicCaktoWebhookRoute: typeof ApiPublicCaktoWebhookRoute
   ApiPublicCalendarTokenRoute: typeof ApiPublicCalendarTokenRoute
   ApiPublicSessionTokenRoute: typeof ApiPublicSessionTokenRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -323,11 +401,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/agenda': {
@@ -386,6 +478,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgendarSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/c/$token': {
       id: '/c/$token'
       path: '/c/$token'
@@ -442,6 +548,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSessionTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -494,12 +614,18 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   InstaRoute: InstaRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermosRoute: TermosRoute,
   AgendarSlugRoute: AgendarSlugRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CTokenRoute: CTokenRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ApiPublicCaktoWebhookRoute: ApiPublicCaktoWebhookRoute,
   ApiPublicCalendarTokenRoute: ApiPublicCalendarTokenRoute,
   ApiPublicSessionTokenRoute: ApiPublicSessionTokenRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -182,7 +182,11 @@ function AuthedLayout() {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      {/* min-w-0: sem isso o item de flex não encolhe abaixo do conteúdo mais
+          largo (a grade da semana da Agenda tem 720px) e a página inteira
+          fica mais larga que o celular, empurrando cabeçalho e botões pra
+          fora da tela. Com ele, quem é largo rola dentro do próprio quadro. */}
+      <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 items-center justify-between border-b border-border px-4 md:hidden">
           <div className="flex items-center gap-2">
             {profileComplete && (

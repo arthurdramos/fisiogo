@@ -19,6 +19,7 @@ import { ArrowLeft, CalendarPlus, Download, Pencil, Plus, Share2, Trash2, Phone,
 import { addMonths, calcAge, formatCPF, formatCurrency, formatDate, formatDateTime, startOfMonth, toDatetimeLocalValue } from "@/lib/format";
 import { calcularSaldo, markSessionRealizada, sessionColorClass, sessionStatusLabel } from "@/lib/session-status";
 import { downloadBlob, generateBillingReportPdf, shareOrDownloadBlob } from "@/lib/billing-report";
+import { splitReceivable, type ReceivableSplit } from "@/lib/receivable";
 import { extractErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -161,9 +162,7 @@ function PatientDetail() {
 
   const p = patient.data;
 
-  const aReceber = (sessions.data ?? [])
-    .filter((s) => s.status !== "cancelada" && !s.pago)
-    .reduce((acc, s) => acc + Number(s.valor_cobrado ?? p.valor_sessao ?? 0), 0);
+  const aReceber = splitReceivable(sessions.data ?? [], (s) => Number(s.valor_cobrado ?? p.valor_sessao ?? 0));
 
   return (
     <div className="mx-auto max-w-4xl p-6 md:p-10">
@@ -596,7 +595,7 @@ function SessionsSection({
 
 // ================== Saldo / carteira ==================
 
-function SaldoSection({ patientId, aReceber }: { patientId: string; aReceber: number }) {
+function SaldoSection({ patientId, aReceber }: { patientId: string; aReceber: ReceivableSplit }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
 
@@ -683,9 +682,21 @@ function SaldoSection({ patientId, aReceber }: { patientId: string; aReceber: nu
 
       <div className="mb-6 rounded-lg border border-border bg-card p-5">
         <p className="text-sm text-muted-foreground">À receber</p>
-        <p className={"font-serif text-2xl font-semibold " + (aReceber > 0 ? "text-amber-600 dark:text-amber-400" : "")}>
-          {formatCurrency(aReceber)}
+        <p
+          className={
+            "font-serif text-2xl font-semibold " + (aReceber.realizado > 0 ? "text-amber-600 dark:text-amber-400" : "")
+          }
+        >
+          {formatCurrency(aReceber.realizado)}
         </p>
+        <p className="mt-1 text-xs text-muted-foreground">Sessões realizadas e ainda não pagas (aba Cobrança)</p>
+        {aReceber.agendado > 0 && (
+          <p className="mt-3 border-t border-border pt-3 text-sm text-muted-foreground">
+            Agendado: <span className="font-medium text-foreground">{formatCurrency(aReceber.agendado)}</span> em{" "}
+            {aReceber.sessoesAgendadas} {aReceber.sessoesAgendadas === 1 ? "sessão" : "sessões"} ainda não{" "}
+            {aReceber.sessoesAgendadas === 1 ? "realizada" : "realizadas"}
+          </p>
+        )}
       </div>
     </>
   );

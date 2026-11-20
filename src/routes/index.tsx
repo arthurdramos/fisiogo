@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { SiteNav } from "@/components/site-nav";
 import {
   Calendar,
   Users,
@@ -236,14 +237,7 @@ function Landing() {
             <img src="/logo-fisiogo-transparente.png" alt="FisioGO" className="h-9 w-auto" />
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
-            <a href="#funcionalidades" className="transition-colors hover:text-foreground">Funcionalidades</a>
-            <a href="#diferenciais" className="transition-colors hover:text-foreground">Diferenciais</a>
-            <a href="#como-funciona" className="transition-colors hover:text-foreground">Como funciona</a>
-            <a href="#depoimentos" className="transition-colors hover:text-foreground">Depoimentos</a>
-            <a href="#precos" className="transition-colors hover:text-foreground">Preços</a>
-            <a href="#faq" className="transition-colors hover:text-foreground">Dúvidas</a>
-          </nav>
+          <SiteNav naLanding />
 
           <div className="flex items-center gap-2">
             {signed ? (
@@ -870,7 +864,12 @@ function Landing() {
           <span className="text-xs text-muted-foreground/80">
             Desenvolvido por Flowvia — FLOWVIA DESENVOLVIMENTO DE SOFTWARE CUSTOMIZAVEL LTDA · CNPJ 68.558.820/0001-37
           </span>
-          <span>© {new Date().getFullYear()} FisioGO</span>
+          <span className="flex flex-wrap items-center gap-4">
+            <Link to="/blog" className="transition-colors hover:text-foreground">Blog</Link>
+            <Link to="/termos" className="transition-colors hover:text-foreground">Termos de uso</Link>
+            <Link to="/privacidade" className="transition-colors hover:text-foreground">Privacidade</Link>
+            <span>© {new Date().getFullYear()} FisioGO</span>
+          </span>
         </div>
       </footer>
     </div>
