@@ -88,6 +88,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Cadastre pacientes, organize a agenda e acompanhe a evolução clínica. Chega de papel, planilhas e WhatsApp.",
       },
       { name: "author", content: "FisioGO" },
+      // Verificação de domínio no Business Manager da Meta (Segurança da
+      // marca → Domínios) — precisa ficar no HTML estático do <head>, não
+      // injetado depois por JS, senão a verificação falha.
+      { name: "facebook-domain-verification", content: "dygap2qirrgvht8fdznphuk3tbuxvy" },
       { name: "theme-color", content: "#0e1f52" },
       { name: "apple-mobile-web-app-title", content: "FisioGO" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
