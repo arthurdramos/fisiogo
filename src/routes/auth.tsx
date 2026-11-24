@@ -160,7 +160,7 @@ function AuthPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="voce@clinica.com"
+                placeholder="voce@fisio.com"
               />
             </div>
             <div className="space-y-2">
@@ -182,7 +182,6 @@ function AuthPage() {
                   <Input
                     id="nome"
                     type="text"
-                    required
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Seu nome completo"
