@@ -53,7 +53,6 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">(modeParam === "signup" ? "signup" : "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nome, setNome] = useState("");
   const [lgpdAceite, setLgpdAceite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [installPlatform, setInstallPlatform] = useState(installSteps[0].platform);
@@ -80,7 +79,9 @@ function AuthPage() {
           options: {
             emailRedirectTo: window.location.origin + "/app",
             data: {
-              nome,
+              // Nome não é mais pedido no cadastro (menos fricção) — é
+              // coletado depois, em completar-perfil.tsx.
+              nome: "",
               lgpd_aceite: true,
               // Cópia da origem caso o email seja confirmado em outro aparelho.
               attribution: getAttribution(),
@@ -177,16 +178,6 @@ function AuthPage() {
 
             {mode === "signup" && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="nome">Nome completo</Label>
-                  <Input
-                    id="nome"
-                    type="text"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    placeholder="Seu nome completo"
-                  />
-                </div>
                 <div className="flex items-start gap-2">
                   <Checkbox
                     id="lgpd"
