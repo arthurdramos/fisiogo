@@ -59,6 +59,7 @@ function AuthPage() {
   const [lgpdAceite, setLgpdAceite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [installPlatform, setInstallPlatform] = useState(installSteps[0].platform);
 
   useEffect(() => {
@@ -66,6 +67,27 @@ function AuthPage() {
       if (data.session) navigate({ to: "/app" });
     });
   }, [navigate]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
+
+  const handleResend = async () => {
+    if (!awaitingConfirmation) return;
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: awaitingConfirmation,
+      options: { emailRedirectTo: window.location.origin + "/app" },
+    });
+    if (error) {
+      toast.error(translateAuthError(error.message));
+      return;
+    }
+    toast.success("Email reenviado.");
+    setResendCooldown(60);
+  };
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +126,10 @@ function AuthPage() {
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error?.message === "Email not confirmed") {
+          setAwaitingConfirmation(email);
+          return;
+        }
         if (error) throw error;
         navigate({ to: "/app" });
       }
@@ -145,10 +171,22 @@ function AuthPage() {
                 <span className="font-medium text-foreground">{awaitingConfirmation}</span>. Abra o
                 email e clique no link para começar a usar o FisioGO.
               </p>
+              <p className="mt-4 text-xs text-muted-foreground">
+                Não chegou? Confira a caixa de spam ou peça um novo link.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3 w-full"
+                onClick={handleResend}
+                disabled={resendCooldown > 0}
+              >
+                {resendCooldown > 0 ? `Reenviar em ${resendCooldown}s` : "Reenviar email"}
+              </Button>
               <button
                 type="button"
                 onClick={() => setAwaitingConfirmation(null)}
-                className="mt-6 text-sm font-medium text-app-blue-600 hover:underline"
+                className="mt-4 text-sm font-medium text-app-blue-600 hover:underline"
               >
                 Usar outro email
               </button>
