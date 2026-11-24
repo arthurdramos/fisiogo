@@ -88,7 +88,8 @@ export const Route = createFileRoute("/_authenticated")({
     if (
       location.pathname === "/assinatura" ||
       location.pathname === "/assinatura/confirmado" ||
-      location.pathname === "/completar-perfil"
+      location.pathname === "/completar-perfil" ||
+      location.pathname === "/admin"
     ) {
       return { user: data.user, profileComplete };
     }

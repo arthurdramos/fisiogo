@@ -50,6 +50,13 @@
       "when": 1795117567169,
       "tag": "0006_auth_email_recipient_name",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795532367465,
+      "tag": "0007_admin_dashboard",
+      "breakpoints": true
     }
   ]
 }
