@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { getAttribution } from "@/lib/attribution";
+import { loadClarity } from "@/lib/clarity";
 import { installSteps } from "@/lib/pwa-install-steps";
 import { PwaHomeScreenMockup } from "@/components/pwa-home-screen-mockup";
 
@@ -63,6 +64,7 @@ function AuthPage() {
   const [installPlatform, setInstallPlatform] = useState(installSteps[0].platform);
 
   useEffect(() => {
+    loadClarity();
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/app" });
     });

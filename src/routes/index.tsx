@@ -20,6 +20,7 @@ import {
   Plus,
 } from "lucide-react";
 import { installSteps } from "@/lib/pwa-install-steps";
+import { loadClarity } from "@/lib/clarity";
 
 const TITLE = "FisioGO — Gestão simples para fisioterapeutas autônomos";
 const DESCRIPTION =
@@ -182,6 +183,7 @@ function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
+    loadClarity();
     // O login com Google redireciona de volta pra essa página com os tokens
     // na hash da URL (#access_token=...), não direto pro /app. Enquanto isso
     // não processa, escondemos o conteúdo de marketing por trás de um

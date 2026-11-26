@@ -1,7 +1,24 @@
-import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  Link,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Users, Calendar, Wallet, CreditCard, UserCog, LogOut, Menu, Mail } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  Wallet,
+  CreditCard,
+  UserCog,
+  LogOut,
+  Menu,
+  Mail,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useQueryClient } from "@tanstack/react-query";
@@ -44,7 +61,8 @@ export const Route = createFileRoute("/_authenticated")({
       });
       // value/currency = preço do plano mensal (assinatura.tsx) — a Meta pede
       // isso em eventos StartTrial pra estimar ROAS, mesmo sem cobrança ainda.
-      if (ensureRes?.created) trackMetaEvent("StartTrial", eventId, { value: 29.9, currency: "BRL" });
+      if (ensureRes?.created)
+        trackMetaEvent("StartTrial", eventId, { value: 29.9, currency: "BRL" });
       sub = await fetchSub();
     }
 
@@ -71,8 +89,7 @@ export const Route = createFileRoute("/_authenticated")({
       profile = await fetchProfile();
     }
 
-    const profileComplete =
-      !!profile?.nome && !!profile?.lgpd_aceite_em;
+    const profileComplete = !!profile?.nome && !!profile?.lgpd_aceite_em;
 
     // Evita loop de redirecionamento: a própria tela de completar cadastro não exige perfil completo.
     if (!profileComplete && location.pathname !== "/completar-perfil") {
@@ -127,7 +144,13 @@ function AuthedLayout() {
   // variáveis CSS de ancestrais reais no DOM.
   useEffect(() => {
     document.body.classList.add("app-theme");
-    return () => document.body.classList.remove("app-theme");
+    // Se o Clarity veio carregado da landing/auth (navegação SPA), mascara
+    // tudo daqui pra dentro — no <body> pra cobrir dialogs em portal também.
+    document.body.setAttribute("data-clarity-mask", "True");
+    return () => {
+      document.body.classList.remove("app-theme");
+      document.body.removeAttribute("data-clarity-mask");
+    };
   }, []);
 
   const signOut = async () => {
