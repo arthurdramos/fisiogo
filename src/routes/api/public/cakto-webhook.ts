@@ -23,7 +23,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const PLAN_LABEL: Record<string, string> = { mensal: "Mensal", anual: "Anual" };
-const PLAN_PRICE: Record<string, string> = { mensal: "29,90", anual: "299,00" };
 
 // E-mail nosso de confirmação de pagamento — a Cakto já manda o recibo dela,
 // esse é só pra reforçar a marca e confirmar que o acesso está liberado.
@@ -32,16 +31,14 @@ const PLAN_PRICE: Record<string, string> = { mensal: "29,90", anual: "299,00" };
 function buildPaymentConfirmedEmail(nome: string | null, plano: string | undefined, nextPaymentDate?: string) {
   const saudacao = nome ? `Olá, ${nome}!` : "Olá!";
   const planoLabel = (plano && PLAN_LABEL[plano]) || "FisioGO";
-  const valor = plano ? PLAN_PRICE[plano] : undefined;
 
+  // Sem valor: com cupom (ex: Black Friday) o preço pago difere da tabela.
   let proximaCobranca = "";
   if (nextPaymentDate) {
     const d = new Date(nextPaymentDate);
     if (!Number.isNaN(d.getTime())) {
       const dataFormatada = d.toLocaleDateString("pt-BR", { timeZone: "UTC" });
-      proximaCobranca = valor
-        ? `Próxima cobrança: ${dataFormatada} · R$ ${valor}\n\n`
-        : `Próxima cobrança: ${dataFormatada}\n\n`;
+      proximaCobranca = `Próxima cobrança: ${dataFormatada}\n\n`;
     }
   }
 
